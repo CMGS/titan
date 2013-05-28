@@ -3,6 +3,7 @@
 
 from datetime import datetime
 from utils.token import create_token
+from sqlalchemy.dialects.mysql import BIT
 from flask.ext.sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -75,5 +76,28 @@ class Team(db.Model):
     def update_repos(self, num):
         self.repos = self.repos + num
         db.session.add(self)
+        db.session.commit()
+
+class Members(db.Model):
+    __tablename__ = 'members'
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    oid = db.Column(db.Integer, index=True, nullable=False)
+    uid = db.Column(db.Integer, index=True, nullable=False)
+    admin = db.Column(BIT(1), nullable=False, default=0)
+    join = db.Column(db.DateTime, default=datetime.now)
+
+    def __init__(self, oid, uid):
+        self.oid = oid
+        self.uid = uid
+
+    @staticmethod
+    def create(oid, uid):
+        members = Members(oid, uid)
+        db.session.add(members)
+        db.session.commit()
+        return members
+
+    def delete(self):
+        db.session.delete(self)
         db.session.commit()
 
