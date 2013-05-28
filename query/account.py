@@ -21,6 +21,10 @@ def get_user(uid):
 def get_user_by_domain(domain):
     return get_user_by(domain=domain).limit(1).first()
 
+@cache('account:{stub}', 300)
+def get_forget_by_stub(stub):
+    return Forget.query.filter_by(stub=stub).first()
+
 def get_user_by(**kw):
     return User.query.filter_by(**kw)
 
