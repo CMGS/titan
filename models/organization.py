@@ -80,6 +80,7 @@ class Team(db.Model):
 
 class Members(db.Model):
     __tablename__ = 'members'
+    __table_args__ = (db.UniqueConstraint('oid', 'uid', name='uix_oid_uid'), )
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     oid = db.Column(db.Integer, index=True, nullable=False)
     uid = db.Column(db.Integer, index=True, nullable=False)
