@@ -4,6 +4,7 @@
 __all__ = ['db', 'User', 'Forget', \
         'init_account_db']
 
+import config
 import hashlib
 from datetime import datetime
 from utils.token import create_token
@@ -65,6 +66,11 @@ class User(db.Model):
         self.domain = domain
         db.session.add(self)
         db.session.commit()
+
+    def avatar(self, size=48):
+        md5email = hashlib.md5(self.email).hexdigest()
+        query = "%s?s=%s%s" % (md5email, size, config.GRAVATAR_EXTRA)
+        return '%s%s' % (config.GRAVATAR_BASE_URL, query)
 
 class Forget(db.Model):
     __tablename__ = 'forget'
