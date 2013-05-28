@@ -21,6 +21,8 @@ class Setting(MethodView):
         username = request.form.get('name', None)
         password = request.form.get('password', None)
         domain = request.form.get('domain', None)
+        city = request.form.get('city', '')
+        title = request.form.get('title', '')
 
         if username != user.name:
             status = check_username(username)
@@ -39,6 +41,10 @@ class Setting(MethodView):
             if status:
                 return render_template('account.setting.html', error=status[1])
             user.change_password(password)
+
+        user.set_args('city', city)
+        user.set_args('title', title)
+
         #clear cache
         clear_user_cache(user)
         account_login(user)

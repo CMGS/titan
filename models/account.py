@@ -21,9 +21,12 @@ class User(db.Model):
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.CHAR(16), nullable=False)
     passwd = db.Column(db.CHAR(50), nullable=False)
-    domain = db.Column(db.String(10), unique=True)
+    domain = db.Column(db.String(20), unique=True)
     email = db.Column(db.String(200), nullable=False, unique=True)
     token = db.Column(db.CHAR(16))
+    city = db.Column(db.String(150))
+    title = db.Column(db.String(150))
+    join = db.Column(db.DateTime, default=datetime.now)
 
     def __init__(self, username, password, email):
         self.name = username
@@ -64,6 +67,11 @@ class User(db.Model):
 
     def set_domain(self, domain):
         self.domain = domain
+        db.session.add(self)
+        db.session.commit()
+
+    def set_args(self, key, value):
+        setattr(self, key, value)
         db.session.add(self)
         db.session.commit()
 
