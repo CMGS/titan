@@ -21,9 +21,17 @@ def get_user(uid):
 def get_user_by_domain(domain):
     return get_user_by(domain=domain).limit(1).first()
 
+@cache('account:{email}', 86400)
+def get_user_by_email(email):
+    return get_user_by(email=email).limit(1).first()
+
 @cache('account:{stub}', 300)
 def get_forget_by_stub(stub):
     return Forget.query.filter_by(stub=stub).first()
+
+@cache('account:forget:{uid}', 300)
+def check_uid_exists(uid):
+    return Forget.query.filter_by(uid=uid).first()
 
 def get_user_by(**kw):
     return User.query.filter_by(**kw)
@@ -39,6 +47,13 @@ def get_current_user():
 def clear_user_cache(user):
     keys = ['account:%s' % key for key in [str(user.id), user.domain, user.email]]
     backend.delete_many(*keys)
+
+def clear_forget_stub(forget):
+    if not forget:
+        return
+    forget.delete()
+    backend.delete('account:%s' % forget.stub)
+    backend.delete('account:forget:{uid}'.format(uid=forget.uid))
 
 create_forget = Forget.create
 create_user = User.create

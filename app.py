@@ -14,10 +14,11 @@ from sheep.api.sessions import SessionMiddleware, \
     FilesystemSessionStore
 
 from flaskext.csrf import csrf
-from flask import Flask, request, g
+from flask import Flask, request, g, render_template
 
 app = Flask(__name__)
 app.debug = config.DEBUG
+app.secret_key = config.SECRET_KEY
 app.jinja_env.filters['s_files'] = static_files
 app.jinja_env.filters['u_files'] = upload_files
 
@@ -42,10 +43,10 @@ app.wsgi_app = SessionMiddleware(app.wsgi_app, \
 
 @app.route('/')
 def index():
-    return 'Hello World'
+    return render_template('index.html')
 
 @app.before_request
 def before_request():
-    g.session = request.environ.get(config.SESSION_COOKIE_DOMAIN)
+    g.session = request.environ.get(config.SESSION_ENVIRON_KEY)
     g.current_user = get_current_user()
 

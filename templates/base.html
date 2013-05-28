@@ -1,0 +1,88 @@
+{% import '/common/nav-bar.html' as navbar %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, user-scalable=0">
+    <title>Titan {% block subtitle %}{% endblock %}</title>
+    <link href="{{ '/static/css/bootstrap.min.css' | s_files }}" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+
+      @media (max-width: 980px) {
+        /* Enable use of floated navbar text */
+        .navbar-text.pull-right {
+          float: none;
+          padding-left: 5px;
+          padding-right: 5px;
+        }
+      }
+    </style>
+    <link href="{{ '/static/css/bootstrap-responsive.css' | s_files }}" rel="stylesheet">
+    <script src="{{ '/static/js/jquery.min.js' | s_files }}"></script>
+    <script src="{{ '/static/js/bootstrap.min.js' | s_files }}"></script>
+    {% block add_js %}
+    {% endblock %}
+  </head>
+  <body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="/">Titan</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+                {% block nav %}
+                    {{ navbar.nav('dashboard') }}
+                {% endblock %}
+            </ul>
+            {% if not g.current_user %}
+            <form class="navbar-form pull-right" method="POST" action="{{ url_for('account.login') }}">
+                <input class="span2" name="email" type="text" placeholder="Email">
+                <input class="span2" name="password" type="password" placeholder="Password">
+                <button type="submit" class="btn">Sign in</button>
+            </form>
+            {% else %}
+            <ul class="nav pull-right">
+                <li>
+                    {% if g.current_user.domain %}
+                    <a href="#">
+                    {% else %}
+                    <a href="#">
+                    {% endif %}
+                    {{ g.current_user.name }}
+                </a>
+                </li>
+                <li class="divider-vertical"></li>
+                <li><a href="{{ url_for('account.logout') }}">Logout</a></li>
+            </ul>
+            {% endif %}
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+        {% block content %}
+        {% endblock %}
+        <hr>
+        <footer>
+            <p>&copy; Titan 2013</p>
+        </footer>
+    </div>
+  </body>
+</html>
+

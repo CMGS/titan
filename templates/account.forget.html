@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block add_js %}
+<style>
+.form-forget {
+  max-width: 300px;
+  padding: 19px 29px 29px;
+  margin: 0 auto 20px;
+  -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+          border-radius: 5px;
+}
+.form-forget .form-forget-heading,
+.form-forget .checkbox {
+  margin-bottom: 10px;
+}
+.form-forget input[type="text"],
+.form-forget input[type="password"] {
+  font-size: 16px;
+  height: auto;
+  margin-bottom: 15px;
+  padding: 7px 9px;
+}
+</style>
+{% endblock %}
+{% block content %}
+<form class="form-forget" method="POST" action="{{ url_for('account.forget') }}">
+    <h2 class="form-forget-heading">Reset password</h2>
+    {% if error %}
+    <div class="alert alert-error">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      {{ error }}
+    </div>
+    {% endif %}
+    {% if send %}
+    <div class="alert">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      Please check your reset email.
+    </div>
+    {% endif %}
+    <input name="email" type="text" class="input-block-level" placeholder="Email address">
+    <button class="btn btn-large btn-primary" type="submit">Submit</button>
+</form>
+{% endblock %}
+{% block subtitle %}Find Password{% endblock %}

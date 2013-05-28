@@ -4,8 +4,7 @@
 import logging
 
 from flask.views import MethodView
-from flask import redirect, request, url_for, session, \
-        render_template
+from flask import redirect, request, url_for, render_template
 
 from utils.account import login_required, account_login, \
         account_logout
@@ -26,13 +25,10 @@ class Register(MethodView):
         check, error = check_register_info(username, email, password)
         if not check:
             return render_template('account.register.html', error=error)
-        oauth = session.pop('from_oauth', None)
         user = create_user(username, password, email)
         #clear cache
         clear_user_cache(user)
         account_login(user)
-        if oauth:
-            oauth.bind(user.id)
         return redirect(url_for('index'))
 
 class Login(MethodView):

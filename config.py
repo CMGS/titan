@@ -2,6 +2,7 @@
 #coding:utf-8
 
 DEBUG = False
+SECRET_KEY = 'sheep!@$titan!#$%^'
 
 DATABASE_URI = 'mysql://'
 

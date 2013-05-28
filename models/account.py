@@ -69,7 +69,7 @@ class User(db.Model):
 class Forget(db.Model):
     __tablename__ = 'forget'
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
-    uid = db.Column('uid', db.Integer, nullable=False, index=True)
+    uid = db.Column('uid', db.Integer, nullable=False, unique=True)
     stub = db.Column('stub', db.CHAR(20), nullable=False, unique=True)
     created = db.Column(db.DateTime, default=datetime.now)
 

@@ -1,0 +1,5 @@
+{% macro nav(current='dashboard') -%}
+<li class="{% if current == 'dashboard' %} active {% endif %}">
+  <a href="/">Dashboard</a>
+</li>
+{%- endmacro %}
