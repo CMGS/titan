@@ -37,7 +37,7 @@ def async_send_mail(email, title, content):
             send_email(email, title, content)
         except Exception:
             logger.exception('send mail failed')
-    gevent.spawn(_send, args=(email, title, content, ))
+    gevent.spawn(_send)
 
 if __name__ == '__main__':
     from jinja2 import Environment, FileSystemLoader

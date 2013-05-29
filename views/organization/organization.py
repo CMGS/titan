@@ -12,6 +12,7 @@ from utils import code
 from utils.mail import async_send_mail
 from utils.validators import check_name
 from utils.account import login_required
+from query.account import get_user_by_email
 from query.organization import create_organization, create_members, \
         get_member, get_organization, clear_organization_cache
 
@@ -46,8 +47,10 @@ class Invite(MethodView):
         member = self.check_member(oid)
         organization = get_organization(member.oid)
         emails = set(request.form.getlist('email'))
-        # TODO send_email
+        # TODO clean user
         for email in emails:
+            if not email or self.is_member(oid, email):
+                continue
             m = hashlib.new('md5', '%s%s' % (email, organization.token))
             token = '%s%s' % (organization.token, m.hexdigest())
             url = url_for('account.register', token=token, _external=True)
@@ -60,6 +63,16 @@ class Invite(MethodView):
         if not member or not member.admin:
             raise abort(403)
         return member
+
+    def is_member(self, oid, email):
+        user = get_user_by_email(email)
+        if not user:
+            return False
+        member = get_member(oid, user.id)
+        if member:
+            return True
+        return False
+
 
 class View(MethodView):
     decorators = [login_required('account.login')]
