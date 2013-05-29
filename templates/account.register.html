@@ -34,6 +34,7 @@
     <input name="name" type="text" class="input-block-level" placeholder="Display name">
     <input name="email" type="text" class="input-block-level" placeholder="Email address">
     <input name="password" type="password" class="input-block-level" placeholder="Password">
+    <input type="hidden" name="token" value="{{ token }}">
     <button class="btn btn-large btn-primary" type="submit">Sign up</button>
 </form>
 {% endblock %}

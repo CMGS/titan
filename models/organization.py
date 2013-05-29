@@ -20,7 +20,7 @@ class Organization(db.Model):
     teams = db.Column(db.Integer, nullable=False, default=0)
     members = db.Column(db.Integer, nullable=False, default=0)
     location = db.Column(db.String(200))
-    plan = db.Column(db.Integer, default=0, nullable=False)
+    plan = db.Column(db.Integer, default=1, nullable=False)
     balance = db.Column(db.Float, default=0.0, nullable=False)
     token = db.Column(db.CHAR(8), unique=True, nullable=False)
     create = db.Column(db.DateTime, default=datetime.now)

@@ -3,6 +3,7 @@
 
 # TODO refactor
 import re
+import config
 
 def check_password(password):
     if not password:
@@ -88,4 +89,25 @@ def check_name(name):
         name = unicode(name, 'utf-8')
     if not re.search(ur'^[\u4e00-\u9fa5\w]{1,30}$', name, re.I):
         return False, 'name invail'
+
+def check_org_token(token):
+    l = len(token)
+    if l != 8 or l != 40:
+        return False
+    org_token, reg_token = token[:8], token[8:]
+    from query.organization import get_org_by_token
+    organization = get_org_by_token(org_token)
+    if not organization or (l == 8 and organization.members > 0):
+        return False
+
+    return check_org_plan(organization)
+
+def check_org_plan(organization):
+    # TODO 计算有多少人了
+    if organization.plan == 0:
+        return True
+    elif organization.members < config.PLAN(organization.plan):
+        return True
+    else:
+        return False
 

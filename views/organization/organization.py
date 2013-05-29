@@ -46,9 +46,9 @@ class Invite(MethodView):
         emails = request.form.get('email')
         # TODO send_email
         for email in emails:
-            m = hashlib.new('md5')
-            m.update('%s%s' % (email, organization.token))
-            url = url_for('account.register', token=m.hexdigest(), _external=True)
+            m = hashlib.new('md5', '%s%s' % (email, organization.token))
+            token = '%s%s' % (organization.token, m.hexdigest())
+            url = url_for('account.register', token=token, _external=True)
             content = render_template('email.invite.html', user=g.current_user, organization=organization, url=url)
             async_send_email(email, code.EMAIL_INVITE_TITLE, content)
         return render_template('organization.invite.html', send=1)
