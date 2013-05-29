@@ -53,9 +53,9 @@ class Register(MethodView):
 
     def bind(self):
         org_token, reg_token = self.get_token()
+        recv_email = request.form.get('recv_email', None)
         if g.current_user:
             user = g.current_user
-            recv_email = request.form.get('recv_email', None)
         else:
             password = request.form.get('password', None)
             email = request.form.get('email', None)
