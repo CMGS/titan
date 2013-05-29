@@ -45,20 +45,20 @@ class Invite(MethodView):
     def post(self, oid):
         member = self.check_member(oid)
         organization = get_organization(member.oid)
-        emails = request.form.get('email')
+        emails = request.form.getlist('email')
         # TODO send_email
         for email in emails:
             m = hashlib.new('md5', '%s%s' % (email, organization.token))
             token = '%s%s' % (organization.token, m.hexdigest())
             url = url_for('account.register', token=token, _external=True)
-            content = render_template('email.invite.html', user=g.current_user, organization=organization, url=url)
+            content = render_template('email.invite.html', organization=organization, url=url)
             async_send_mail(email, code.EMAIL_INVITE_TITLE, content)
         return render_template('organization.invite.html', send=1)
 
     def check_member(self, oid):
         member = get_member(oid, g.current_user.id)
         if not member or not member.admin:
-            raise abort(404)
+            raise abort(403)
         return member
 
 class View(MethodView):

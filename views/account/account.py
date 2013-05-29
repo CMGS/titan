@@ -8,7 +8,7 @@ from flask.views import MethodView
 from flask import redirect, request, url_for, render_template, \
         abort
 
-import code
+from utils import code
 from utils.account import login_required, account_login, \
         account_logout
 from utils.validators import check_register_info, check_login_info, \

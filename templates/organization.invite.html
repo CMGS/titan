@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block add_js %}
+<style>
+.form-invite {
+  max-width: 500px;
+  padding: 19px 29px 29px;
+  margin: 0 auto 20px;
+  -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+          border-radius: 5px;
+}
+.form-invite .form-invite-heading,
+.form-invite .checkbox {
+  margin-bottom: 10px;
+}
+.form-invite input[type="text"] {
+  font-size: 16px;
+  height: auto;
+  margin-bottom: 15px;
+  padding: 7px 9px;
+}
+</style>
+{% endblock %}
+{% block content %}
+<form class="form-invite" method="POST">
+    <h2 class="form-invite-heading">Invite members</h2>
+    {% if send %}
+    <div class="alert">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      Please ask your members check their email.
+    </div>
+    {% endif %}
+    <input name="email" type="text" class="input-block-level" placeholder="email">
+    <input name="email" type="text" class="input-block-level" placeholder="email">
+    <input name="email" type="text" class="input-block-level" placeholder="email">
+    <input name="email" type="text" class="input-block-level" placeholder="email">
+    <input name="email" type="text" class="input-block-level" placeholder="email">
+    <input name="email" type="text" class="input-block-level" placeholder="email">
+    <input name="email" type="text" class="input-block-level" placeholder="email">
+    <input name="email" type="text" class="input-block-level" placeholder="email">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <button class="btn btn-large btn-primary" type="submit">Submit</button>
+</form>
+{% endblock %}
+{% block subtitle %}Organization register{% endblock %}
+
