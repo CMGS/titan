@@ -23,7 +23,7 @@
 </style>
 {% endblock %}
 {% block content %}
-<form class="form-signin" method="POST" action="{{ url_for('account.login') }}">
+<form class="form-signin" method="POST">
     <h2 class="form-signin-heading">Please sign in</h2>
     {% if login_info %}
     <div class="alert alert-error">

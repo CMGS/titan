@@ -50,7 +50,7 @@
                 {% endblock %}
             </ul>
             {% if not g.current_user %}
-            <form class="navbar-form pull-right" method="POST" action="{{ url_for('account.login') }}">
+            <form class="navbar-form pull-right" method="POST">
                 <input class="span2" name="email" type="text" placeholder="Email">
                 <input class="span2" name="password" type="password" placeholder="Password">
                 <button type="submit" class="btn">Sign in</button>
