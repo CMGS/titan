@@ -1,6 +1,7 @@
 #!/usr/local/bin/python2.7
 #coding:utf-8
 
+# TODO refactor
 import re
 
 def check_password(password):
@@ -79,4 +80,12 @@ def check_login_info(email, password):
             continue
         return status
     return True, None
+
+def check_name(name):
+    if not name:
+        return False, 'need name'
+    if not isinstance(name, unicode):
+        name = unicode(name, 'utf-8')
+    if not re.search(ur'^[\u4e00-\u9fa5\w]{1,30}$', name, re.I):
+        return False, 'name invail'
 

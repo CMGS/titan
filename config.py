@@ -18,7 +18,6 @@ SMTP_USER = 'service@xiaomen.co'
 SMTP_PASSWORD = 'xiaomenkou!@#$%^'
 
 FORGET_STUB_EXPIRE = 30*60
-FORGET_EMAIL_TITLE = '取回密码'
 
 GRAVATAR_BASE_URL = 'http://www.gravatar.com/avatar/'
 GRAVATAR_EXTRA = ''

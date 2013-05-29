@@ -17,6 +17,7 @@ class Organization(db.Model):
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.CHAR(30), nullable=False)
     repos = db.Column(db.Integer, nullable=False, default=0)
+    teams = db.Column(db.Integer, nullable=False, default=0)
     members = db.Column(db.Integer, nullable=False, default=0)
     location = db.Column(db.String(200))
     plan = db.Column(db.Integer, default=0, nullable=False)
@@ -52,6 +53,11 @@ class Organization(db.Model):
 
     def update_members(self, num):
         self.members = self.members + num
+        db.session.add(self)
+        db.session.commit()
+
+    def update_teams(self, num):
+        self.teams = self.teams + num
         db.session.add(self)
         db.session.commit()
 
@@ -98,13 +104,19 @@ class Members(db.Model):
         self.uid = uid
 
     @staticmethod
-    def create(oid, uid):
+    def create(oid, uid, admin=0):
         members = Members(oid, uid)
+        members.admin = admin
         db.session.add(members)
         db.session.commit()
         return members
 
     def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def set_as_admin(self):
+        self.admin = 1
         db.session.delete(self)
         db.session.commit()
 
