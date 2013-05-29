@@ -35,7 +35,7 @@ class Register(MethodView):
             clear_organization_cache(organization, g.current_user)
             return redirect(url_for('organization.view', oid=organization.id))
 
-        return url_for('account.register', token=organization.token)
+        return redirect(url_for('account.register', token=organization.token))
 
 class Invite(MethodView):
     decorators = [login_required('account.login')]
