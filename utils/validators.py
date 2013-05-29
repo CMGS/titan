@@ -92,9 +92,12 @@ def check_name(name):
 
 def check_org_token(token):
     l = len(token)
-    if l != 8 or l != 40:
+    if l != 8 and l != 40:
         return False
-    org_token, reg_token = token[:8], token[8:]
+    if l == 8:
+        org_token, reg_token = token, ''
+    else:
+        org_token, reg_token = token[:8], token[8:]
     from query.organization import get_org_by_token
     organization = get_org_by_token(org_token)
     if not organization or (l == 8 and organization.members > 0):
@@ -106,7 +109,7 @@ def check_org_plan(organization):
     # TODO 计算有多少人了
     if organization.plan == 0:
         return True
-    elif organization.members < config.PLAN(organization.plan):
+    elif organization.members < config.PLAN[organization.plan]:
         return True
     else:
         return False

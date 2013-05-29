@@ -22,11 +22,11 @@ logger = logging.getLogger(__name__)
 class Register(MethodView):
     decorators = [login_required(need=False)]
     def get(self):
-        token = self.get_token()
-        return render_template('account.register.html', token=token)
+        self.get_token()
+        return render_template('account.register.html')
 
     def post(self):
-        reg_type = request.form.get('type', None)
+        reg_type = request.form.get('regtype', None)
         if reg_type == 'new':
             return self.new_register()
         elif reg_type == 'bind':
@@ -37,7 +37,7 @@ class Register(MethodView):
     def get_token(self):
         token = request.args.get('token')
         if not token or not check_org_token(token):
-            raise abort(404)
+            raise abort(403)
         if len(token) == 8:
             return token, ''
         return token[:8], token[8:]
@@ -79,15 +79,16 @@ class Register(MethodView):
         # clear cache
         clear_user_cache(user)
         account_login(user)
-        self.join_organization(org_token, reg_token, user)
-        return redirect(url_for('index'))
+        organization = self.join_organization(org_token, reg_token, user)
+        return redirect(url_for('organization.view', oid=organization.id))
 
     def join_organization(self, org_token, reg_token, user):
         organization = get_org_by_token(org_token)
         admin = 1 if not reg_token else 0
-        create_members(organization.id, user, admin)
+        create_members(organization.id, user.id, admin)
         organization.update_members(1)
         clear_organization_cache(organization, user)
+        return organization
 
     def check_vaild(self, org_token, reg_token, email):
         m = hashlib.new('md5', '%s%s' % (email, org_token))
