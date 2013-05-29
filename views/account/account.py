@@ -20,7 +20,6 @@ from query.organization import get_org_by_token, create_members, \
 logger = logging.getLogger(__name__)
 
 class Register(MethodView):
-    decorators = [login_required(need=False)]
     def get(self):
         self.get_token()
         return render_template('account.register.html')
