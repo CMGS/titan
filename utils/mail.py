@@ -3,7 +3,11 @@
 
 import email
 import config
+import gevent
 import smtplib
+import logging
+
+logger = logging.getLogger(__name__)
 
 def send_email(to_add, subject, html, from_add=config.SMTP_USER):
     if isinstance(to_add, list):
@@ -26,6 +30,14 @@ def send_email(to_add, subject, html, from_add=config.SMTP_USER):
     smtp.login(config.SMTP_USER, config.SMTP_PASSWORD)
     smtp.sendmail(from_add, to_add, msg_root.as_string())
     smtp.quit()
+
+def async_send_mail(email, title, content):
+    def _send():
+        try:
+            send_email(email, title, content)
+        except Exception:
+            logger.exception('send mail failed')
+    gevent.spawn(_send, args=(email, title, content, ))
 
 if __name__ == '__main__':
     from jinja2 import Environment, FileSystemLoader

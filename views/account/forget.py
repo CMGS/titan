@@ -1,8 +1,6 @@
 #!/usr/local/bin/python2.7
 #coding:utf-8
 
-# TODO 所以必须用async
-import gevent
 import logging
 from datetime import datetime
 
@@ -12,7 +10,7 @@ from flask import redirect, request, url_for, \
 
 import config
 from utils import code
-from utils.mail import send_email
+from utils.mail import async_send_mail
 from utils.token import create_token
 from utils.account import login_required
 from utils.validators import check_email, check_password
@@ -41,14 +39,7 @@ class Forget(MethodView):
         if user and not check_uid_exists(user.id):
             stub = create_token(20)
             content = render_template('email.forget.html', user=user, stub=stub)
-            def _send():
-                try:
-                    send_email(user.email, \
-                        config.FORGET_EMAIL_TITLE, \
-                        content)
-                except Exception:
-                    logger.exception("send mail failed")
-            gevent.spawn(_send)
+            async_send_mail(user.email, config.FORGET_EMAIL_TITLE, content)
             create_forget(user.id, stub)
         return render_template('account.forget.html', send=1)
 
