@@ -23,6 +23,7 @@
 </style>
 {% endblock %}
 {% block content %}
+{% if not g.current_user %}
 <form class="form-signup" method="POST">
     <h2 class="form-signup-heading">Please sign in</h2>
     {% if error %}
@@ -37,5 +38,19 @@
     <input type="hidden" name="regtype" value="new">
     <button class="btn btn-large btn-primary" type="submit">Sign up</button>
 </form>
+{% else %}
+<form class="form-signup" method="POST">
+    <h2 class="form-signup-heading">Join {{ organization.name }}</h2>
+    {% if error %}
+    <div class="alert alert-error">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      {{ error }}
+    </div>
+    {% endif %}
+    <input name="email" type="text" class="input-block-level" placeholder="Receive Email">
+    <input type="hidden" name="regtype" value="bind">
+    <button class="btn btn-large btn-primary" type="submit">Join</button>
+</form>
+{% endif %}
 {% endblock %}
 {% block subtitle %}Sign up{% endblock %}

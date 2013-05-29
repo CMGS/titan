@@ -6,7 +6,7 @@ import logging
 
 from flask.views import MethodView
 from flask import redirect, request, url_for, render_template, \
-        abort
+        abort, g
 
 from utils import code
 from utils.account import login_required, account_login, \
@@ -15,14 +15,16 @@ from utils.validators import check_register_info, check_login_info, \
         check_org_token
 from query.account import create_user, get_user_by, clear_user_cache
 from query.organization import get_org_by_token, create_members, \
-        clear_organization_cache
+        clear_organization_cache, get_member
 
 logger = logging.getLogger(__name__)
 
 class Register(MethodView):
     def get(self):
-        self.get_token()
-        return render_template('account.register.html')
+        organization = get_org_by_token(self.get_token()[0])
+        if self.is_member(organization.id):
+            return redirect(url_for('organization.view', oid=organization.id))
+        return render_template('account.register.html', organization=organization)
 
     def post(self):
         reg_type = request.form.get('regtype', None)
@@ -32,6 +34,14 @@ class Register(MethodView):
             return self.bind()
         else:
             raise abort(404)
+
+    def is_member(self, oid):
+        if not g.current_user:
+            return False
+        member = get_member(oid, g.current_user.id)
+        if member:
+            return True
+        return False
 
     def get_token(self):
         token = request.args.get('token')
