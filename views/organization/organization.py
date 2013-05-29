@@ -9,7 +9,7 @@ from flask import g, redirect, request, url_for, render_template, \
         abort
 
 from utils import code
-from utils.mail import async_send_email
+from utils.mail import async_send_mail
 from utils.validators import check_name
 from utils.account import login_required
 from query.organization import create_organization, create_members, \
@@ -50,7 +50,7 @@ class Invite(MethodView):
             token = '%s%s' % (organization.token, m.hexdigest())
             url = url_for('account.register', token=token, _external=True)
             content = render_template('email.invite.html', user=g.current_user, organization=organization, url=url)
-            async_send_email(email, code.EMAIL_INVITE_TITLE, content)
+            async_send_mail(email, code.EMAIL_INVITE_TITLE, content)
         return render_template('organization.invite.html', send=1)
 
     def check_member(self, oid):
