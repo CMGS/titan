@@ -39,7 +39,7 @@ class Forget(MethodView):
         if user and not check_uid_exists(user.id):
             stub = create_token(20)
             content = render_template('email.forget.html', user=user, stub=stub)
-            async_send_mail(user.email, config.FORGET_EMAIL_TITLE, content)
+            async_send_mail(user.email, code.EMAIL_FORGET_TITLE, content)
             create_forget(user.id, stub)
         return render_template('account.forget.html', send=1)
 
