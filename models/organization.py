@@ -17,6 +17,7 @@ class Organization(db.Model):
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.CHAR(30), nullable=False)
     repos = db.Column(db.Integer, nullable=False, default=0)
+    members = db.Column(db.Integer, nullable=False, default=0)
     location = db.Column(db.String(200))
     plan = db.Column(db.Integer, default=0, nullable=False)
     balance = db.Column(db.Float, default=0.0, nullable=False)
@@ -46,6 +47,11 @@ class Organization(db.Model):
 
     def update_repos(self, num):
         self.repos = self.repos + num
+        db.session.add(self)
+        db.session.commit()
+
+    def update_members(self, num):
+        self.members = self.members + num
         db.session.add(self)
         db.session.commit()
 

@@ -40,7 +40,7 @@ class Forget(MethodView):
         user = get_user_by_email(email=email)
         if user and not check_uid_exists(user.id):
             stub = create_token(20)
-            content = render_template('forget.email.html', user=user, stub=stub)
+            content = render_template('email.forget.html', user=user, stub=stub)
             def _send():
                 try:
                     send_email(user.email, \
