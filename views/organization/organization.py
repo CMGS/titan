@@ -45,7 +45,7 @@ class Invite(MethodView):
     def post(self, oid):
         member = self.check_member(oid)
         organization = get_organization(member.oid)
-        emails = request.form.getlist('email')
+        emails = set(request.form.getlist('email'))
         # TODO send_email
         for email in emails:
             m = hashlib.new('md5', '%s%s' % (email, organization.token))
