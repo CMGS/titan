@@ -84,9 +84,9 @@ class Register(MethodView):
 
     def join_organization(self, org_token, reg_token, user):
         organization = get_org_by_token(org_token)
-        organization.update_members(1)
         admin = 1 if not reg_token else 0
         create_members(organization.id, user, admin)
+        organization.update_members(1)
         clear_organization_cache(organization, user)
 
     def check_vaild(self, org_token, reg_token, email):

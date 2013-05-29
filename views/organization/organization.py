@@ -13,7 +13,7 @@ from utils.mail import async_send_mail
 from utils.validators import check_name
 from utils.account import login_required
 from query.organization import create_organization, create_members, \
-        get_member, get_organization
+        get_member, get_organization, clear_organization_cache
 
 logger = logging.getLogger(__name__)
 
@@ -24,13 +24,15 @@ class Register(MethodView):
     def post(self):
         name = request.form.get('name', None)
         if check_name(name):
-            return render_template('organization.register.html', info=code.ORGANIZATION_NAME_INVALID)
+            return render_template('organization.register.html', error=code.ORGANIZATION_NAME_INVALID)
 
         # TODO 开关，是否激活公开申请
         organization = create_organization(name)
         if g.current_user:
             create_members(organization.id, g.current_user.id, 1)
-            return redirect(url_for('organization.view', organization=organization.id))
+            organization.update_members(1)
+            clear_organization_cache(organization, g.current_user)
+            return redirect(url_for('organization.view', oid=organization.id))
 
         return url_for('account.register', token=organization.token)
 
