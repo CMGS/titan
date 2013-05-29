@@ -83,7 +83,7 @@ class View(MethodView):
 
     def check_member(self, oid):
         member = get_member(oid, g.current_user.id)
-        if not member or not member.admin:
-            raise abort(404)
+        if not member:
+            raise abort(403)
         return member
 

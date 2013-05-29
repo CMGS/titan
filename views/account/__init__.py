@@ -15,7 +15,7 @@ setting = Setting.as_view('setting')
 forget = csrf_exempt(Forget.as_view('forget'))
 login = csrf_exempt(Login.as_view('login'))
 logout = csrf_exempt(Logout.as_view('logout'))
-register = csrf_exempt(Register.as_view('register'))
+register = Register.as_view('register')
 
 account.add_url_rule('/login/', view_func=login, methods=['GET', 'POST'])
 account.add_url_rule('/register/', view_func=register, methods=['GET', 'POST'])

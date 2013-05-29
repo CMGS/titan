@@ -31,6 +31,7 @@
     </div>
     {% endif %}
     <input name="name" type="text" class="input-block-level" placeholder="Name">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     <button class="btn btn-large btn-primary" type="submit">Submit</button>
 </form>
 {% endblock %}

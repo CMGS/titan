@@ -10,7 +10,7 @@ organization = Blueprint('organization', __name__)
 
 view = View.as_view('view')
 invite = Invite.as_view('invite')
-register = csrf_exempt(Register.as_view('register'))
+register = Register.as_view('register')
 
 organization.add_url_rule('/<int:oid>/', view_func=view, methods=['GET', ])
 organization.add_url_rule('/<int:oid>/invite/', view_func=invite, methods=['GET', 'POST'])

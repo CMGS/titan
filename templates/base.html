@@ -49,14 +49,10 @@
                     {{ navbar.nav('dashboard') }}
                 {% endblock %}
             </ul>
-            {% if not g.current_user %}
-            <form class="navbar-form pull-right" method="POST" action="{{ url_for('account.login') }}">
-                <input class="span2" name="email" type="text" placeholder="Email">
-                <input class="span2" name="password" type="password" placeholder="Password">
-                <button type="submit" class="btn">Sign in</button>
-            </form>
-            {% else %}
             <ul class="nav pull-right">
+            {% if not g.current_user %}
+                <li><a href="{{ url_for('account.login') }}">Login</a></li>
+            {% else %}
                 <li><a href="#"><img src="{{ g.current_user.avatar(18) }}" /></a></li>
                 <li>
                     {% if g.current_user.domain %}
@@ -69,8 +65,9 @@
                 </li>
                 <li><a href="{{ url_for('account.setting') }}">Setting</a></li>
                 <li><a href="{{ url_for('account.logout') }}">Logout</a></li>
-            </ul>
             {% endif %}
+                <li><a href="{{ url_for('organization.register') }}">Creat Organization</a></li>
+            </ul>
           </div><!--/.nav-collapse -->
         </div>
       </div>

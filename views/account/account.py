@@ -53,26 +53,31 @@ class Register(MethodView):
 
     def bind(self):
         org_token, reg_token = self.get_token()
-        password = request.form.get('password', None)
-        email = request.form.get('email', None)
-        recv_email = request.form.get('recv_email', None)
-        check, error = check_login_info(email, password)
-        if not check:
-            return render_template('account.register.html', error=error)
+        if g.current_user:
+            user = g.current_user
+            recv_email = request.form.get('recv_email', None)
+        else:
+            password = request.form.get('password', None)
+            email = request.form.get('email', None)
+            check, error = check_login_info(email, password)
+            if not check:
+                return render_template('account.register.html', error=error)
+
+            user = get_user_by(email=email).limit(1).first()
+            if not user:
+                logger.info('no such user')
+                return render_template('account.register.html', error=code.ACCOUNT_NO_SUCH_USER)
+            if not user.check_password(password):
+                logger.info('invaild passwd')
+                return render_template('account.register.html', error=code.ACCOUNT_LOGIN_INFO_INVAILD)
+
+            account_login(user)
+
         if reg_token and not self.check_vaild(org_token, reg_token, recv_email):
             return render_template('account.register.html', error=code.ACCOUNT_REGISTER_EMAIL_INVAILD)
 
-        user = get_user_by(email=email).limit(1).first()
-        if not user:
-            logger.info('no such user')
-            return render_template('account.register.html', error=code.ACCOUNT_NO_SUCH_USER)
-        if not user.check_password(password):
-            logger.info('invaild passwd')
-            return render_template('account.register.html', error=code.ACCOUNT_LOGIN_INFO_INVAILD)
-
-        account_login(user)
-        self.join_organization(org_token, reg_token, user)
-        return redirect(url_for('index'))
+        organization = self.join_organization(org_token, reg_token, user)
+        return redirect(url_for('organization.view', oid=organization.id))
 
     def new_register(self):
         org_token, reg_token = self.get_token()

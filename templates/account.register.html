@@ -2,7 +2,6 @@
 {% block add_js %}
 <style>
 .form-signup {
-  max-width: 300px;
   padding: 19px 29px 29px;
   margin: 0 auto 20px;
   -webkit-border-radius: 5px;
@@ -22,35 +21,40 @@
 }
 </style>
 {% endblock %}
-{% block content %}
-{% if not g.current_user %}
-<form class="form-signup" method="POST">
-    <h2 class="form-signup-heading">Please sign in</h2>
-    {% if error %}
-    <div class="alert alert-error">
-      <button type="button" class="close" data-dismiss="alert">&times;</button>
-      {{ error }}
-    </div>
-    {% endif %}
-    <input name="name" type="text" class="input-block-level" placeholder="Display name">
-    <input name="email" type="text" class="input-block-level" placeholder="Email address">
-    <input name="password" type="password" class="input-block-level" placeholder="Password">
-    <input type="hidden" name="regtype" value="new">
-    <button class="btn btn-large btn-primary" type="submit">Sign up</button>
-</form>
-{% else %}
-<form class="form-signup" method="POST">
-    <h2 class="form-signup-heading">Join {{ organization.name }}</h2>
-    {% if error %}
-    <div class="alert alert-error">
-      <button type="button" class="close" data-dismiss="alert">&times;</button>
-      {{ error }}
-    </div>
-    {% endif %}
-    <input name="email" type="text" class="input-block-level" placeholder="Receive Email">
-    <input type="hidden" name="regtype" value="bind">
-    <button class="btn btn-large btn-primary" type="submit">Join</button>
-</form>
-{% endif %}
-{% endblock %}
 {% block subtitle %}Sign up{% endblock %}
+{% block content %}
+{% if error %}
+<div class="alert alert-error">
+  <button type="button" class="close" data-dismiss="alert">&times;</button>
+  {{ error }}
+</div>
+{% endif %}
+<div class="row-fluid">
+<div class="span6">
+    <form class="form-signup" method="POST">
+        <h2 class="form-signup-heading">Sign in & Join </h2>
+        {% if not g.current_user %}
+            <input name="email" type="text" class="input-block-level" placeholder="Email address">
+            <input name="password" type="password" class="input-block-level" placeholder="Password">
+        {% endif %}
+        <input name="recv_email" type="text" class="input-block-level" placeholder="Receive Email">
+        <input type="hidden" name="regtype" value="bind">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-large btn-primary" type="submit">Join</button>
+    </form>
+</div>
+{% if not g.current_user %}
+    <div class="span6">
+        <form class="form-signup" method="POST">
+            <h2 class="form-signup-heading">Sign up and Join</h2>
+            <input name="name" type="text" class="input-block-level" placeholder="Display name">
+            <input name="email" type="text" class="input-block-level" placeholder="Email address">
+            <input name="password" type="password" class="input-block-level" placeholder="Password">
+            <input type="hidden" name="regtype" value="new">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-large btn-primary" type="submit">Sign up</button>
+        </form>
+    </div>
+{% endif %}
+</div>
+{% endblock %}
