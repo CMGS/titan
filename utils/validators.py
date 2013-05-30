@@ -106,12 +106,8 @@ def check_git_exists(git):
     if user:
         return False, 'git exists'
 
-def check_organization_plan(organization):
+def check_organization_plan(organization, incr=0):
     # TODO 计算有多少人了
-    if organization.plan == 0:
-        return True
-    elif organization.members < config.PLAN[organization.plan]:
-        return True
-    else:
-        return False
+    if organization.members + incr > config.PLAN[organization.plan]:
+        return False, 'plan limit reached'
 

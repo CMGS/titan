@@ -10,7 +10,8 @@ from utils import code
 from utils.token import create_token
 from utils.account import login_required
 from utils.organization import send_verify_mail, member_required
-from utils.validators import check_organization_name, check_git, check_git_exists
+from utils.validators import check_organization_name, check_git, check_git_exists, \
+        check_organization_plan
 from query.account import get_user_by_email
 from query.organization import get_member, get_organization_by_git, \
         create_organization, create_verify
@@ -48,14 +49,21 @@ class Invite(MethodView):
     def post(self, git):
         emails = set(request.form.getlist('email'))
         organization = get_organization_by_git(git)
+        count = 0
         for email in emails:
             if not email or self.is_member(organization.id, email):
                 continue
 
+            # 超过上限禁止增员
+            count += 1
+            status = check_organization_plan(organization, count)
+            if status:
+                return render_template('organization.invite.html', send=status[1])
+
             stub = create_token(20)
             verify = create_verify(stub, email, organization.name, organization.git)
             send_verify_mail(verify)
-        return render_template('organization.invite.html', send=1)
+        return render_template('organization.invite.html', send=code.ORGANIZATION_INVITE_SUCCESS)
 
     def is_member(self, oid, email):
         user = get_user_by_email(email)

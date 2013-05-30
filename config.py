@@ -24,9 +24,9 @@ GRAVATAR_BASE_URL = 'http://www.gravatar.com/avatar/'
 GRAVATAR_EXTRA = ''
 
 PLAN = {
-    1: 3,
-    2: 20,
-    3: 50,
+    1: 10,
+    2: 30,
+    3: 60,
     4: 100,
     5: 150,
     6: 200,

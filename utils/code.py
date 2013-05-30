@@ -8,6 +8,7 @@ ACCOUNT_NO_SUCH_USER = 'no such user'
 ACCOUNT_LOGIN_INFO_INVAILD = 'login info invaild'
 
 ORGANIZATION_NAME_INVALID = 'organization name invaild'
+ORGANIZATION_INVITE_SUCCESS = 'Please ask your workmates check their inbox'
 
 EMAIL_FORGET_TITLE = 'Find Password'
 EMAIL_INVITE_TITLE = 'Invite Join Titan'
