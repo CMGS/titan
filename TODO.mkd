@@ -1,0 +1,38 @@
+## Titan
+
+* 降低套餐需要联系客服。
+* 余额不足的时候冻结一切push/pull行为，只能通过界面操作。
+* Flash messages
+
+## Organization
+
+* 未登录/未注册 --》创建组织 --》注册帐号
+* 未登录/已注册 --》创建组织 --》注册帐号/登录帐号
+* 已登录/已被邀请 --》输入邀请邮箱绑定
+* 未登录/已被邀请 --》注册（必须是被邀请邮箱）或者是登录，输入被邀请邮箱
+
+* 考虑是否用RSA对称加密Token
+* 允许用户同时属于不同Organization
+* 增加Organization_required修饰器，类似于login_required
+* Admin 能管理Team/Members/Repos' permits
+
+## Team
+
+* 用户创建
+* Team本身类似于Organization，不过是独立单元（Team members表以及对应的members/repos属性）
+* Admin能管理Team
+
+## Users
+
+* 只允许通过组织邀请
+* Manager SSH Key
+
+May, 30th, 2013
+
+* Flash messages
+* 给Team增加属性和对应表
+* 实现Team逻辑（Create/Join/Setting）
+* Show Members 页面
+* SSH Key Models
+* 整理界面
+
