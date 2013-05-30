@@ -23,6 +23,16 @@
 * Manager SSH Key
 * 别名
 
+## Others
+
+* 结构系统
+* Git系统
+* Trello系统
+* Notify系统
+* Email系统
+* 成就系统
+* 个人数据统计系统
+
 ## TODO
 
 * 实现Team逻辑（Create/Join/Setting）
