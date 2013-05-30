@@ -2,11 +2,11 @@
 #coding:utf-8
 
 from flask import Blueprint
-from utils.helper import generate_view_func
+from utils.helper import get_as_view
 from views.organization.organization import Register, Invite, View, Setting
 
 MODULE_NAME = 'organization'
-as_view = lambda cls: generate_view_func(cls, cls.__name__.lower(), MODULE_NAME)
+as_view = get_as_view(MODULE_NAME)
 
 organization = Blueprint(MODULE_NAME, __name__)
 

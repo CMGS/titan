@@ -4,12 +4,11 @@
 import logging
 from datetime import datetime
 
-from flask.views import MethodView
-from flask import redirect, request, url_for, render_template, \
-        abort, g
+from flask import redirect, request, url_for, abort, g
 
 import config
 from utils import code
+from utils.helper import MethodView
 from utils.account import login_required, account_login, \
         account_logout
 from utils.validators import check_register_info, check_login_info
@@ -28,7 +27,7 @@ class Register(MethodView):
         if g.current_user:
             organization = self.join_organization(verify, g.current_user)
             return redirect(url_for('organization.view', git=organization.git))
-        return self.render_template(verify)
+        return self.render_template(verify=verify)
 
     def post(self, stub):
         verify = self.get_verify(stub)
@@ -57,9 +56,6 @@ class Register(MethodView):
             return True
         return False
 
-    def render_template(self, verify, error=None):
-        return render_template('account.register.html', verify=verify, error=error)
-
     def bind(self, verify):
         if g.current_user:
             user = g.current_user
@@ -68,12 +64,12 @@ class Register(MethodView):
             password = request.form.get('password', None)
             check, error = check_login_info(email, password)
             if not check:
-                return self.render_template(verify, error)
+                return self.render_template(verify=verify, error=error)
             user = get_user_by(email=email).limit(1).first()
             if not user:
-                return self.render_template(verify, code.ACCOUNT_NO_SUCH_USER)
+                return self.render_template(verify=verify, error=code.ACCOUNT_NO_SUCH_USER)
             if not user.check_password(password):
-                return self.render_template(verify, code.ACCOUNT_LOGIN_INFO_INVAILD)
+                return self.render_template(verify=verify, error=code.ACCOUNT_LOGIN_INFO_INVAILD)
 
         organization = self.join_organization(verify, user)
         account_login(user)
@@ -85,7 +81,7 @@ class Register(MethodView):
         email = request.form.get('email', None)
         check, error = check_register_info(username, email, password)
         if not check:
-            return self.render_template(verify, error)
+            return self.render_template(verify=verify, error=error)
 
         user = create_user(username, password, email)
         # clear cache
@@ -110,7 +106,7 @@ class Login(MethodView):
     decorators = [login_required(need=False)]
     def get(self):
         login_url = url_for('account.login', **request.args)
-        return render_template('account.login.html', login_url=login_url)
+        return self.render_template(login_url=login_url)
 
     def post(self):
         login_url = url_for('account.login', **request.args)
@@ -118,15 +114,15 @@ class Login(MethodView):
         email = request.form.get('email', None)
         check, error = check_login_info(email, password)
         if not check:
-            return render_template('account.login.html', login_info=error, login_url=login_url)
+            return self.render_template(login_info=error, login_url=login_url)
 
         user = get_user_by(email=email).limit(1).first()
         if not user:
             logger.info('no such user')
-            return render_template('account.login.html', login_info=code.ACCOUNT_NO_SUCH_USER, login_url=login_url)
+            return self.render_template(login_info=code.ACCOUNT_NO_SUCH_USER, login_url=login_url)
         if not user.check_password(password):
             logger.info('invaild passwd')
-            return render_template('account.login.html', login_info=code.ACCOUNT_LOGIN_INFO_INVAILD, login_url=login_url)
+            return self.render_template(login_info=code.ACCOUNT_LOGIN_INFO_INVAILD, login_url=login_url)
 
         account_login(user)
         redirect_url = request.args.get('redirect', None)

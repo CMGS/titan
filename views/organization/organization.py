@@ -3,11 +3,11 @@
 
 import logging
 
-from flask import g, request, render_template, redirect, url_for
+from flask import g, request, redirect, url_for
 
 from utils import code
-from utils.helper import TitanMethodView
 from utils.token import create_token
+from utils.helper import MethodView
 from utils.account import login_required
 from utils.organization import send_verify_mail, member_required
 from utils.validators import check_organization_name, check_git, check_git_exists, \
@@ -18,7 +18,7 @@ from query.organization import get_member, get_organization_by_git, \
 
 logger = logging.getLogger(__name__)
 
-class Register(TitanMethodView):
+class Register(MethodView):
     def get(self):
         return self.render_template()
 
@@ -41,7 +41,7 @@ class Register(TitanMethodView):
         send_verify_mail(verify)
         return self.render_template(send=1)
 
-class Invite(TitanMethodView):
+class Invite(MethodView):
     decorators = [login_required('account.login'), member_required(admin=True)]
     def get(self, git):
         return self.render_template()
@@ -76,14 +76,14 @@ class Invite(TitanMethodView):
             return True
         return False
 
-class View(TitanMethodView):
+class View(MethodView):
     decorators = [login_required('account.login'), member_required(admin=False)]
     def get(self, git):
         organization = get_organization_by_git(git)
         member = get_member(organization.id, g.current_user.id)
         return self.render_template(organization=organization, member=member)
 
-class Setting(TitanMethodView):
+class Setting(MethodView):
     decorators = [login_required('account.login'), member_required(admin=True)]
     def get(self, git):
         organization = get_organization_by_git(git)

@@ -4,18 +4,22 @@
 from flask import Blueprint
 from flaskext.csrf import csrf_exempt
 
+from utils.helper import get_as_view
 from views.account.setting import Setting
 from views.account.forget import Forget, Reset
 from views.account.account import Register, Login, Logout
 
-account = Blueprint('account', __name__)
+MODULE_NAME = 'account'
 
-reset = Reset.as_view('reset')
-setting = Setting.as_view('setting')
-forget = csrf_exempt(Forget.as_view('forget'))
-login = csrf_exempt(Login.as_view('login'))
-logout = csrf_exempt(Logout.as_view('logout'))
-register = Register.as_view('register')
+as_view = get_as_view(MODULE_NAME)
+account = Blueprint(MODULE_NAME, __name__)
+
+reset = as_view(Reset)
+setting = as_view(Setting)
+register = as_view(Register)
+login = csrf_exempt(as_view(Login))
+forget = csrf_exempt(as_view(Forget))
+logout = csrf_exempt(as_view(Logout))
 
 account.add_url_rule('/login/', view_func=login, methods=['GET', 'POST'])
 account.add_url_rule('/register/<stub>/', view_func=register, methods=['GET', 'POST'])

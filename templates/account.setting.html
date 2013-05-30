@@ -34,8 +34,8 @@
     <input name="name" type="text" class="input-block-level" placeholder="Display name" value="{{ g.current_user.name }}">
     <input name="password" type="password" class="input-block-level" placeholder="Password">
     <input name="domain" type="text" class="input-block-level" {% if g.current_user.domain %} disabled="true" value="{{g.current_user.domain}}" {% endif %} placeholder="Domain">
-    <input name="city" type="text" class="input-block-level" placeholder="City" value="{{ g.current_user.city }}">
-    <input name="title" type="text" class="input-block-level" placeholder="Job Title" value="{{ g.current_user.title }}">
+    <input name="city" type="text" class="input-block-level" placeholder="City">
+    <input name="title" type="text" class="input-block-level" placeholder="Job Title">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     <button class="btn btn-large btn-primary" type="submit">Submit</button>
 </form>

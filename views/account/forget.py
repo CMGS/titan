@@ -4,12 +4,11 @@
 import logging
 from datetime import datetime
 
-from flask.views import MethodView
-from flask import redirect, request, url_for, \
-        abort, g, render_template
+from flask import redirect, request, url_for, abort, g
 
 import config
 from utils import code
+from utils.helper import MethodView
 from utils.mail import async_send_mail
 from utils.token import create_token
 from utils.account import login_required
@@ -26,7 +25,7 @@ class Forget(MethodView):
     def get(self):
         if request.form and 'cancel' in request.form:
             return redirect(url_for('index'))
-        return render_template('account.forget.html')
+        return self.render_template()
 
     def post(self):
         if request.form and 'cancel' in request.form:
@@ -34,14 +33,14 @@ class Forget(MethodView):
         email = request.form.get('email', None)
         status = check_email(email)
         if status:
-            return render_template('account.forget.html', error=status[1])
+            return self.render_template(error=status[1])
         user = get_user_by_email(email=email)
         if user and not check_uid_exists(user.id):
             stub = create_token(20)
-            content = render_template('email.forget.html', user=user, stub=stub)
+            content = self.render_template(user=user, stub=stub)
             async_send_mail(user.email, code.EMAIL_FORGET_TITLE, content)
             create_forget(user.id, stub)
-        return render_template('account.forget.html', send=1)
+        return self.render_template(send=1)
 
 class Reset(MethodView):
     def get(self, stub):
@@ -55,8 +54,8 @@ class Reset(MethodView):
 
         if (datetime.now()  - forget.created).seconds > config.FORGET_STUB_EXPIRE:
             clear_forget_stub(forget)
-            return render_template('account.reset.html', error=code.ACCOUNT_FORGET_STUB_EXPIRED)
-        return render_template('account.reset.html')
+            return self.render_template(error=code.ACCOUNT_FORGET_STUB_EXPIRED)
+        return self.render_template()
 
     def post(self, stub):
         forget = get_forget_by_stub(stub=stub)
@@ -70,7 +69,7 @@ class Reset(MethodView):
         password = request.form.get('password', None)
         status = check_password(password)
         if status:
-            return render_template('account.reset.html', error=status[1])
+            return self.render_template(error=status[1])
         # TODO 考虑事物的一致性
         user = get_user(forget.uid)
         user.change_password(password)
