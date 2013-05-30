@@ -17,6 +17,7 @@ SMTP_SERVER = 'smtp.qq.com'
 SMTP_USER = 'service@xiaomen.co'
 SMTP_PASSWORD = 'xiaomenkou!@#$%^'
 
+VERIFY_STUB_EXPIRE = 30*60
 FORGET_STUB_EXPIRE = 30*60
 
 GRAVATAR_BASE_URL = 'http://www.gravatar.com/avatar/'

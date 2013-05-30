@@ -23,6 +23,7 @@
 {% endblock %}
 {% block subtitle %}Sign up{% endblock %}
 {% block content %}
+<h2> Join {{ verify.name }} </h2>
 {% if error %}
 <div class="alert alert-error">
   <button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -32,7 +33,7 @@
 <div class="row-fluid">
 <div class="span6">
     <form class="form-signup" method="POST">
-        <h2 class="form-signup-heading">Sign in & Join </h2>
+        <h2 class="form-signup-heading">Sign in</h2>
         {% if not g.current_user %}
             <input name="email" type="text" class="input-block-level" placeholder="Email address">
             <input name="password" type="password" class="input-block-level" placeholder="Password">
@@ -46,9 +47,9 @@
 {% if not g.current_user %}
     <div class="span6">
         <form class="form-signup" method="POST">
-            <h2 class="form-signup-heading">Sign up and Join</h2>
+            <h2 class="form-signup-heading">Sign up</h2>
             <input name="name" type="text" class="input-block-level" placeholder="Display name">
-            <input name="email" type="text" class="input-block-level" placeholder="Email address">
+            <input name="email" value="{{ verify.email }}" type="text" class="input-block-level" disabled="disabled">
             <input name="password" type="password" class="input-block-level" placeholder="Password">
             <input type="hidden" name="regtype" value="new">
             <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">

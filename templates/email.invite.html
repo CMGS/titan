@@ -1,5 +1,9 @@
 <div>
-    <p>{{ g.current_user.name }} 邀请你加入 {{ organization.name }}</p>
+    {% if g.current_user %}
+    <p>{{ g.current_user.name }} 邀请你加入 {{ info.name }} aka {{ info.git }}</p>
+    {% else %}
+    <p>请验证 {{ info.name }} aka {{ info.git }}</p>
+    {% endif %}
     <br />
     <a href="{{ url }}">{{ url }}</a>
 </div>

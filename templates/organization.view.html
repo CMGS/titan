@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block subtitle %} organization.name {% endblock %}
+{% block subtitle %} {{ organization.name }} {% endblock %}
 {% block content %}
 <p>{{ organization.name }}</p>
 <p>{{ g.current_user.name }}</p>

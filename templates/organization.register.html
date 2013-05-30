@@ -30,7 +30,17 @@
       {{ error }}
     </div>
     {% endif %}
+    {% if send %}
+    <div class="alert">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      Please check your reset email.
+    </div>
+    {% endif %}
     <input name="name" type="text" class="input-block-level" placeholder="Name">
+    <input name="git" type="text" class="input-block-level" placeholder="Git name">
+    {% if not g.current_user %}
+    <input name="email" type="text" class="input-block-level" placeholder="Verify email">
+    {% endif %}
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     <button class="btn btn-large btn-primary" type="submit">Submit</button>
 </form>

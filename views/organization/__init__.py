@@ -12,7 +12,7 @@ view = View.as_view('view')
 invite = Invite.as_view('invite')
 register = Register.as_view('register')
 
-organization.add_url_rule('/<int:oid>/', view_func=view, methods=['GET', ])
-organization.add_url_rule('/<int:oid>/invite/', view_func=invite, methods=['GET', 'POST'])
+organization.add_url_rule('/<str:git>/', view_func=view, methods=['GET', ])
+organization.add_url_rule('/<str:git>/invite/', view_func=invite, methods=['GET', 'POST'])
 organization.add_url_rule('/register/', view_func=register, methods=['GET', 'POST'])
 

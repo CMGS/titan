@@ -82,7 +82,9 @@ def check_login_info(email, password):
         return status
     return True, None
 
-def check_name(name):
+# FOR Organization
+
+def check_organization_name(name):
     if not name:
         return False, 'need name'
     if not isinstance(name, unicode):
@@ -90,22 +92,21 @@ def check_name(name):
     if not re.search(ur'^[\u4e00-\u9fa5\w]{1,30}$', name, re.I):
         return False, 'name invail'
 
-def check_org_token(token):
-    l = len(token)
-    if l != 8 and l != 40:
-        return False
-    if l == 8:
-        org_token, reg_token = token, ''
-    else:
-        org_token, reg_token = token[:8], token[8:]
-    from query.organization import get_org_by_token
-    organization = get_org_by_token(org_token)
-    if not organization or (l == 8 and organization.members > 0):
-        return False
+def check_git(git):
+    if not git:
+        return False, 'need git'
+    if not re.search(r'^[a-zA-Z0-9_-]{3,10}$', git, re.I):
+        return False, 'git invail'
 
-    return check_org_plan(organization)
+def check_git_exists(git):
+    if not git:
+        return False, 'need git'
+    from query.organization import get_organization_by_git
+    user = get_organization_by_git(git)
+    if user:
+        return False, 'git exists'
 
-def check_org_plan(organization):
+def check_organization_plan(organization):
     # TODO 计算有多少人了
     if organization.plan == 0:
         return True
