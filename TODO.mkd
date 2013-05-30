@@ -27,12 +27,12 @@
 * 只允许通过组织邀请
 * Manager SSH Key
 
-May, 30th, 2013
+## TODO
 
-* Flash messages
 * 给Team增加属性和对应表
 * 实现Team逻辑（Create/Join/Setting）
 * Show Members 页面
 * SSH Key Models
+* 别名
 * 整理界面
 

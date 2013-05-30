@@ -10,7 +10,7 @@ from utils import code
 from utils.token import create_token
 from utils.account import login_required
 from utils.organization import send_verify_mail, member_required
-from utils.validators import check_name, check_git, check_git_exists
+from utils.validators import check_organization_name, check_git, check_git_exists
 from query.account import get_user_by_email
 from query.organization import get_member, get_organization_by_git, \
         create_organization, create_verify
@@ -25,7 +25,7 @@ class Register(MethodView):
         name = request.form.get('name', None)
         git = request.form.get('git', None)
         email = request.form.get('email', None)
-        if check_name(name):
+        if check_organization_name(name):
             return render_template('organization.register.html', error=code.ORGANIZATION_NAME_INVALID)
         for status in [check_git(git), check_git_exists(git)]:
             if status:

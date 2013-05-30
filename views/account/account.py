@@ -1,7 +1,6 @@
 #!/usr/local/bin/python2.7
 #coding:utf-8
 
-import hashlib
 import logging
 from datetime import datetime
 
@@ -30,7 +29,7 @@ class Register(MethodView):
         if g.current_user and g.current_user.email == verify.email:
             organization = self.join_organization(verify, g.current_user)
             return redirect(url_for('organization.view', git=organization.git))
-        return render_template('account.register.html', verify=verify)
+        return self.render_template(verify)
 
     def post(self, stub):
         verify = self.get_verify(stub)
@@ -59,6 +58,9 @@ class Register(MethodView):
             return True
         return False
 
+    def render_template(self, verify, error=None):
+        return render_template('account.register.html', verify=verify, error=error)
+
     def bind(self, verify):
         recv_email = request.form.get('recv_email', None)
         if g.current_user:
@@ -68,17 +70,17 @@ class Register(MethodView):
             password = request.form.get('password', None)
             check, error = check_login_info(email, password)
             if not check:
-                return render_template('account.register.html', error=error)
+                return self.render_template(verify, error)
             user = get_user_by(email=email).limit(1).first()
             if not user:
-                return render_template('account.register.html', error=code.ACCOUNT_NO_SUCH_USER)
+                return self.render_template(verify, code.ACCOUNT_NO_SUCH_USER)
             if not user.check_password(password):
-                return render_template('account.register.html', error=code.ACCOUNT_LOGIN_INFO_INVAILD)
+                return self.render_template(verify, code.ACCOUNT_LOGIN_INFO_INVAILD)
 
             account_login(user)
 
         if not verify.email != recv_email:
-            return render_template('account.register.html', error=code.ACCOUNT_REGISTER_EMAIL_INVAILD)
+            return self.render_template(verify, code.ACCOUNT_REGISTER_EMAIL_INVAILD)
         organization = self.join_organization(verify, user)
         return redirect(url_for('organization.view', oid=organization.id))
 
@@ -88,9 +90,9 @@ class Register(MethodView):
         email = request.form.get('email', None)
         check, error = check_register_info(username, email, password)
         if not check:
-            return render_template('account.register.html', error=error)
+            return self.render_template(verify, error)
         if email != verify.email:
-            return render_template('account.register.html', error=code.ACCOUNT_REGISTER_EMAIL_INVAILD)
+            return self.render_template(verify, code.ACCOUNT_REGISTER_EMAIL_INVAILD)
         user = create_user(username, password, email)
         # clear cache
         clear_user_cache(user)

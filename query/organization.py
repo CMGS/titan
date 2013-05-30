@@ -37,12 +37,11 @@ def get_organization_by(**kw):
     return Organization.query.filter_by(**kw)
 
 def create_organization(user, name, git, members=0, admin=0):
-    organization = create_organization(name, git, members=1)
-    create_members(organization.id, user.id, admin=1)
+    organization = Organization.create(name, git, members=1)
+    Members.create(organization.id, user.id, admin=1)
     clear_organization_cache(organization, user)
     return organization
 
-create_organization = Organization.create
 create_members = Members.create
 create_verify = Verify.create
 
