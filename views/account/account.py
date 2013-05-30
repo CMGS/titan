@@ -50,10 +50,10 @@ class Register(MethodView):
             raise abort(403)
         return verify
 
-    def is_member(self, oid):
-        if not g.current_user:
+    def is_member(self, oid, user):
+        if not user:
             return False
-        member = get_member(oid, g.current_user.id)
+        member = get_member(oid, user.id)
         if member:
             return True
         return False
@@ -76,13 +76,11 @@ class Register(MethodView):
                 return self.render_template(verify, code.ACCOUNT_NO_SUCH_USER)
             if not user.check_password(password):
                 return self.render_template(verify, code.ACCOUNT_LOGIN_INFO_INVAILD)
-
-            account_login(user)
-
-        if not verify.email != recv_email:
+        if verify.email != recv_email:
             return self.render_template(verify, code.ACCOUNT_REGISTER_EMAIL_INVAILD)
         organization = self.join_organization(verify, user)
-        return redirect(url_for('organization.view', oid=organization.id))
+        account_login(user)
+        return redirect(url_for('organization.view', git=organization.git))
 
     def new_register(self, verify):
         username = request.form.get('name', None)
@@ -98,14 +96,14 @@ class Register(MethodView):
         clear_user_cache(user)
         account_login(user)
         organization = self.join_organization(verify, user)
-        return redirect(url_for('organization.view', oid=organization.id))
+        return redirect(url_for('organization.view', git=organization.git))
 
     def join_organization(self, verify, user):
         organization = get_organization_by_git(verify.git)
         if not organization:
             # First member will be admin
-            organization = create_organization(g.current_user, verify.name, verify.git, members=1, admin=1)
-        if not self.is_member(organization.id):
+            organization = create_organization(user, verify.name, verify.git, members=1, admin=1)
+        if not self.is_member(organization.id, user):
             create_members(organization.id, user.id, verify.admin)
             organization.update_members(1)
             clear_organization_cache(organization, user)

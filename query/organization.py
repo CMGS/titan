@@ -22,7 +22,7 @@ def get_verify_by_stub(stub):
     return Verify.query.filter_by(stub=stub).limit(1).first()
 
 def clear_organization_cache(organization, user=None):
-    keys = ['organization:%s' % key for key in [str(organization.id), organization.token]]
+    keys = ['organization:%s' % key for key in [str(organization.id), organization.git]]
     if user:
         keys.append('organization:member:{oid}:{uid}'.format(oid=organization.id, uid=user.id))
     backend.delete_many(*keys)

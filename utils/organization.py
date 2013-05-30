@@ -3,7 +3,7 @@
 
 import logging
 from functools import wraps
-from flask import render_template, url_for, abort
+from flask import g, render_template, url_for, abort, redirect
 
 from utils import code
 from utils.mail import async_send_mail
@@ -21,6 +21,8 @@ def member_required(admin=False):
     def _member_required(f):
         @wraps(f)
         def _(*args, **kwargs):
+            if not g.current_user:
+                return redirect(url_for('account.login'))
             git = kwargs.get('git', None)
             if not git:
                 raise abort(404)

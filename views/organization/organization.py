@@ -33,7 +33,7 @@ class Register(MethodView):
 
         if g.current_user:
             organization = create_organization(g.current_user, name, git, members=1, admin=1)
-            return redirect(url_for('organization.view', oid=organization.id))
+            return redirect(url_for('organization.view', git=organization.git))
 
         stub = create_token(20)
         verify = create_verify(stub, email, name, git, admin=1)

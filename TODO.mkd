@@ -11,7 +11,6 @@
 * 已登录 --》创建 --》Join Organization
 * 已登录 --》另外一个邮箱被邀请 --》输入另外一个邮箱 --》Join Organization
 
-* 考虑是否用RSA对称加密Token
 * 允许用户同时属于不同Organization
 * 增加Organization_required修饰器，类似于login_required
 * Admin 能管理Team/Members/Repos' permits
