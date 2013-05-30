@@ -9,10 +9,9 @@ from flask import redirect, request, url_for, abort, g
 import config
 from utils import code
 from utils.helper import MethodView
-from utils.mail import async_send_mail
 from utils.token import create_token
-from utils.account import login_required
 from utils.validators import check_email, check_password
+from utils.account import login_required, send_forget_mail
 
 from query.account import get_user_by_email, create_forget, \
         get_forget_by_stub, get_user, clear_user_cache, \
@@ -37,9 +36,8 @@ class Forget(MethodView):
         user = get_user_by_email(email=email)
         if user and not check_uid_exists(user.id):
             stub = create_token(20)
-            content = self.render_template(user=user, stub=stub)
-            async_send_mail(user.email, code.EMAIL_FORGET_TITLE, content)
             create_forget(user.id, stub)
+            send_forget_mail(user, stub)
         return self.render_template(send=1)
 
 class Reset(MethodView):
