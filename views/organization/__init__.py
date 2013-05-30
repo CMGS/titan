@@ -2,17 +2,21 @@
 #coding:utf-8
 
 from flask import Blueprint
-from flaskext.csrf import csrf_exempt
+from utils.helper import generate_view_func
+from views.organization.organization import Register, Invite, View, Setting
 
-from views.organization.organization import Register, Invite, View
+MODULE_NAME = 'organization'
+as_view = lambda cls: generate_view_func(cls, cls.__name__.lower(), MODULE_NAME)
 
-organization = Blueprint('organization', __name__)
+organization = Blueprint(MODULE_NAME, __name__)
 
-view = View.as_view('view')
-invite = Invite.as_view('invite')
-register = Register.as_view('register')
+view = as_view(View)
+invite = as_view(Invite)
+setting = as_view(Setting)
+register = as_view(Register)
 
 organization.add_url_rule('/<git>/', view_func=view, methods=['GET', ])
+organization.add_url_rule('/<git>/setting/', view_func=setting, methods=['GET', 'POST'])
 organization.add_url_rule('/<git>/invite/', view_func=invite, methods=['GET', 'POST'])
 organization.add_url_rule('/register/', view_func=register, methods=['GET', 'POST'])
 

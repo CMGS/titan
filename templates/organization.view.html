@@ -7,7 +7,7 @@
             <li><a href="#">Create Team</a></li>
             {% if member.admin %}
             <li><a href="{{ url_for('organization.invite', git=organization.git) }}">Invite users</a></li>
-            <li><a href="#">Organization Setting</a></li>
+            <li><a href="{{ url_for('organization.setting', git=organization.git) }}">Organization Setting</a></li>
             {% endif %}
         </ul>
     </div>

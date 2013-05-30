@@ -36,8 +36,9 @@ class Organization(db.Model):
         db.session.commit()
         return organization
 
-    def set_args(self, key, value):
-        setattr(self, key, value)
+    def set_args(self, **kwargs):
+        for k, v in kwargs.iteritems():
+            setattr(self, k, v)
         db.session.add(self)
         db.session.commit()
 
