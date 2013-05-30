@@ -1,8 +1,7 @@
 ## Titan
 
 * 降低套餐需要联系客服。
-* 余额不足的时候冻结一切push/pull行为，只能通过界面操作。
-* Flash messages
+* 余额不足的时候冻结一切push/pull行为，只能通过界面操作, 只用于HTTP(S)/SSH行为。
 
 ## Organization
 
@@ -11,8 +10,6 @@
 * 已登录 --》创建 --》Join Organization
 * 已登录 --》另外一个邮箱被邀请 --》输入另外一个邮箱 --》Join Organization
 
-* 允许用户同时属于不同Organization
-* 增加Organization_required修饰器，类似于login_required
 * Admin 能管理Team/Members/Repos' permits
 
 ## Team
@@ -23,15 +20,19 @@
 
 ## Users
 
-* 只允许通过组织邀请
 * Manager SSH Key
+* 别名
 
 ## TODO
 
-* 给Team增加属性和对应表
 * 实现Team逻辑（Create/Join/Setting）
 * Show Members 页面
-* SSH Key Models
-* 别名
 * 整理界面
+
+## Done
+
++ 增加Organization_required修饰器，类似于login_required
++ 允许用户同时属于不同Organization
++ 给Team增加属性和对应表
++ 只允许通过组织邀请
 
