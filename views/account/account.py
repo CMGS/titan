@@ -23,10 +23,9 @@ logger = logging.getLogger(__name__)
 class Register(MethodView):
     def get(self, stub):
         verify = self.get_verify(stub)
-        # Logined and verify.email equal to user.email
-        # auto join organization (auto create organization if needed)
+        # if logined auto join organization (auto create organization if needed)
         # if user if member, clear verify
-        if g.current_user and g.current_user.email == verify.email:
+        if g.current_user:
             organization = self.join_organization(verify, g.current_user)
             return redirect(url_for('organization.view', git=organization.git))
         return self.render_template(verify)
@@ -62,7 +61,6 @@ class Register(MethodView):
         return render_template('account.register.html', verify=verify, error=error)
 
     def bind(self, verify):
-        recv_email = request.form.get('recv_email', None)
         if g.current_user:
             user = g.current_user
         else:
@@ -76,8 +74,7 @@ class Register(MethodView):
                 return self.render_template(verify, code.ACCOUNT_NO_SUCH_USER)
             if not user.check_password(password):
                 return self.render_template(verify, code.ACCOUNT_LOGIN_INFO_INVAILD)
-        if verify.email != recv_email:
-            return self.render_template(verify, code.ACCOUNT_REGISTER_EMAIL_INVAILD)
+
         organization = self.join_organization(verify, user)
         account_login(user)
         return redirect(url_for('organization.view', git=organization.git))
@@ -89,8 +86,7 @@ class Register(MethodView):
         check, error = check_register_info(username, email, password)
         if not check:
             return self.render_template(verify, error)
-        if email != verify.email:
-            return self.render_template(verify, code.ACCOUNT_REGISTER_EMAIL_INVAILD)
+
         user = create_user(username, password, email)
         # clear cache
         clear_user_cache(user)

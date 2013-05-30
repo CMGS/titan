@@ -34,28 +34,23 @@
 <div class="span6">
     <form class="form-signup" method="POST">
         <h2 class="form-signup-heading">Sign in</h2>
-        {% if not g.current_user %}
-            <input name="email" type="text" class="input-block-level" placeholder="Email address">
-            <input name="password" type="password" class="input-block-level" placeholder="Password">
-        {% endif %}
-        <input name="recv_email" type="text" class="input-block-level" placeholder="Receive Email">
+        <input name="email" type="text" class="input-block-level" placeholder="Email address">
+        <input name="password" type="password" class="input-block-level" placeholder="Password">
         <input type="hidden" name="regtype" value="bind">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
         <button class="btn btn-large btn-primary" type="submit">Join</button>
     </form>
 </div>
-{% if not g.current_user %}
-    <div class="span6">
-        <form class="form-signup" method="POST">
-            <h2 class="form-signup-heading">Sign up</h2>
-            <input name="name" type="text" class="input-block-level" placeholder="Display name">
-            <input name="email" type="text" class="input-block-level" placeholder="Receive EMAIL">
-            <input name="password" type="password" class="input-block-level" placeholder="Password">
-            <input type="hidden" name="regtype" value="new">
-            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-            <button class="btn btn-large btn-primary" type="submit">Sign up</button>
-        </form>
+<div class="span6">
+    <form class="form-signup" method="POST">
+        <h2 class="form-signup-heading">Sign up</h2>
+        <input name="name" type="text" class="input-block-level" placeholder="Display name">
+        <input name="email" type="text" class="input-block-level" placeholder="Receive EMAIL">
+        <input name="password" type="password" class="input-block-level" placeholder="Password">
+        <input type="hidden" name="regtype" value="new">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-large btn-primary" type="submit">Sign up</button>
+    </form>
     </div>
-{% endif %}
 </div>
 {% endblock %}
