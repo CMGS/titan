@@ -1,6 +1,18 @@
 {% extends "base.html" %}
-{% block subtitle %} {{ organization.name }} {% endblock %}
+{% block subtitle %}{{ organization.name }}{% endblock %}
 {% block content %}
-<p>{{ organization.name }}</p>
-<p>{{ g.current_user.name }}</p>
+<div class="row-fluid">
+    <div class="span3">
+        <ul class="nav nav-tabs nav-stacked">
+            <li><a href="#">Create Team</a></li>
+            {% if member.admin %}
+            <li><a href="{{ url_for('organization.invite', git=organization.git) }}">Invite users</a></li>
+            <li><a href="#">Organization Setting</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    <div class="span9">
+        <h2>{{ organization.name }}</h2>
+    </div>
+</div>
 {% endblock %}

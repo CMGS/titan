@@ -30,14 +30,27 @@
       {{ send }}
     </div>
     {% endif %}
-    <input name="email" type="text" class="input-block-level" placeholder="email">
-    <input name="email" type="text" class="input-block-level" placeholder="email">
-    <input name="email" type="text" class="input-block-level" placeholder="email">
-    <input name="email" type="text" class="input-block-level" placeholder="email">
-    <input name="email" type="text" class="input-block-level" placeholder="email">
-    <input name="email" type="text" class="input-block-level" placeholder="email">
-    <input name="email" type="text" class="input-block-level" placeholder="email">
-    <input name="email" type="text" class="input-block-level" placeholder="email">
+    <h3 class="help-block">邮箱</h3>
+    <input name="email1" type="text" class="input-block-level" placeholder="email">
+    <label class="checkbox">
+        <input name="admin1" type="checkbox"> 管理员
+    </label>
+    <input name="email2" type="text" class="input-block-level" placeholder="email">
+    <label class="checkbox">
+        <input name="admin2" type="checkbox"> 管理员
+    </label>
+    <input name="email3" type="text" class="input-block-level" placeholder="email">
+    <label class="checkbox">
+        <input name="admin3" type="checkbox"> 管理员
+    </label>
+    <input name="email4" type="text" class="input-block-level" placeholder="email">
+    <label class="checkbox">
+        <input name="admin4" type="checkbox"> 管理员
+    </label>
+    <input name="email5" type="text" class="input-block-level" placeholder="email">
+    <label class="checkbox">
+        <input name="admin5" type="checkbox"> 管理员
+    </label>
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     <button class="btn btn-large btn-primary" type="submit">Submit</button>
 </form>

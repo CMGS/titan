@@ -47,12 +47,14 @@ class Invite(MethodView):
         return render_template('organization.invite.html')
 
     def post(self, git):
-        emails = set(request.form.getlist('email'))
         organization = get_organization_by_git(git)
         count = 0
-        for email in emails:
-            if not email or self.is_member(organization.id, email):
+        for flag in range(1, 6):
+            email = request.form.get('email%d' % flag, None)
+            if not email and self.is_member(organization.id, email):
                 continue
+            admin = request.form.get('admin%d' % flag, None)
+            admin = 1 if admin else 0
 
             # 超过上限禁止增员
             count += 1
@@ -61,7 +63,7 @@ class Invite(MethodView):
                 return render_template('organization.invite.html', send=status[1])
 
             stub = create_token(20)
-            verify = create_verify(stub, email, organization.name, organization.git)
+            verify = create_verify(stub, email, organization.name, organization.git, admin=admin)
             send_verify_mail(verify)
         return render_template('organization.invite.html', send=code.ORGANIZATION_INVITE_SUCCESS)
 
@@ -78,5 +80,6 @@ class View(MethodView):
     decorators = [login_required('account.login'), member_required(admin=False)]
     def get(self, git):
         organization = get_organization_by_git(git)
-        return render_template('organization.view.html', organization=organization)
+        member = get_member(organization.id, g.current_user.id)
+        return render_template('organization.view.html', organization=organization, member=member)
 
