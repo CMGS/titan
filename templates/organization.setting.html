@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block add_js %}
+<style>
+.form-setting {
+  max-width: 500px;
+  padding: 19px 29px 29px;
+  margin: 0 auto 20px;
+  -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+          border-radius: 5px;
+}
+.form-setting .form-setting-heading,
+.form-setting .checkbox {
+  margin-bottom: 10px;
+}
+.form-setting input[type="text"] {
+  font-size: 16px;
+  height: auto;
+  margin-bottom: 15px;
+  padding: 7px 9px;
+}
+</style>
+{% endblock %}
+{% block content %}
+<form class="form-setting" method="POST">
+    <h2 class="form-setting-heading">Organization Setting</h2>
+    {% if error %}
+    <div class="alert alert-error">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      {{ error }}
+    </div>
+    {% endif %}
+    {% if send %}
+    <div class="alert">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      Please check your reset email.
+    </div>
+    {% endif %}
+    <input name="name" type="text" class="input-block-level" placeholder="Name">
+    <input name="git" type="text" class="input-block-level" placeholder="Git name">
+    <input name="location" type="text" class="input-block-level" placeholder="Location">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <button class="btn btn-large btn-primary" type="submit">Submit</button>
+</form>
+{% endblock %}
+{% block subtitle %}Organization register{% endblock %}
+
