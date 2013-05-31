@@ -12,11 +12,14 @@ class MethodView(_):
     def render_template(self, **kwargs):
         return render_template(self.filename, **kwargs)
 
-def get_as_view(module_name):
-    def generate_view_func(cls):
+def make_view(module_name):
+    def generate_view_func(cls, submodule_name=None):
+        module = module_name
+        if submodule_name:
+            module = submodule_name
         name = cls.__name__.lower()
         as_view = getattr(cls, 'as_view')
-        view = as_view(name, module_name, name)
+        view = as_view(name, module, name)
         return view
     return generate_view_func
 

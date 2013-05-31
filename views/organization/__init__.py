@@ -2,18 +2,18 @@
 #coding:utf-8
 
 from flask import Blueprint
-from utils.helper import get_as_view
+from utils.helper import make_view
 from views.organization.organization import Register, Invite, View, Setting
 
 MODULE_NAME = 'organization'
-as_view = get_as_view(MODULE_NAME)
+view_func = make_view(MODULE_NAME)
 
 organization = Blueprint(MODULE_NAME, __name__)
 
-view = as_view(View)
-invite = as_view(Invite)
-setting = as_view(Setting)
-register = as_view(Register)
+view = view_func(View)
+invite = view_func(Invite)
+setting = view_func(Setting)
+register = view_func(Register)
 
 organization.add_url_rule('/<git>/', view_func=view, methods=['GET', ])
 organization.add_url_rule('/<git>/setting/', view_func=setting, methods=['GET', 'POST'])
