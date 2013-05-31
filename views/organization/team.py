@@ -79,7 +79,7 @@ class SetTeam(MethodView):
         is_member = get_team_member(team.id, g.current_user.id)
         if not is_member:
             return redirect(url_for('organization.index', git=organization.git))
-        return self.render_template(organization=organization)
+        return self.render_template(organization=organization, team=team)
 
     def post(self, organization, member, git, tid):
         # TODO pic set
