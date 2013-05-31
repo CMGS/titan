@@ -21,10 +21,29 @@ def get_organization_by_git(git):
 def get_verify_by_stub(stub):
     return Verify.query.filter_by(stub=stub).limit(1).first()
 
+@cache('organization:team:{tid}', 86400)
+def get_team(tid):
+    return Team.query.get(tid)
+
+@cache('organization:team:member:{tid}:{uid}', 86400)
+def get_team_member(tid, uid):
+    return TeamMembers.query.filter_by(tid=tid, uid=uid).limit(1).first()
+
+@cache('organization:team:members:{tid}', 86400)
+def get_team_members(tid):
+    return TeamMembers.query.filter_by(tid=tid).all()
+
 def clear_organization_cache(organization, user=None):
     keys = ['organization:%s' % key for key in [str(organization.id), organization.git]]
     if user:
         keys.append('organization:member:{oid}:{uid}'.format(oid=organization.id, uid=user.id))
+    backend.delete_many(*keys)
+
+def clear_team_cache(team, user=None):
+    keys = ['organization:team:{tid}'.format(tid=team.id), \
+            'organization:team:members:{tid}'.format(tid=team.id)]
+    if user:
+        keys.append('organization:team:member:{tid}:{uid}'.format(tid=team.id, uid=user.id))
     backend.delete_many(*keys)
 
 def clear_verify_stub(verify):
@@ -42,6 +61,13 @@ def create_organization(user, name, git, members=0, admin=0):
     clear_organization_cache(organization, user)
     return organization
 
+def create_team(name, user, organization, members=0):
+    team = Team.create(organization.id, name, members)
+    TeamMembers.create(team.id, user.id)
+    clear_team_cache(team, user)
+    return team
+
+create_team_members = TeamMembers.create
 create_members = Members.create
 create_verify = Verify.create
 

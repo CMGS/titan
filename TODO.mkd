@@ -16,7 +16,7 @@
 
 * 用户创建
 * Team本身类似于Organization，不过是独立单元（Team members表以及对应的members/repos属性）
-* Admin能管理Team
+* 在Organization Admin里面才能删除Team
 
 ## Users
 

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block subtitle %}{{ organization.name }} {{ team.name }}{% endblock %}
+{% block content %}
+<div class="row-fluid">
+    <div class="span2">
+        <ul class="nav nav-tabs nav-stacked">
+            {% for user in users %}
+            <li><a href="#">{{ user.name }} <img src="{{ user.avatar(24) }}" /></a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="span10">
+        <h2>{{ organization.name }}</h2>
+        <h3>{{ team.name }}</h3>
+        {% if not team_member %}
+        <form class="form-create" method="POST" action="{{ url_for('organization.jointeam', git=organization.git, tid=team.id)}}">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-large btn-primary" type="submit">Join</button>
+        </form>
+        {% else %}
+        <form class="form-create" method="POST" action="{{ url_for('organization.quitteam', git=organization.git, tid=team.id)}}">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-large btn-primary" type="submit">Quit</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

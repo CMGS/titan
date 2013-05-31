@@ -97,6 +97,8 @@ def check_git(git):
         return False, 'need git'
     if not re.search(r'^[a-zA-Z0-9_-]{3,10}$', git, re.I):
         return False, 'git invail'
+    if git in ['register', 'team']:
+        return False, 'can use this word'
 
 def check_git_exists(git):
     if not git:
