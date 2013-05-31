@@ -1,4 +1,4 @@
--e git+https://github.com/CMGS/flask.git@1c8c21abd529249db567b701400cf764555941b5#egg=Flask
+-e git+https://github.com/CMGS/flask.git@9bcef6e63773dcdeef5276361a53f78e3cd63642#egg=Flask
 Flask-SQLAlchemy==0.16
 Jinja2==2.7
 MarkupSafe==0.18
