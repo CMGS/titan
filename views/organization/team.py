@@ -16,7 +16,7 @@ from utils.organization import member_required, team_member_required, \
 
 from query.account import get_user
 from query.organization import create_team, create_team_members, \
-        clear_team_cache, get_team_members, clear_organization_cache
+        quit_team, update_team, get_team_members
 
 logger = logging.getLogger(__name__)
 
@@ -29,11 +29,9 @@ class CreateTeam(MethodView):
         name = request.form.get('name', None)
         if check_organization_name(name):
             return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
-
-        team = create_team(name, g.current_user, organization, members=1)
-        organization.update_teams(1)
-        clear_organization_cache(organization)
-        clear_team_cache(organization, team, g.current_user)
+        team, error = create_team(name, g.current_user, organization, members=1)
+        if error:
+            return self.render_template(organization=organization, error=error)
         return redirect(url_for('organization.viewteam', git=organization.git, tname=team.name))
 
 class JoinTeam(MethodView):
@@ -44,9 +42,7 @@ class JoinTeam(MethodView):
     ]
     def post(self, organization, member, team, team_member):
         if not team_member:
-            create_team_members(team.id, member.uid)
-            team.update_members(1)
-            clear_team_cache(organization, team, g.current_user)
+            create_team_members(organization, team, g.current_user)
         return redirect(url_for('organization.viewteam', git=organization.git, tname=team.name))
 
 class QuitTeam(MethodView):
@@ -57,9 +53,7 @@ class QuitTeam(MethodView):
     ]
     def post(self, organization, member, team, team_member):
         if team_member:
-            team_member.delete()
-            team.update_members(-1)
-            clear_team_cache(organization, team, g.current_user)
+            quit_team(organization, team, team_member, g.current_user)
         return redirect(url_for('organization.viewteam', git=organization.git, tname=team.name))
 
 class ViewTeam(MethodView):
@@ -84,30 +78,27 @@ class SetTeam(MethodView):
         return self.render_template(organization=organization, team=team, salt=time.time())
 
     def post(self, organization, member, team, team_member):
-        old_team = self.get_old_team(team)
         upload_avatar = request.files['file']
-        if upload_avatar:
-            self.update_pic(organization, team, upload_avatar)
         name = request.form.get('name', None)
-        if name:
-            self.update_info(organization, team, name)
-        if upload_avatar or name:
-            clear_team_cache(organization, old_team)
+        pic = None
+        if name and check_organization_name(name):
+            return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
+        if upload_avatar:
+            pic = self.get_pic(organization, team, upload_avatar)
+        old_team = self.get_old_team(team)
+        team, error = update_team(organization, old_team, team, name, pic)
+        if error:
+            return self.render_template(team=team, error=error)
         return redirect(url_for('organization.setteam', git=organization.git, tname=team.name))
 
-    def update_pic(self, organization, team, upload_avatar):
+    def get_pic(self, organization, team, upload_avatar):
         uploader = get_uploader()
         filename, stream, error = process_file(team, upload_avatar)
         if error:
             return self.render_template(team=team, error=error, salt=time.time())
         uploader.writeFile(filename, stream)
         purge(filename)
-        team.set_args(pic=filename)
-
-    def update_info(self, organization, team, name):
-        if check_organization_name(name):
-            return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
-        team.set_args(name=name)
+        return filename
 
     def get_old_team(self, team):
         # TODO ugly implement

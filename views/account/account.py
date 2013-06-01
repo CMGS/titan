@@ -15,7 +15,7 @@ from utils.validators import check_register_info, check_login_info
 from query.account import create_user, get_user_by, clear_user_cache
 from query.organization import create_members, get_verify_by_stub, \
         clear_organization_cache, get_member, get_organization_by_git, \
-        create_organization, clear_verify_stub
+        create_organization, clear_verify
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class Register(MethodView):
         if not verify:
             raise abort(404)
         if (datetime.now()  - verify.created).seconds > config.VERIFY_STUB_EXPIRE:
-            clear_verify_stub(verify)
+            clear_verify(verify)
             raise abort(403)
         return verify
 
@@ -99,7 +99,7 @@ class Register(MethodView):
             create_members(organization.id, user.id, verify.admin)
             organization.update_members(1)
             clear_organization_cache(organization, user)
-        clear_verify_stub(verify)
+        clear_verify(verify)
         return organization
 
 class Login(MethodView):

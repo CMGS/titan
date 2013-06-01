@@ -37,7 +37,9 @@ class Register(MethodView):
             return redirect(url_for('organization.view', git=organization.git))
 
         stub = create_token(20)
-        verify = create_verify(stub, email, name, git, admin=1)
+        verify, error = create_verify(stub, email, name, git, admin=1)
+        if not verify:
+            return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
         send_verify_mail(verify)
         return self.render_template(send=1)
 
@@ -50,7 +52,7 @@ class Invite(MethodView):
         count = 0
         for flag in range(1, 6):
             email = request.form.get('email%d' % flag, None)
-            if not email and self.is_member(organization.id, email):
+            if not email or self.is_member(organization.id, email):
                 continue
             admin = request.form.get('admin%d' % flag, None)
             admin = 1 if admin else 0
@@ -60,9 +62,10 @@ class Invite(MethodView):
             status = check_organization_plan(organization, count)
             if status:
                 return self.render_template(send=status[1])
-
             stub = create_token(20)
-            verify = create_verify(stub, email, organization.name, organization.git, admin=admin)
+            verify, error = create_verify(stub, email, organization.name, organization.git, admin=admin)
+            if not verify:
+                continue
             send_verify_mail(verify)
         return self.render_template(send=code.ORGANIZATION_INVITE_SUCCESS)
 

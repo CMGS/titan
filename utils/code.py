@@ -8,6 +8,12 @@ ACCOUNT_LOGIN_INFO_INVAILD = 'login info invaild'
 
 ORGANIZATION_NAME_INVALID = 'organization name invaild'
 ORGANIZATION_INVITE_SUCCESS = 'Please ask your workmates check their inbox'
+ORGANIZATION_EXISTS = 'organization exists'
+ORGANIZATION_MEMBER_EXISTS = 'member exists'
+ORGANIZATION_TEAM_EXISTS = 'team exists'
+ORGANIZATION_TEAM_MEMBER_EXISTS = 'team member exists'
+
+VERIFY_ALREAD_EXISTS = 'you had send a mail already'
 
 EMAIL_FORGET_TITLE = 'Find Password'
 EMAIL_INVITE_TITLE = 'Invite Join Titan'
