@@ -97,16 +97,9 @@ def check_git(git):
         return False, 'need git'
     if not re.search(r'^[a-zA-Z0-9_-]{3,10}$', git, re.I):
         return False, 'git invail'
+    # TODO Black list
     if git in ['register', 'team']:
         return False, 'can use this word'
-
-def check_git_exists(git):
-    if not git:
-        return False, 'need git'
-    from query.organization import get_organization_by_git
-    user = get_organization_by_git(git)
-    if user:
-        return False, 'git exists'
 
 def check_organization_plan(organization, incr=0):
     # TODO 计算有多少人了

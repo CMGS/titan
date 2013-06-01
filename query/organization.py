@@ -162,3 +162,19 @@ def update_team(organization, old_team, team, name, pic):
         if 'Duplicate entry' in e.message:
             return None, code.ORGANIZATION_TEAM_EXISTS
 
+def update_organization(organization, name, git, location):
+    try:
+        if name:
+            organization.name = name
+        if git:
+            organization.git = git
+        if location:
+            organization.location = location
+        db.session.add(organization)
+        db.session.commit()
+        clear_organization_cache(organization)
+        return organization, None
+    except sqlalchemy.exc.IntegrityError, e:
+        if 'Duplicate entry' in e.message:
+            return None, code.ORGANIZATION_EXISTS
+

@@ -10,11 +10,11 @@ from utils.token import create_token
 from utils.helper import MethodView
 from utils.account import login_required
 from utils.organization import send_verify_mail, member_required
-from utils.validators import check_organization_name, check_git, check_git_exists, \
+from utils.validators import check_organization_name, check_git, \
         check_organization_plan
 from query.account import get_user_by_email
 from query.organization import get_member, create_organization, \
-        create_verify, clear_organization_cache
+        create_verify, update_organization
 
 logger = logging.getLogger(__name__)
 
@@ -26,20 +26,23 @@ class Register(MethodView):
         name = request.form.get('name', None)
         git = request.form.get('git', None)
         email = request.form.get('email', None)
-        if check_organization_name(name):
-            return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
-        for status in [check_git(git), check_git_exists(git)]:
-            if status:
-                return self.render_template(error=status[1])
+        status = check_organization_name(name)
+        if status:
+            return self.render_template(error=status[1])
+        status = check_git(git)
+        if status:
+            return self.render_template(error=status[1])
 
         if g.current_user:
-            organization = create_organization(g.current_user, name, git, members=1, admin=1)
+            organization, error = create_organization(g.current_user, name, git, members=1, admin=1)
+            if error:
+                return self.render_template(error=error)
             return redirect(url_for('organization.view', git=organization.git))
 
         stub = create_token(20)
         verify, error = create_verify(stub, email, name, git, admin=1)
         if not verify:
-            return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
+            return self.render_template(error=error)
         send_verify_mail(verify)
         return self.render_template(send=1)
 
@@ -92,20 +95,16 @@ class Setting(MethodView):
         name = request.form.get('name', None)
         gitname = request.form.get('git', None)
         location = request.form.get('location', None)
-        kw = {}
 
-        if name and check_organization_name(name):
-            return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
-            kw['name'] = name
-        if gitname:
-            for status in [check_git(gitname), check_git_exists(gitname)]:
-                if status:
-                    return self.render_template(error=status[1])
-            kw['git'] = gitname
-        if location:
-            kw['location'] = location
+        status = check_organization_name(name)
+        if name and status:
+            return self.render_template(error=status[1])
+        status = check_git(gitname)
+        if gitname and check_git(gitname):
+            return self.render_template(error=status[1])
 
-        organization.update(name=name, **kw)
-        clear_organization_cache(organization)
+        organization, error = update_organization(organization, name, gitname, location)
+        if error:
+            return self.render_template(error=error)
         return redirect(url_for('organization.view', git=organization.git))
 
