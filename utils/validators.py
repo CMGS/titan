@@ -31,14 +31,6 @@ def check_email(email):
     if not re.search(r'^.+@[^.].*\.[a-z]{2,10}$', email, re.I):
         return False, 'email invaild'
 
-def check_email_exists(email):
-    if not email:
-        return False, 'need email'
-    from query.account import get_user_by_email
-    user = get_user_by_email(email)
-    if user:
-        return False, 'email exists'
-
 def check_update_info(username):
     status = check_username(username),
     if status:
