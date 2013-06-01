@@ -22,3 +22,5 @@ def make_view(module_name):
         return view
     return generate_view_func
 
+class Obj(object):pass
+

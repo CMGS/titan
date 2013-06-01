@@ -29,14 +29,13 @@
   {{ error }}
 </div>
 {% endif %}
-{% set csrf = csrf_token() %}
 <div class="row-fluid">
     <form class="form-modify" enctype="multipart/form-data" method="POST">
         <h2 class="form-modify-heading">Modify Team</h2>
         <input name="name" type="text" class="input-block-level" placeholder="Name">
         <img src="{{ team.pic | u_files }}?t={{ salt }}" width="100px" height="100px" />
         <input name="file" type="FILE" class="input-file" accept="image/*" />
-        <input type="hidden" name="_csrf_token" value="{{ csrf }}">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
         <button class="btn btn-large btn-primary" type="submit">Submit</button>
     </form>
 </div>

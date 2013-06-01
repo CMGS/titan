@@ -21,9 +21,9 @@ def get_organization_by_git(git):
 def get_verify_by_stub(stub):
     return Verify.query.filter_by(stub=stub).limit(1).first()
 
-@cache('organization:team:{tid}', 86400)
-def get_team(tid):
-    return Team.query.get(tid)
+@cache('organization:team:{oid}:{name}', 86400)
+def get_team_by_name(oid, name):
+    return Team.query.filter_by(oid=oid, name=name).limit(1).first()
 
 @cache('organization:team:member:{tid}:{uid}', 86400)
 def get_team_member(tid, uid):
@@ -39,9 +39,9 @@ def clear_organization_cache(organization, user=None):
         keys.append('organization:member:{oid}:{uid}'.format(oid=organization.id, uid=user.id))
     backend.delete_many(*keys)
 
-def clear_team_cache(team, user=None):
-    keys = ['organization:team:{tid}'.format(tid=team.id), \
-            'organization:team:members:{tid}'.format(tid=team.id)]
+def clear_team_cache(organization, team, user=None):
+    keys = ['organization:team:members:{tid}'.format(tid=team.id), \
+            'organization:team:{oid}:{name}'.format(oid=organization.id, name=team.name),]
     if user:
         keys.append('organization:team:member:{tid}:{uid}'.format(tid=team.id, uid=user.id))
     backend.delete_many(*keys)

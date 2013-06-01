@@ -13,12 +13,12 @@
         <h2>{{ organization.name }}</h2>
         <h3>{{ team.name }}</h3>
         {% if not team_member %}
-        <form class="form-create" method="POST" action="{{ url_for('organization.jointeam', git=organization.git, tid=team.id)}}">
+        <form class="form-create" method="POST" action="{{ url_for('organization.jointeam', git=organization.git, tname=team.name)}}">
             <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
             <button class="btn btn-large btn-primary" type="submit">Join</button>
         </form>
         {% else %}
-        <form class="form-create" method="POST" action="{{ url_for('organization.quitteam', git=organization.git, tid=team.id)}}">
+        <form class="form-create" method="POST" action="{{ url_for('organization.quitteam', git=organization.git, tname=team.name)}}">
             <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
             <button class="btn btn-large btn-primary" type="submit">Quit</button>
         </form>

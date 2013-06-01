@@ -18,6 +18,7 @@
 * Team本身类似于Organization，不过是独立单元（Team members表以及对应的members/repos属性）
 * 在Organization Admin里面才能删除Team
 * Team能有头像
+* 一个组织里面Team的ident是唯一的
 
 ## Users
 

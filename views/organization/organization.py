@@ -43,10 +43,10 @@ class Register(MethodView):
 
 class Invite(MethodView):
     decorators = [login_required('account.login'), member_required(admin=True)]
-    def get(self, organization, member, git):
+    def get(self, organization, member):
         return self.render_template()
 
-    def post(self, organization, member, git):
+    def post(self, organization, member):
         count = 0
         for flag in range(1, 6):
             email = request.form.get('email%d' % flag, None)
@@ -77,15 +77,15 @@ class Invite(MethodView):
 
 class View(MethodView):
     decorators = [login_required('account.login'), member_required(admin=False)]
-    def get(self, organization, member, git):
+    def get(self, organization, member):
         return self.render_template(organization=organization, member=member)
 
 class Setting(MethodView):
     decorators = [login_required('account.login'), member_required(admin=True)]
-    def get(self, organization, member, git):
+    def get(self, organization, member):
         return self.render_template(organization=organization)
 
-    def post(self, organization, members, git):
+    def post(self, organization, members):
         name = request.form.get('name', None)
         gitname = request.form.get('git', None)
         location = request.form.get('location', None)

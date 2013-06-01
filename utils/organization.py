@@ -11,7 +11,8 @@ from flask import g, render_template, url_for, \
 from utils import code
 from config import ALLOWED_EXTENSIONS
 from utils.mail import async_send_mail
-from query.organization import get_member, get_organization_by_git
+from query.organization import get_member, get_organization_by_git, \
+        get_team_by_name, get_team_member
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +26,7 @@ def member_required(admin=False):
     def _member_required(f):
         @wraps(f)
         def _(*args, **kwargs):
-            if not g.current_user:
-                return redirect(url_for('account.login', redirect=request.url))
-            git = kwargs.get('git', None)
+            git = kwargs.pop('git', None)
             if not git:
                 raise abort(404)
             organization = get_organization_by_git(git)
@@ -41,6 +40,23 @@ def member_required(admin=False):
             return f(organization, member,  *args, **kwargs)
         return _
     return _member_required
+
+def team_member_required(need=True):
+    def _team_member_required(f):
+        @wraps(f)
+        def _(organization, member, *args, **kwargs):
+            team_name = kwargs.pop('tname', None)
+            if not team_name:
+                raise abort(404)
+            team = get_team_by_name(organization.id, team_name)
+            if not team:
+                raise abort(404)
+            team_member = get_team_member(team.id, g.current_user.id)
+            if need and not team_member:
+                return redirect(url_for('organization.viewteam', git=organization.git, tname=team.name))
+            return f(organization, member, team, team_member, *args, **kwargs)
+        return _
+    return _team_member_required
 
 def process_file(team, upload_file):
     if not allowed_file(upload_file.filename):
