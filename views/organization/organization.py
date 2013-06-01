@@ -41,13 +41,13 @@ class Register(MethodView):
 
         stub = create_token(20)
         verify, error = create_verify(stub, email, name, git, admin=1)
-        if not verify:
+        if error:
             return self.render_template(error=error)
         send_verify_mail(verify)
         return self.render_template(send=1)
 
 class Invite(MethodView):
-    decorators = [login_required('account.login'), member_required(admin=True)]
+    decorators = [member_required(admin=True), login_required('account.login')]
     def get(self, organization, member):
         return self.render_template()
 
@@ -82,12 +82,12 @@ class Invite(MethodView):
         return False
 
 class View(MethodView):
-    decorators = [login_required('account.login'), member_required(admin=False)]
+    decorators = [member_required(admin=False), login_required('account.login')]
     def get(self, organization, member):
         return self.render_template(organization=organization, member=member)
 
 class Setting(MethodView):
-    decorators = [login_required('account.login'), member_required(admin=True)]
+    decorators = [member_required(admin=True), login_required('account.login')]
     def get(self, organization, member):
         return self.render_template(organization=organization)
 
