@@ -58,10 +58,11 @@ def clear_user_cache(user):
     keys = ['account:%s' % key for key in [str(user.id), user.domain, user.email]]
     backend.delete_many(*keys)
 
-def clear_forget(forget):
+def clear_forget(forget, delete=True):
     if not forget:
         return
-    forget.delete()
+    if delete:
+        forget.delete()
     backend.delete('account:forget:%s' % forget.stub)
     backend.delete('account:forget:{uid}'.format(uid=forget.uid))
 
@@ -79,6 +80,7 @@ def create_forget(uid, stub):
         db.session.commit()
         return forget, None
     except sqlalchemy.exc.IntegrityError, e:
+        db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.FORGET_ALREAD_EXISTS
 
@@ -86,17 +88,29 @@ def create_forget(uid, stub):
 
 def update_account(user, **kwargs):
     try:
+        forget = kwargs.pop('_forget', None)
         for k, v in kwargs.iteritems():
             if k == 'password':
                 user.change_password(v)
                 continue
             setattr(user, k, v)
         db.session.add(user)
+        if forget:
+            db.session.delete(forget)
         db.session.commit()
+        if forget:
+            clear_forget(forget, delete=False)
         clear_user_cache(user)
         return user, None
     except sqlalchemy.exc.IntegrityError, e:
+        db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.ACCOUNT_DOMIAN_EXISTS
 
-create_user = User.create
+def create_user(username, password, email):
+    user = User(username, password, email)
+    db.session.add(user)
+    db.session.commit()
+    clear_user_cache(user)
+    return user
+

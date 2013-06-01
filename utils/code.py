@@ -13,6 +13,7 @@ ORGANIZATION_EXISTS = 'organization exists'
 ORGANIZATION_MEMBER_EXISTS = 'member exists'
 ORGANIZATION_TEAM_EXISTS = 'team exists'
 ORGANIZATION_TEAM_MEMBER_EXISTS = 'team member exists'
+ORGANIZATION_VERIFY_STUB_EXPIRED = 'stub expired'
 
 VERIFY_ALREAD_EXISTS = 'you had send a mail already'
 FORGET_ALREAD_EXISTS = 'you had send a mail already'

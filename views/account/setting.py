@@ -47,7 +47,9 @@ class Setting(MethodView):
         attrs['city'] = city
         attrs['title'] = title
 
-        update_account(user, **attrs)
+        user, error = update_account(user, **attrs)
+        if error:
+            return self.render_template(error=error)
 
         #relogin
         account_login(user)

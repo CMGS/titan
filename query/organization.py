@@ -35,7 +35,11 @@ def get_team_members(tid):
 
 @cache('organization:verify:{stub}', 300)
 def get_verify_by_stub(stub):
-    return Verify.query.filter_by(stub=stub).limit(1).first()
+    verify = Verify.query.filter_by(stub=stub).limit(1).first()
+    if verify and (datetime.now()  - verify.created).total_seconds() > config.VERIFY_STUB_EXPIRE:
+        clear_verify(verify)
+        return None, code.ORGANIZATION_VERIFY_STUB_EXPIRED
+    return verify, None
 
 @cache('Organization:verify:{git}:{email}', 300)
 def get_unique_verify(git, email):
@@ -59,26 +63,30 @@ def clear_team_cache(organization, team, user=None):
         keys.append('organization:team:member:{tid}:{uid}'.format(tid=team.id, uid=user.id))
     backend.delete_many(*keys)
 
-def clear_verify(verify):
+def clear_verify(verify, delete=True):
     if not verify:
         return
-    verify.delete()
+    if delete:
+        verify.delete()
     backend.delete('organization:verify:%s' % verify.stub)
     backend.delete('organization:verify:%s:%s' % (verify.git, verify.email))
 
 # Create
 
-def create_organization(user, name, git, members=0, admin=0):
+def create_organization(user, name, git, members=0, admin=0, verify=None):
     try:
         organization = Organization(name, git, members=1)
         db.session.add(organization)
         db.session.flush()
         members = Members(organization.id, user.id, admin=1)
         db.session.add(members)
+        if verify:
+            db.session.delete(verify)
         db.session.commit()
         clear_organization_cache(organization, user)
         return organization, None
     except sqlalchemy.exc.IntegrityError, e:
+        db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.ORGANIZATION_EXISTS
 
@@ -86,12 +94,15 @@ def create_members(organization, user, verify):
     try:
         member = Members(organization.id, user.id, verify.admin)
         organization.members = Organization.members + 1
-        clear_organization_cache(organization, user)
         db.session.add(member)
         db.session.add(organization)
+        db.session.delete(verify)
         db.session.commit()
+        clear_verify(verify, delete=False)
+        clear_organization_cache(organization, user)
         return member, None
     except sqlalchemy.exc.IntegrityError, e:
+        db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.ORGANIZATION_MEMBER_EXISTS
 
@@ -108,6 +119,7 @@ def create_team(name, user, organization, members=0):
         clear_team_cache(organization, team, user)
         return team, None
     except sqlalchemy.exc.IntegrityError, e:
+        db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.ORGANIZATION_TEAM_EXISTS
 
@@ -121,6 +133,7 @@ def create_team_members(organization, team, user):
         clear_team_cache(organization, team, user)
         return team_member, None
     except sqlalchemy.exc.IntegrityError, e:
+        db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.ORGANIZATION_TEAM_MEMBER_EXISTS
 
@@ -136,6 +149,7 @@ def create_verify(stub, email, name, git, admin=0):
         db.session.commit()
         return verify, None
     except sqlalchemy.exc.IntegrityError, e:
+        db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.VERIFY_ALREAD_EXISTS
 
@@ -159,6 +173,7 @@ def update_team(organization, old_team, team, name, pic):
         clear_team_cache(organization, old_team)
         return team, None
     except sqlalchemy.exc.IntegrityError, e:
+        db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.ORGANIZATION_TEAM_EXISTS
 
@@ -175,6 +190,7 @@ def update_organization(organization, name, git, location):
         clear_organization_cache(organization)
         return organization, None
     except sqlalchemy.exc.IntegrityError, e:
+        db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.ORGANIZATION_EXISTS
 

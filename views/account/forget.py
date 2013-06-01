@@ -60,9 +60,8 @@ class Reset(MethodView):
             return self.render_template(error=status[1])
 
         user = get_user(forget.uid)
-        user, error = update_account(user, password=password)
+        user, error = update_account(user, _forget=forget, password=password)
         if error:
             return self.render_template(error=error)
-        clear_forget(forget)
         return redirect(url_for('account.login'))
 

@@ -35,13 +35,6 @@ class User(db.Model):
         self.token = create_token(16)
 
     @staticmethod
-    def create(username, password, email):
-        user = User(username, password, email)
-        db.session.add(user)
-        db.session.commit()
-        return user
-
-    @staticmethod
     def create_password(raw):
         salt = create_token(8)
         hsh = hashlib.sha1(salt + raw).hexdigest()
