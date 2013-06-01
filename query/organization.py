@@ -126,7 +126,7 @@ def create_team_members(organization, team, user):
 
 def create_verify(stub, email, name, git, admin=0):
     verify = get_unique_verify(git, email)
-    if verify and (datetime.now()  - verify.created).total_seconds > config.VERIFY_STUB_EXPIRE:
+    if verify and (datetime.now()  - verify.created).total_seconds() > config.VERIFY_STUB_EXPIRE:
         clear_verify(verify)
     elif verify:
         return verify, None

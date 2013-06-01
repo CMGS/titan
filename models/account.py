@@ -91,13 +91,6 @@ class Forget(db.Model):
         self.uid = uid
         self.stub = stub
 
-    @staticmethod
-    def create(uid, stub):
-        forget = Forget(uid, stub)
-        db.session.add(forget)
-        db.session.commit()
-        return forget
-
     def delete(self):
         db.session.delete(self)
         db.session.commit()

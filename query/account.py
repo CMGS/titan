@@ -1,8 +1,12 @@
 #!/usr/local/bin/python2.7
 #coding:utf-8
 
+import config
+import sqlalchemy.exc
+from utils import code
+from datetime import datetime
 from flask import g
-from models.account import User, Forget
+from models.account import User, Forget, db
 from utils.validators import check_domain
 from sheep.api.cache import backend, cache
 
@@ -25,12 +29,16 @@ def get_user_by_domain(domain):
 def get_user_by_email(email):
     return get_user_by(email=email).limit(1).first()
 
-@cache('account:{stub}', 300)
+@cache('account:forget:{stub}', 300)
 def get_forget_by_stub(stub):
-    return Forget.query.filter_by(stub=stub).first()
+    forget = Forget.query.filter_by(stub=stub).first()
+    if (datetime.now()  - forget.created).total_seconds() > config.FORGET_STUB_EXPIRE:
+        clear_forget(forget)
+        return None, code.ACCOUNT_FORGET_STUB_EXPIRED
+    return forget, None
 
 @cache('account:forget:{uid}', 300)
-def check_uid_exists(uid):
+def get_unique_forget(uid):
     return Forget.query.filter_by(uid=uid).first()
 
 def get_user_by(**kw):
@@ -44,16 +52,36 @@ def get_current_user():
         return None
     return user
 
+# Clear
+
 def clear_user_cache(user):
     keys = ['account:%s' % key for key in [str(user.id), user.domain, user.email]]
     backend.delete_many(*keys)
 
-def clear_forget_stub(forget):
+def clear_forget(forget):
     if not forget:
         return
     forget.delete()
-    backend.delete('account:%s' % forget.stub)
+    backend.delete('account:forget:%s' % forget.stub)
     backend.delete('account:forget:{uid}'.format(uid=forget.uid))
 
-create_forget = Forget.create
+# Create
+
+def create_forget(uid, stub):
+    forget = get_unique_forget(uid)
+    if forget and (datetime.now()  - forget.created).total_seconds() > config.VERIFY_STUB_EXPIRE:
+        clear_forget(forget)
+    elif forget:
+        return forget, None
+    try:
+        forget = Forget(uid, stub)
+        db.session.add(forget)
+        db.session.commit()
+        return forget, None
+    except sqlalchemy.exc.IntegrityError, e:
+        if 'Duplicate entry' in e.message:
+            return None, code.FORGET_ALREAD_EXISTS
+
+# Update
+
 create_user = User.create

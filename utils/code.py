@@ -14,6 +14,7 @@ ORGANIZATION_TEAM_EXISTS = 'team exists'
 ORGANIZATION_TEAM_MEMBER_EXISTS = 'team member exists'
 
 VERIFY_ALREAD_EXISTS = 'you had send a mail already'
+FORGET_ALREAD_EXISTS = 'you had send a mail already'
 
 EMAIL_FORGET_TITLE = 'Find Password'
 EMAIL_INVITE_TITLE = 'Invite Join Titan'
