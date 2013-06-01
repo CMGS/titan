@@ -91,9 +91,14 @@ class SetTeam(MethodView):
         if not team_member:
             return redirect(url_for('organization.viewteam', git=organization.git, tid=team.id))
         upload_avatar = request.files['file']
-        if not upload_avatar:
-            return self.update_info(organization, team)
-        return self.update_pic(organization, team, upload_avatar)
+        if upload_avatar:
+            self.update_pic(organization, team, upload_avatar)
+        name = request.form.get('name', None)
+        if name:
+            self.update_info(organization, team, name)
+        if upload_avatar or name:
+            clear_team_cache(team)
+        return self.render_template(organization=organization, team=team, salt=time.time())
 
     def update_pic(self, organization, team, upload_avatar):
         uploader = get_uploader()
@@ -103,15 +108,10 @@ class SetTeam(MethodView):
         uploader.writeFile(filename, stream)
         purge(filename)
         team.set_args(pic=filename)
-        clear_team_cache(team)
-        return self.render_template(organization=organization, team=team, salt=time.time())
 
-    def update_info(self, organization, team):
-        name = request.form.get('name', None)
+    def update_info(self, organization, team, name):
         if check_organization_name(name):
             return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
 
         team.set_args(name=name)
-        clear_team_cache(team)
-        return self.render_template(organization=organization, team=team, salt=time.time())
 
