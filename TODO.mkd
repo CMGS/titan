@@ -10,15 +10,11 @@
 * 已登录 --》创建 --》Join Organization
 * 已登录 --》另外一个邮箱被邀请 --》输入另外一个邮箱 --》Join Organization
 
-* Admin 能管理Team/Members/Repos' permits
+* Admin 能管理Team/Members/Repos/Permits
 
 ## Team
 
-* 用户创建
-* Team本身类似于Organization，不过是独立单元（Team members表以及对应的members/repos属性）
 * 在Organization Admin里面才能删除Team
-* Team能有头像
-* 一个组织里面Team的ident是唯一的
 
 ## Users
 
@@ -49,4 +45,8 @@
 + 只允许通过组织邀请
 + 允许邀请管理员
 + 管理员允许设置组织信息
++ 用户创建
++ Team本身类似于Organization，不过是独立单元（Team members表以及对应的members/repos属性）
++ Team能有头像
++ 一个组织里面Team的ident是唯一的
 

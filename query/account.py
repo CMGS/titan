@@ -108,9 +108,14 @@ def update_account(user, **kwargs):
             return None, code.ACCOUNT_DOMIAN_EXISTS
 
 def create_user(username, password, email):
-    user = User(username, password, email)
-    db.session.add(user)
-    db.session.commit()
-    clear_user_cache(user)
-    return user
+    try:
+        user = User(username, password, email)
+        db.session.add(user)
+        db.session.commit()
+        clear_user_cache(user)
+        return user, None
+    except sqlalchemy.exc.IntegrityError, e:
+        db.session.rollback()
+        if 'Duplicate entry' in e.message:
+            return None, code.ACCOUNT_EMAIL_EXISTS
 

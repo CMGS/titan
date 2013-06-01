@@ -46,7 +46,6 @@ def check_register_info(username, email, password):
     check_list = [
         check_username(username),
         check_email(email),
-        check_email_exists(email),
         check_password(password),
     ]
     for status in check_list:

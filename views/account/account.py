@@ -68,7 +68,9 @@ class Register(MethodView):
         if not check:
             return self.render_template(verify=verify, error=error)
 
-        user = create_user(username, password, email)
+        user, error = create_user(username, password, email)
+        if error:
+            return self.render_template(verify=verify, error=error)
         # clear cache
         account_login(user)
         return self.join_organization(verify, user)
