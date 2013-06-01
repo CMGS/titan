@@ -33,6 +33,8 @@ PLAN = {
     7: 999
 }
 
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+
 try:
     from local_config import *
 except:

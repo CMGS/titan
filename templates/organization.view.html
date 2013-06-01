@@ -4,7 +4,7 @@
 <div class="row-fluid">
     <div class="span3">
         <ul class="nav nav-tabs nav-stacked">
-            <li><a href="#">Create Team</a></li>
+            <li><a href="{{ url_for('organization.createteam', git=organization.git) }}">Create Team</a></li>
             {% if member.admin %}
             <li><a href="{{ url_for('organization.invite', git=organization.git) }}">Invite users</a></li>
             <li><a href="{{ url_for('organization.setting', git=organization.git) }}">Organization Setting</a></li>

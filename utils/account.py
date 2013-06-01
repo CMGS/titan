@@ -38,4 +38,3 @@ def account_login(user):
 def account_logout():
     g.session.clear()
 
-
