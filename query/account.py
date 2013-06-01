@@ -84,4 +84,19 @@ def create_forget(uid, stub):
 
 # Update
 
+def update_account(user, **kwargs):
+    try:
+        for k, v in kwargs.iteritems():
+            if k == 'password':
+                user.change_password(v)
+                continue
+            setattr(user, k, v)
+        db.session.add(user)
+        db.session.commit()
+        clear_user_cache(user)
+        return user, None
+    except sqlalchemy.exc.IntegrityError, e:
+        if 'Duplicate entry' in e.message:
+            return None, code.ACCOUNT_DOMIAN_EXISTS
+
 create_user = User.create

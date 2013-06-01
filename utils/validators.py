@@ -39,14 +39,6 @@ def check_email_exists(email):
     if user:
         return False, 'email exists'
 
-def check_domain_exists(domain):
-    if not domain:
-        return False, 'need domain'
-    from query.account import get_user_by_domain
-    user = get_user_by_domain(domain)
-    if user:
-        return False, 'domain exists'
-
 def check_update_info(username):
     status = check_username(username),
     if status:

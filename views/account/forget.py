@@ -11,8 +11,7 @@ from utils.validators import check_email, check_password
 from utils.account import login_required, send_forget_mail
 
 from query.account import get_user_by_email, create_forget, \
-        get_forget_by_stub, get_user, clear_user_cache, \
-        clear_forget
+        get_forget_by_stub, get_user, clear_forget, update_account
 
 logger = logging.getLogger(__name__)
 
@@ -61,8 +60,9 @@ class Reset(MethodView):
             return self.render_template(error=status[1])
 
         user = get_user(forget.uid)
-        user.change_password(password)
+        user, error = update_account(user, password=password)
+        if error:
+            return self.render_template(error=error)
         clear_forget(forget)
-        clear_user_cache(user)
         return redirect(url_for('account.login'))
 

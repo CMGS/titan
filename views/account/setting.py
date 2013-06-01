@@ -7,9 +7,9 @@ from utils import code
 from utils.helper import MethodView
 from utils.account import login_required, account_login
 from utils.validators import check_password, check_domain, \
-        check_domain_exists, check_username
+        check_username
 
-from query.account import clear_user_cache, get_current_user
+from query.account import get_current_user, update_account
 
 class Setting(MethodView):
     decorators = [login_required('account.login', redirect='/account/setting/')]
@@ -24,29 +24,32 @@ class Setting(MethodView):
         city = request.form.get('city', '')
         title = request.form.get('title', '')
 
+        attrs = {}
+
         if username != user.name:
             status = check_username(username)
             if status:
                 return self.render_template(error=status[1])
-            user.change_username(username)
+            attrs['name'] = username
 
         if domain and not user.domain:
-            for status in [check_domain(domain), check_domain_exists(domain)]:
-                if status:
-                    return self.render_template(error=status[1])
-            user.set_domain(domain)
+            status = check_domain(domain)
+            if status:
+                return self.render_template(error=status[1])
+            attrs['domain'] = domain
 
         if password:
             status = check_password(password)
             if status:
                 return self.render_template(error=status[1])
-            user.change_password(password)
+            attrs['password'] = password
 
-        user.set_args('city', city)
-        user.set_args('title', title)
+        attrs['city'] = city
+        attrs['title'] = title
 
-        #clear cache
-        clear_user_cache(user)
+        update_account(user, **attrs)
+
+        #relogin
         account_login(user)
         g.current_user = get_current_user()
         return self.render_template(error=code.ACCOUNT_SETTING_SUCCESS)

@@ -57,18 +57,6 @@ class User(db.Model):
     def change_password(self, password):
         self.token = create_token(16)
         self.passwd = User.create_password(password)
-        db.session.add(self)
-        db.session.commit()
-
-    def change_username(self, name):
-        self.name = name
-        db.session.add(self)
-        db.session.commit()
-
-    def set_domain(self, domain):
-        self.domain = domain
-        db.session.add(self)
-        db.session.commit()
 
     def set_args(self, key, value):
         setattr(self, key, value)
