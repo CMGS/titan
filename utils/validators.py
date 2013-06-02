@@ -4,38 +4,37 @@
 # TODO refactor
 import re
 import config
+from utils import code
 
 def check_password(password):
     if not password:
-        return False, 'need password'
+        return False
     if not re.search(r'[\S]{6,}', password, re.I):
-        return False, 'password invaild'
+        return False
+    return True
 
 def check_domain(domain):
     if not domain:
-        return False, 'need domain'
+        return False
     if not re.search(r'^[a-zA-Z0-9_-]{4,10}$', domain, re.I):
-        return False, 'domain invail'
+        return False
+    return True
 
 def check_username(username):
     if not username:
-        return False, 'need username'
+        return False
     if not isinstance(username, unicode):
         username = unicode(username, 'utf-8')
     if not re.search(ur'^[\u4e00-\u9fa5\w]{1,20}$', username, re.I):
-        return False, 'username invail'
+        return False
+    return True
 
 def check_email(email):
     if not email:
-        return False, 'need email'
+        return False
     if not re.search(r'^.+@[^.].*\.[a-z]{2,10}$', email, re.I):
-        return False, 'email invaild'
-
-def check_update_info(username):
-    status = check_username(username),
-    if status:
-        return status
-    return True, None
+        return False
+    return True
 
 def check_register_info(username, email, password):
     '''
@@ -43,26 +42,19 @@ def check_register_info(username, email, password):
     email a-zA-Z0-9_-@a-zA-Z0-9.a-zA-Z0-9
     password a-zA-Z0-9_-!@#$%^&*
     '''
-    check_list = [
-        check_username(username),
-        check_email(email),
-        check_password(password),
-    ]
-    for status in check_list:
-        if not status:
-            continue
-        return status
+    if not check_username(username):
+        return False, code.ACCOUNT_USERNAME_INVAILD
+    if not check_email(email):
+        return False, code.ACCOUNT_EMAIL_INVAILD
+    if not check_password(password):
+        return False, code.ACCOUNT_PASSWORD_INVAILD
     return True, None
 
 def check_login_info(email, password):
-    check_list = [
-        check_password(password),
-        check_email(email),
-    ]
-    for status in check_list:
-        if not status:
-            continue
-        return status
+    if not check_email(email):
+        return False, code.ACCOUNT_EMAIL_INVAILD
+    if not check_password(password):
+        return False, code.ACCOUNT_PASSWORD_INVAILD
     return True, None
 
 # FOR Organization

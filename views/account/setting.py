@@ -28,20 +28,20 @@ class Setting(MethodView):
 
         if username != user.name:
             status = check_username(username)
-            if status:
-                return self.render_template(error=status[1])
+            if not status:
+                return self.render_template(error=code.ACCOUNT_USERNAME_INVAILD)
             attrs['name'] = username
 
         if domain and not user.domain:
             status = check_domain(domain)
-            if status:
-                return self.render_template(error=status[1])
+            if not status:
+                return self.render_template(error=code.ACCOUNT_DOMAIN_INVAILD)
             attrs['domain'] = domain
 
         if password:
             status = check_password(password)
-            if status:
-                return self.render_template(error=status[1])
+            if not status:
+                return self.render_template(error=code.ACCOUNT_PASSWORD_INVAILD)
             attrs['password'] = password
 
         attrs['city'] = city

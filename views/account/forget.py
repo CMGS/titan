@@ -5,6 +5,7 @@ import logging
 
 from flask import redirect, request, url_for, g
 
+from utils import code
 from utils.helper import MethodView
 from utils.token import create_token
 from utils.validators import check_email, check_password
@@ -22,9 +23,8 @@ class Forget(MethodView):
 
     def post(self):
         email = request.form.get('email', None)
-        status = check_email(email)
-        if status:
-            return self.render_template(error=status[1])
+        if not check_email(email):
+            return self.render_template(error=code.ACCOUNT_EMAIL_INVAILD)
         user = get_user_by_email(email=email)
         if user:
             stub = create_token(20)
@@ -55,9 +55,8 @@ class Reset(MethodView):
             return redirect(url_for('index'))
 
         password = request.form.get('password', None)
-        status = check_password(password)
-        if status:
-            return self.render_template(error=status[1])
+        if not check_password(password):
+            return self.render_template(error=code.ACCOUNT_PASSWORD_INVAILD)
 
         user = get_user(forget.uid)
         user, error = update_account(user, _forget=forget, password=password)
