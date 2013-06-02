@@ -33,8 +33,6 @@
 
 ## TODO
 
-* 实现Team逻辑（Create/Join/Setting）
-* Show Members 页面
 * 整理界面
 
 ## Done
@@ -49,4 +47,5 @@
 + Team本身类似于Organization，不过是独立单元（Team members表以及对应的members/repos属性）
 + Team能有头像
 + 一个组织里面Team的ident是唯一的
-
++ 实现Team逻辑（Create/Join/Setting）
++ Show Members 页面

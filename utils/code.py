@@ -9,12 +9,15 @@ ACCOUNT_DOMIAN_EXISTS = 'domain exists'
 ACCOUNT_EMAIL_EXISTS = 'email exists'
 
 ORGANIZATION_NAME_INVALID = 'organization name invaild'
+ORGANIZATION_LIMIT = 'Plan limit'
 ORGANIZATION_INVITE_SUCCESS = 'Please ask your workmates check their inbox'
 ORGANIZATION_EXISTS = 'organization exists'
 ORGANIZATION_MEMBER_EXISTS = 'member exists'
 ORGANIZATION_TEAM_EXISTS = 'team exists'
 ORGANIZATION_TEAM_MEMBER_EXISTS = 'team member exists'
 ORGANIZATION_VERIFY_STUB_EXPIRED = 'stub expired'
+
+UNHANDLE_EXCEPTION = 'Server fault'
 
 VERIFY_ALREAD_EXISTS = 'you had send a mail already'
 FORGET_ALREAD_EXISTS = 'you had send a mail already'

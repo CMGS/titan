@@ -2,12 +2,15 @@
 #coding:utf-8
 
 import config
+import logging
 import sqlalchemy.exc
 from utils import code
 from datetime import datetime
 from sheep.api.cache import cache, backend
 from models.organization import Organization, Team, Verify, \
         Members, TeamMembers, db
+
+logger = logging.getLogger(__name__)
 
 @cache('organization:{oid}', 86400)
 def get_organization(oid):
@@ -89,6 +92,8 @@ def create_organization(user, name, git, members=0, admin=0, verify=None):
         db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.ORGANIZATION_EXISTS
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
 
 def create_members(organization, user, verify):
     try:
@@ -105,15 +110,18 @@ def create_members(organization, user, verify):
         db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.ORGANIZATION_MEMBER_EXISTS
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
 
-def create_team(name, user, organization, members=0):
+def create_team(name, display, user, organization, members=0):
     try:
-        team = Team(organization.id, name, members)
+        team = Team(organization.id, name, display, members)
         db.session.add(team)
         db.session.flush()
         team_member = TeamMembers(team.id, user.id)
         organization.teams = Organization.teams + 1
         db.session.add(team_member)
+        db.session.add(organization)
         db.session.commit()
         clear_organization_cache(organization)
         clear_team_cache(organization, team, user)
@@ -122,6 +130,8 @@ def create_team(name, user, organization, members=0):
         db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.ORGANIZATION_TEAM_EXISTS
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
 
 def create_team_members(organization, team, user):
     try:
@@ -136,6 +146,8 @@ def create_team_members(organization, team, user):
         db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.ORGANIZATION_TEAM_MEMBER_EXISTS
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
 
 def create_verify(stub, email, name, git, admin=0):
     verify = get_unique_verify(git, email)
@@ -152,6 +164,8 @@ def create_verify(stub, email, name, git, admin=0):
         db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.VERIFY_ALREAD_EXISTS
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
 
 # Update
 
@@ -162,12 +176,10 @@ def quit_team(organization, team, team_member, user):
     db.session.commit()
     clear_team_cache(organization, team, user)
 
-def update_team(organization, old_team, team, name, pic):
+def update_team(organization, old_team, team, **attr):
     try:
-        if name:
-            team.name = name
-        if pic:
-            team.pic = pic
+        for k, v in attr.iteritems():
+            setattr(team, k, v)
         db.session.add(team)
         db.session.commit()
         clear_team_cache(organization, old_team)
@@ -176,6 +188,8 @@ def update_team(organization, old_team, team, name, pic):
         db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.ORGANIZATION_TEAM_EXISTS
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
 
 def update_organization(organization, name, git, location):
     try:
@@ -193,4 +207,6 @@ def update_organization(organization, name, git, location):
         db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.ORGANIZATION_EXISTS
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
 

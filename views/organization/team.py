@@ -7,10 +7,10 @@ import logging
 from sheep.api.files import get_uploader, purge
 from flask import g, request, redirect, url_for
 
-import code
+from utils import code
 from utils.helper import MethodView, Obj
 from utils.account import login_required
-from utils.validators import check_organization_name
+from utils.validators import check_organization_name, check_git
 from utils.organization import member_required, team_member_required, \
         process_file
 
@@ -27,9 +27,14 @@ class CreateTeam(MethodView):
 
     def post(self, organization, member):
         name = request.form.get('name', None)
-        if check_organization_name(name):
+        display = request.form.get('display', None)
+        status = check_git(name)
+        if not status:
             return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
-        team, error = create_team(name, g.current_user, organization, members=1)
+        status = check_organization_name(display)
+        if not status:
+            return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
+        team, error = create_team(name, display, g.current_user, organization, members=1)
         if error:
             return self.render_template(organization=organization, error=error)
         return redirect(url_for('organization.viewteam', git=organization.git, tname=team.name))
@@ -80,13 +85,25 @@ class SetTeam(MethodView):
     def post(self, organization, member, team, team_member):
         upload_avatar = request.files['file']
         name = request.form.get('name', None)
+        display = request.form.get('display', None)
         pic = None
-        if name and check_organization_name(name):
-            return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
+        attr = {}
+        if name:
+            status = check_git(name)
+            if not status:
+                return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
+            attr['name'] = name
+        if display:
+            status = check_organization_name(display)
+            if not status:
+                return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
+            attr['display'] = display
         if upload_avatar:
             pic = self.get_pic(organization, team, upload_avatar)
+            attr['pic'] = pic
+
         old_team = self.get_old_team(team)
-        team, error = update_team(organization, old_team, team, name, pic)
+        team, error = update_team(organization, old_team, team, **attr)
         if error:
             return self.render_template(team=team, error=error)
         return redirect(url_for('organization.setteam', git=organization.git, tname=team.name))

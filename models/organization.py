@@ -43,15 +43,17 @@ class Team(db.Model):
     __table_args__ = (db.UniqueConstraint('oid', 'name', name='uix_oid_tname'), )
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.CHAR(30), nullable=False)
+    display = db.Column(db.CHAR(30), nullable=False)
     oid = db.Column(db.Integer, index=True, nullable=False)
     members = db.Column(db.Integer, nullable=False, default=0)
     pic = db.Column(db.String(255), default='default.png')
     repos = db.Column(db.Integer, default=0)
     create = db.Column(db.DateTime, default=datetime.now)
 
-    def __init__(self, oid, name, members=0):
+    def __init__(self, oid, name, display, members=0):
         self.oid = oid
         self.name = name
+        self.display = display
         self.members = members
 
 class Members(db.Model):

@@ -2,6 +2,7 @@
 #coding:utf-8
 
 import config
+import logging
 import sqlalchemy.exc
 from utils import code
 from datetime import datetime
@@ -9,6 +10,8 @@ from flask import g
 from models.account import User, Forget, db
 from utils.validators import check_domain
 from sheep.api.cache import backend, cache
+
+logger = logging.getLogger(__name__)
 
 @cache('account:{uid}', 86400)
 def get_user(uid):
@@ -83,6 +86,8 @@ def create_forget(uid, stub):
         db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.FORGET_ALREAD_EXISTS
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
 
 # Update
 
@@ -106,6 +111,8 @@ def update_account(user, **kwargs):
         db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.ACCOUNT_DOMIAN_EXISTS
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
 
 def create_user(username, password, email):
     try:
@@ -118,4 +125,6 @@ def create_user(username, password, email):
         db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.ACCOUNT_EMAIL_EXISTS
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
 

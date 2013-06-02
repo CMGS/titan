@@ -69,23 +69,26 @@ def check_login_info(email, password):
 
 def check_organization_name(name):
     if not name:
-        return False, 'need name'
+        return False
     if not isinstance(name, unicode):
         name = unicode(name, 'utf-8')
     if not re.search(ur'^[\u4e00-\u9fa5\w]{1,30}$', name, re.I):
-        return False, 'name invail'
+        return False
+    return True
 
 def check_git(git):
     if not git:
-        return False, 'need git'
+        return False
     if not re.search(r'^[a-zA-Z0-9_-]{3,10}$', git, re.I):
-        return False, 'git invail'
+        return False
     # TODO Black list
     if git in ['register', 'team']:
-        return False, 'can use this word'
+        return False
+    return True
 
 def check_organization_plan(organization, incr=0):
     # TODO 计算有多少人了
     if organization.members + incr > config.PLAN[organization.plan]:
-        return False, 'plan limit reached'
+        return False
+    return True
 

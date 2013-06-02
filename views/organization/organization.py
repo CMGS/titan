@@ -27,11 +27,11 @@ class Register(MethodView):
         git = request.form.get('git', None)
         email = request.form.get('email', None)
         status = check_organization_name(name)
-        if status:
-            return self.render_template(error=status[1])
+        if not status:
+            return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
         status = check_git(git)
-        if status:
-            return self.render_template(error=status[1])
+        if not status:
+            return self.render_template(error=code.ORGANIZATION_EXISTS)
 
         if g.current_user:
             organization, error = create_organization(g.current_user, name, git, members=1, admin=1)
@@ -63,8 +63,8 @@ class Invite(MethodView):
             # 超过上限禁止增员
             count += 1
             status = check_organization_plan(organization, count)
-            if status:
-                return self.render_template(send=status[1])
+            if not status:
+                return self.render_template(send=code.ORGANIZATION_LIMIT)
             stub = create_token(20)
             verify, error = create_verify(stub, email, organization.name, organization.git, admin=admin)
             if not verify:
@@ -97,11 +97,11 @@ class Setting(MethodView):
         location = request.form.get('location', None)
 
         status = check_organization_name(name)
-        if name and status:
-            return self.render_template(error=status[1])
+        if name and not status:
+            return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
         status = check_git(gitname)
-        if gitname and check_git(gitname):
-            return self.render_template(error=status[1])
+        if gitname and not status:
+            return self.render_template(error=code.ORGANIZATION_EXISTS)
 
         organization, error = update_organization(organization, name, gitname, location)
         if error:
