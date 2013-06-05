@@ -11,7 +11,7 @@ from utils.helper import MethodView
 from utils.account import login_required
 from utils.organization import send_verify_mail, member_required
 from utils.validators import check_organization_name, check_git, \
-        check_organization_plan
+        check_organization_plan, check_email
 from query.account import get_user_by_email, get_user
 from query.organization import get_member, create_organization, \
         create_verify, update_organization, get_teams_by_ogranization, \
@@ -27,19 +27,17 @@ class Register(MethodView):
         name = request.form.get('name', None)
         git = request.form.get('git', None)
         email = request.form.get('email', None)
-        status = check_organization_name(name)
-        if not status:
+        if not check_email(email):
+            return self.render_template(error=code.ACCOUNT_EMAIL_INVAILD)
+        if not check_organization_name(name):
             return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
-        status = check_git(git)
-        if not status:
+        if not check_git(git):
             return self.render_template(error=code.ORGANIZATION_EXISTS)
-
         if g.current_user:
             organization, error = create_organization(g.current_user, name, git, members=1, admin=1)
             if error:
                 return self.render_template(error=error)
             return redirect(url_for('organization.view', git=organization.git))
-
         stub = create_token(20)
         verify, error = create_verify(stub, email, name, git, admin=1)
         if error:
@@ -63,9 +61,10 @@ class Invite(MethodView):
 
             # 超过上限禁止增员
             count += 1
-            status = check_organization_plan(organization, count)
-            if not status:
+            if not check_organization_plan(organization, count):
                 return self.render_template(send=code.ORGANIZATION_LIMIT)
+            if not check_email(email):
+                return self.render_template(error=code.ACCOUNT_EMAIL_INVAILD)
             stub = create_token(20)
             verify, error = create_verify(stub, email, organization.name, organization.git, admin=admin)
             if not verify:
