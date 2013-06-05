@@ -33,10 +33,11 @@
 
 ## TODO
 
-* 发邮件的时候验证邮件地址
+* 接入Repos
 
 ## Done
 
++ 发邮件的时候验证邮件地址
 + 整理界面
 + 增加Organization_required修饰器，类似于login_required
 + 允许用户同时属于不同Organization
