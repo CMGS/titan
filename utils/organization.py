@@ -6,7 +6,7 @@ from PIL import Image
 from functools import wraps
 from cStringIO import StringIO
 from flask import g, render_template, url_for, \
-        abort, redirect, request
+        abort, redirect
 
 from utils import code
 from config import ALLOWED_EXTENSIONS
