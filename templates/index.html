@@ -1,1 +1,19 @@
 {% extends "base.html" %}
+{% block subtitle %}The way to host your private repos{% endblock %}
+{% block content %}
+<div class="row-fluid">
+    <h1>Hello World</h1>
+    <a class="btn btn-primary btn-mini" href="{{ url_for('organization.register') }}">Create Organization</a>
+    <hr />
+    {% if organizations %}
+    <h4>My organizations</h4>
+    <ul class="nav nav-pills nav-stacked">
+    {% for organization in organizations %}
+        <li><a href="{{ url_for('organization.view', git=organization.git) }}">{{ organization.name }}</a></li>
+    {% endfor %}
+    </ul>
+    {% else %}
+    <a class="btn btn-primary" href="{{ url_for('account.login') }}">Login</a>
+    {% endif %}
+</div>
+{% endblock %}

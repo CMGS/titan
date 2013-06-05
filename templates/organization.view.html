@@ -12,7 +12,30 @@
         </ul>
     </div>
     <div class="span9">
-        <h2>{{ organization.name }}</h2>
+        <h1>{{ organization.name }}</h1>
+        <blockquote>
+            <p>ssh ident: {{ organization.git }}</p>
+            <p>repos: {{ organization.repos }} members: {{ organization.members }} teams: {{ organization.teams }}</p>
+            <p>location: {{ organization.location }} create: {{ organization.create }}</p>
+        </blockquote>
+        <table class="table table-striped">
+        {% for team in teams %}
+            <tr>
+                <td>
+                    <p><img height="140px" width="140px" src="{{ team.pic | u_files }}" class="img-polaroid"></p>
+                    <blockquote>
+                        <p>{{ team.display }} members: {{ team.members }}</p>
+                        <p>
+                            {% for m in team_members(team) %}
+                                <a href="#"><img height="24px" width="24px" src="{{ m.avatar(24) }}" /></a>
+                            {% endfor %}
+                        </p>
+                    </blockquote>
+                    <p><a href="{{ url_for('organization.viewteam', git=organization.git, tname=team.name) }}">view team</a></p>
+                </td>
+            </tr>
+        {% endfor %}
+        </table>
     </div>
 </div>
 {% endblock %}

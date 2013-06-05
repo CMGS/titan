@@ -12,9 +12,10 @@ from utils.account import login_required
 from utils.organization import send_verify_mail, member_required
 from utils.validators import check_organization_name, check_git, \
         check_organization_plan
-from query.account import get_user_by_email
+from query.account import get_user_by_email, get_user
 from query.organization import get_member, create_organization, \
-        create_verify, update_organization
+        create_verify, update_organization, get_teams_by_ogranization, \
+        get_team_members
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +85,13 @@ class Invite(MethodView):
 class View(MethodView):
     decorators = [member_required(admin=False), login_required('account.login')]
     def get(self, organization, member):
-        return self.render_template(organization=organization, member=member)
+        teams = get_teams_by_ogranization(organization.id)
+        def team_members(team):
+            members = get_team_members(team.id)
+            members = (get_user(m.uid) for m in members)
+            return members
+        return self.render_template(organization=organization, \
+                member=member, teams=teams, team_members=team_members)
 
 class Setting(MethodView):
     decorators = [member_required(admin=True), login_required('account.login')]

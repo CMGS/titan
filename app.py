@@ -7,6 +7,8 @@ import logging
 from models import init_db
 from views import init_views
 from query.account import get_current_user
+from query.organization import get_organizations_by_uid, \
+        get_organization
 
 from sheep.api.statics import static_files, \
         upload_files
@@ -43,7 +45,10 @@ app.wsgi_app = SessionMiddleware(app.wsgi_app, \
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    organizations = []
+    if g.current_user:
+        organizations = (get_organization(m.oid) for m in get_organizations_by_uid(g.current_user.id))
+    return render_template('index.html', organizations=organizations)
 
 @app.before_request
 def before_request():

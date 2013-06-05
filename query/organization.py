@@ -20,9 +20,17 @@ def get_organization(oid):
 def get_member(oid, uid):
     return Members.query.filter_by(oid=oid, uid=uid).limit(1).first()
 
-@cache('organization:{git}', 86400)
+@cache('organization:member:{uid}', 86400)
+def get_organizations_by_uid(uid):
+    return Members.query.filter_by(uid=uid).all()
+
+@cache('organization:git:{git}', 86400)
 def get_organization_by_git(git):
     return get_organization_by(git=git).limit(1).first()
+
+@cache('organization:team:{oid}', 86400)
+def get_teams_by_ogranization(oid):
+    return Team.query.filter_by(oid=oid).all()
 
 @cache('organization:team:{oid}:{name}', 86400)
 def get_team_by_name(oid, name):
@@ -54,14 +62,22 @@ def get_organization_by(**kw):
 # Clear
 
 def clear_organization_cache(organization, user=None):
-    keys = ['organization:%s' % key for key in [str(organization.id), organization.git]]
+    keys = [
+        'organization:{oid}'.format(oid=organization.id),
+        'organization:git:{git}'.format(git=organization.git),
+    ]
     if user:
         keys.append('organization:member:{oid}:{uid}'.format(oid=organization.id, uid=user.id))
+        keys.append('organization:member:{uid}'.format(uid=user.id))
     backend.delete_many(*keys)
 
 def clear_team_cache(organization, team, user=None):
-    keys = ['organization:team:members:{tid}'.format(tid=team.id), \
-            'organization:team:{oid}:{name}'.format(oid=organization.id, name=team.name),]
+    keys = [
+        'organization:team:members:{tid}'.format(tid=team.id), \
+        'organization:team:{oid}'.format(oid=organization.id), \
+        'organization:team:{oid}:{name}'.format(oid=organization.id, name=team.name),
+    ]
+
     if user:
         keys.append('organization:team:member:{tid}:{uid}'.format(tid=team.id, uid=user.id))
     backend.delete_many(*keys)

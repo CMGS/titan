@@ -9,7 +9,7 @@ DATABASE_URI = 'mysql://'
 SESSION_KEY = 'tid'
 SESSION_ENVIRON_KEY = 'titan.session'
 SESSION_COOKIE_DOMAIN = '127.0.0.1'
-MAX_CONTENT_LENGTH = 512 * 1024
+MAX_CONTENT_LENGTH = 3 * 1024 * 1024
 
 TOKEN_LENGTH = 6
 
@@ -24,13 +24,19 @@ GRAVATAR_BASE_URL = 'http://www.gravatar.com/avatar/'
 GRAVATAR_EXTRA = ''
 
 PLAN = {
-    1: 10,
+    1: 5,
     2: 30,
     3: 60,
     4: 100,
     5: 150,
     6: 200,
     7: 999
+}
+
+REPO_LIMIT = {
+    1: 5,
+    2: 100,
+    3: 150,
 }
 
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
