@@ -22,8 +22,7 @@ class Register(MethodView):
         # if logined auto join organization (auto create organization if needed)
         # if user if member, clear verify
         if g.current_user:
-            organization = self.join_organization(verify, g.current_user)
-            return redirect(url_for('organization.view', git=organization.git))
+            return self.join_organization(verify, g.current_user)
         return self.render_template(verify=verify)
 
     def post(self, stub):
