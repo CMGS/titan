@@ -69,12 +69,12 @@ def check_organization_name(name):
     return True
 
 def check_git(git):
+    '''Team and organization git name checker'''
     if not git:
         return False
     if not re.search(r'^[a-zA-Z0-9_-]{3,10}$', git, re.I):
         return False
-    # TODO Black list
-    if git in ['register', 'team']:
+    if git in BLACK_LIST:
         return False
     return True
 
@@ -84,3 +84,9 @@ def check_organization_plan(organization, incr=0):
         return False
     return True
 
+# TODO split to db
+BLACK_LIST = [
+    'register', 'team', 'account', \
+    'login', 'logout', 'forget', 'reset', \
+    'setting', 'invite', 'organization',
+]

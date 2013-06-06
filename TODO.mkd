@@ -1,5 +1,6 @@
 ## Titan
 
+* 限制仓库数目
 * 降低套餐需要联系客服。
 * 余额不足的时候冻结一切push/pull行为，只能通过界面操作, 只用于HTTP(S)/SSH行为。
 
@@ -34,6 +35,7 @@
 ## TODO
 
 * 接入Repos
+* Titan自身功能不带slash
 
 ## Done
 

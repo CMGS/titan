@@ -23,7 +23,7 @@ view_team = view_func(ViewTeam, module='team', tmpl='view')
 set_team = view_func(SetTeam, module='team', tmpl='setting')
 create_team = view_func(CreateTeam, module='team', tmpl='create')
 
-organization.add_url_rule('/register', view_func=register, methods=['GET', 'POST'])
+organization.add_url_rule('/create', view_func=register, methods=['GET', 'POST'])
 organization.add_url_rule('/<git>/', view_func=view, methods=['GET', ])
 organization.add_url_rule('/<git>/setting', view_func=setting, methods=['GET', 'POST'])
 organization.add_url_rule('/<git>/invite', view_func=invite, methods=['GET', 'POST'])

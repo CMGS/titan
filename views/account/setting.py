@@ -12,7 +12,7 @@ from utils.validators import check_password, check_domain, \
 from query.account import get_current_user, update_account
 
 class Setting(MethodView):
-    decorators = [login_required('account.login', redirect='/account/setting/')]
+    decorators = [login_required('account.login')]
     def get(self):
         return self.render_template()
 
