@@ -76,3 +76,27 @@ class Forget(db.Model):
         db.session.delete(self)
         db.session.commit()
 
+class Keys(db.Model):
+    __tablename__ = 'keys'
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    uid = db.Column(db.Integer, index=True, nullable=False)
+    key = db.Column(db.Text, unique=True, nullable=False)
+    key_hex = db.Column('hex', db.CHAR(32), unique=True, nullable=False)
+    usage = db.Column(db.CHAR(30), nullable=False)
+
+    def __init__(self, uid, name, key, key_hex):
+        self.uid = uid
+        self.name = name
+        self.key = key
+        self.key_hex = key_hex
+
+class Alias(db.Model):
+    __tablename__ = 'alias'
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    uid = db.Column(db.Integer, index=True, nullable=False)
+    email = db.Column(db.String(200), nullable=False, unique=True)
+
+    def __init__(self, uid, email):
+        self.uid = uid
+        self.email = email
+

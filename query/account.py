@@ -7,7 +7,8 @@ import sqlalchemy.exc
 from utils import code
 from datetime import datetime
 from flask import g
-from models.account import User, Forget, db
+from models.account import User, Forget, \
+        Keys, Alias, db
 from utils.validators import check_domain
 from sheep.api.cache import backend, cache
 
@@ -43,6 +44,14 @@ def get_forget_by_stub(stub):
 @cache('account:forget:{uid}', 300)
 def get_unique_forget(uid):
     return Forget.query.filter_by(uid=uid).first()
+
+@cache('account:keys:{uid}', 864000)
+def get_keys_by_uid(uid):
+    return Keys.query.filter_by(uid=uid).all()
+
+@cache('account:keys:{s}', 864000)
+def get_keys_by_hex(key_hex):
+    return Keys.query.filter_by(key_hex=key_hex).limit(1).first()
 
 def get_user_by(**kw):
     return User.query.filter_by(**kw)
@@ -127,4 +136,5 @@ def create_user(username, password, email):
             return None, code.ACCOUNT_EMAIL_EXISTS
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
+
 
