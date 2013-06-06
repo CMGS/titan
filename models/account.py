@@ -84,9 +84,9 @@ class Keys(db.Model):
     key_hex = db.Column('hex', db.CHAR(32), unique=True, nullable=False)
     usage = db.Column(db.CHAR(30), nullable=False)
 
-    def __init__(self, uid, name, key, key_hex):
+    def __init__(self, uid, usage, key, key_hex):
         self.uid = uid
-        self.name = name
+        self.usage = usage
         self.key = key
         self.key_hex = key_hex
 

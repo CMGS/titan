@@ -80,6 +80,19 @@ def clear_forget(forget, delete=True):
 
 # Create
 
+def create_key(user, usage, key, key_hex):
+    try:
+        keys = Keys(user.id, usage, key, key_hex)
+        db.session.add(keys)
+        db.session.commit(keys)
+        return keys, None
+    except sqlalchemy.exc.IntegrityError, e:
+        db.session.rollback()
+        if 'Duplicate entry' in e.message:
+            return None, code.ACCOUNT_KEY_EXISTS
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
+
 def create_forget(uid, stub):
     forget = get_unique_forget(uid)
     if forget and (datetime.now()  - forget.created).total_seconds() > config.VERIFY_STUB_EXPIRE:
