@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block subtitle %}Setting{% endblock %}
 {% block add_js %}
 <style>
 .form-setting {
@@ -29,6 +30,7 @@
             <li><a href="#">Alia Setting</a></li>
         </ul>
     </div>
+    {% block subcontent %}
     <div class="span9">
         <form class="form-setting" method="POST" action="{{ url_for('account.setting') }}">
             <h2 class="form-setting-heading">Setting</h2>
@@ -47,6 +49,6 @@
             <button class="btn btn-large btn-primary" type="submit">Submit</button>
         </form>
     </div>
+    {% endblock %}
 </div>
 {% endblock %}
-{% block subtitle %}Setting{% endblock %}

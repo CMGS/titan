@@ -41,14 +41,26 @@ def account_logout():
     g.session.clear()
 
 def get_pubkey_finger(key):
+    if not key:
+        return None
+    key = base64.b64decode(key)
+    fp_plain = hashlib.md5(key).hexdigest()
+    return fp_plain
+
+def get_key(key):
     SIGN = 'AAAAB3NzaC1yc2EA'
     position = key.find(SIGN)
     if position == -1:
         return None
-    key = base64.b64decode(key[position:].split(' ', 1)[0])
-    fp_plain = hashlib.md5(key).hexdigest()
-    return fp_plain
+    return key[position:].split(' ', 1)[0]
 
 def get_fingerprint(finger):
     return ':'.join((a+b for a,b in zip(finger[::2], finger[1::2])))
 
+if __name__ == '__main__':
+    b = 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDJOtsej4dNSKTdMBnD8v6L0lZ1Tk+WTMlxsFf2+pvkdoAu3EB3RZ/frpyV6//bJNTDysyvwgOvANT/K8u5fzrOI2qDZqVU7dtDSwUedM3YSWcSjjuUiec7uNZeimqhEwzYGDcUSSXe7GNH9YsVZuoWEf1du6OLtuXi7iJY4HabU0N49zorXtxmlXcPeGPuJwCiEu8DG/uKQeruI2eQS9zMhy73Jx2O3ii3PMikZt3g/RvxzqIlst7a4fEotcYENtsJF1ZrEm7B3qOBZ+k5N8D3CkDiHPmHwXyMRYIQJnyZp2y03+1nXT16h75cer/7MZMm+AfWSATdp09/meBt6swD ilskdw@gmail.com'
+    c = get_key(b)
+    a = get_pubkey_finger(c)
+    print a
+    print c
+    print get_fingerprint(a)
