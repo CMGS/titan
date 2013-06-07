@@ -90,7 +90,7 @@ def create_key(user, usage, key, finger):
     try:
         keys = Keys(user.id, usage, key, finger)
         db.session.add(keys)
-        db.session.commit(keys)
+        db.session.commit()
         clear_key_cache(finger, user)
         return keys, None
     except sqlalchemy.exc.IntegrityError, e:

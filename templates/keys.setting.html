@@ -1,0 +1,26 @@
+{% extends "account.setting.html" %}
+{% block subtitle %}SSHkey Setting{% endblock %}
+{% block subcontent %}
+<h2>SSHkey</h2>
+<ul class="nav nav-tabs nav-stacked">
+    {% for key in keys %}
+    <li><strong>{{ key.usage }} ({{ printer(key.finger) }})</strong></li>
+    {% endfor %}
+</ul>
+<hr>
+<form class="form-setting" method="POST">
+    <h2 class="form-setting-heading">Add SSHkey</h2>
+    {% if error %}
+    <div class="alert alert-info">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      {{ error }}
+    </div>
+    {% endif %}
+    <input name="usage" type="text" class="input-block-level" placeholder="Usage">
+    <textarea name="key" rows="10" cols="20"></textarea>
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <br />
+    <button class="btn btn-large btn-primary" type="submit">Submit</button>
+</form>
+{% endblock %}
+

@@ -30,8 +30,8 @@
             <li><a href="#">Alia Setting</a></li>
         </ul>
     </div>
-    {% block subcontent %}
     <div class="span9">
+        {% block subcontent %}
         <form class="form-setting" method="POST">
             <h2 class="form-setting-heading">Setting</h2>
             {% if error %}
@@ -48,7 +48,7 @@
             <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
             <button class="btn btn-large btn-primary" type="submit">Submit</button>
         </form>
+        {% endblock %}
     </div>
-    {% endblock %}
 </div>
 {% endblock %}
