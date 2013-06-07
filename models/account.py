@@ -90,6 +90,10 @@ class Keys(db.Model):
         self.key = key
         self.finger = finger
 
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
 class Alias(db.Model):
     __tablename__ = 'alias'
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)

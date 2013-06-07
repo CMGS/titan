@@ -49,6 +49,10 @@ def get_unique_forget(uid):
 def get_keys_by_uid(uid):
     return Keys.query.filter_by(uid=uid).all()
 
+@cache('account:key:{kid}', 864000)
+def get_key_by_id(kid):
+    return Keys.query.get(kid)
+
 @cache('account:key:{s}', 864000)
 def get_keys_by_finger(finger):
     return Keys.query.filter_by(finger=finger).limit(1).first()
@@ -78,8 +82,11 @@ def clear_forget(forget, delete=True):
     backend.delete('account:forget:%s' % forget.stub)
     backend.delete('account:forget:{uid}'.format(uid=forget.uid))
 
-def clear_key_cache(finger, user=None):
-    keys = ['account.key.{finger}'.format(finger=finger)]
+def clear_key_cache(key, user=None):
+    keys = [
+        'account.key.{kid}'.format(kid=key.id), \
+        'account.key.{finger}'.format(finger=key.finger), \
+    ]
     if user:
         keys.append('account:keys:{uid}'.format(uid=user.id))
     backend.delete_many(*keys)
@@ -88,11 +95,11 @@ def clear_key_cache(finger, user=None):
 
 def create_key(user, usage, key, finger):
     try:
-        keys = Keys(user.id, usage, key, finger)
-        db.session.add(keys)
+        key = Keys(user.id, usage, key, finger)
+        db.session.add(key)
         db.session.commit()
-        clear_key_cache(finger, user)
-        return keys, None
+        clear_key_cache(key, user)
+        return key, None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
         if 'Duplicate entry' in e.message:

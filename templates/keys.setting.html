@@ -4,7 +4,12 @@
 <h2>SSHkey</h2>
 <ul class="nav nav-tabs nav-stacked">
     {% for key in keys %}
-    <li><strong>{{ key.usage }} ({{ printer(key.finger) }})</strong></li>
+    <li>
+        <p>
+            <strong>{{ key.usage }} ({{ printer(key.finger) }})</strong>
+            <a class="btn btn-primary" href="{{ url_for('account.delkey', kid=key.id) }}">DELETE</a>
+        <p>
+    </li>
     {% endfor %}
 </ul>
 <hr>

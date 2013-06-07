@@ -1,14 +1,15 @@
 #!/usr/local/bin/python2.7
 #coding:utf-8
 
-from flask import request, g
+from flask import request, g, redirect, url_for
 
 from utils import code
 from utils.helper import MethodView
 from utils.account import login_required, get_key, \
         get_pubkey_finger, get_fingerprint
 from utils.validators import check_key_usage
-from query.account import get_keys_by_uid, create_key
+from query.account import get_keys_by_uid, get_key_by_id, \
+        create_key, clear_key_cache
 
 class Keys(MethodView):
     decorators = [login_required('account.login')]
@@ -35,6 +36,10 @@ class Keys(MethodView):
 
 class DelKey(MethodView):
     decorators = [login_required('account.login')]
-    def post(self, kid):
-        pass
+    def get(self, kid):
+        key = get_key_by_id(kid)
+        if key and key.uid == g.current_user.id:
+            key.delete()
+            clear_key_cache(key, g.current_user)
+        return redirect(url_for('account.keys'))
 
