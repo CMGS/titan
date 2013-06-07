@@ -27,7 +27,7 @@ organization.add_url_rule('/create', view_func=register, methods=['GET', 'POST']
 organization.add_url_rule('/<git>/', view_func=view, methods=['GET', ])
 organization.add_url_rule('/<git>/invite', view_func=invite, methods=['GET', 'POST'])
 organization.add_url_rule('/<git>/create', view_func=create_team, methods=['GET', 'POST'])
-organization.add_url_rule('/<git>/settings', view_func=setting, methods=['GET', 'POST'])
+organization.add_url_rule('/<git>/setting', view_func=setting, methods=['GET', 'POST'])
 organization.add_url_rule('/<git>/<tname>/', view_func=view_team, methods=['GET', ])
 organization.add_url_rule('/<git>/<tname>/join', view_func=join_team, methods=['POST', ])
 organization.add_url_rule('/<git>/<tname>/quit', view_func=quit_team, methods=['POST', ])
