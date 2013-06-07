@@ -1,6 +1,8 @@
 #!/usr/local/bin/python2.7
 #coding:utf-8
 
+import base64
+import hashlib
 import logging
 from functools import wraps
 from flask import g, url_for, redirect, request, render_template
@@ -37,4 +39,16 @@ def account_login(user):
 
 def account_logout():
     g.session.clear()
+
+def get_pubkey_finger(key):
+    SIGN = 'AAAAB3NzaC1yc2EA'
+    position = key.find(SIGN)
+    if position == -1:
+        return None
+    key = base64.b64decode(key[position:].split(' ', 1)[0])
+    fp_plain = hashlib.md5(key).hexdigest()
+    return fp_plain
+
+def get_fingerprint(finger):
+    return ':'.join((a+b for a,b in zip(finger[::2], finger[1::2])))
 

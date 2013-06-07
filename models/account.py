@@ -81,14 +81,14 @@ class Keys(db.Model):
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     uid = db.Column(db.Integer, index=True, nullable=False)
     key = db.Column(db.Text, unique=True, nullable=False)
-    key_hex = db.Column('hex', db.CHAR(32), unique=True, nullable=False)
+    finger = db.Column(db.CHAR(32), unique=True, nullable=False)
     usage = db.Column(db.CHAR(30), nullable=False)
 
-    def __init__(self, uid, usage, key, key_hex):
+    def __init__(self, uid, usage, key, finger):
         self.uid = uid
         self.usage = usage
         self.key = key
-        self.key_hex = key_hex
+        self.finger = finger
 
 class Alias(db.Model):
     __tablename__ = 'alias'

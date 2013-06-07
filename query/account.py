@@ -49,9 +49,9 @@ def get_unique_forget(uid):
 def get_keys_by_uid(uid):
     return Keys.query.filter_by(uid=uid).all()
 
-@cache('account:keys:{s}', 864000)
-def get_keys_by_hex(key_hex):
-    return Keys.query.filter_by(key_hex=key_hex).limit(1).first()
+@cache('account:key:{s}', 864000)
+def get_keys_by_finger(finger):
+    return Keys.query.filter_by(finger=finger).limit(1).first()
 
 def get_user_by(**kw):
     return User.query.filter_by(**kw)
@@ -78,13 +78,20 @@ def clear_forget(forget, delete=True):
     backend.delete('account:forget:%s' % forget.stub)
     backend.delete('account:forget:{uid}'.format(uid=forget.uid))
 
+def clear_key_cache(finger, user=None):
+    keys = ['account.key.{finger}'.format(finger=finger)]
+    if user:
+        keys.append('account:keys:{uid}'.format(uid=user.id))
+    backend.delete_many(*keys)
+
 # Create
 
-def create_key(user, usage, key, key_hex):
+def create_key(user, usage, key, finger):
     try:
-        keys = Keys(user.id, usage, key, key_hex)
+        keys = Keys(user.id, usage, key, finger)
         db.session.add(keys)
         db.session.commit(keys)
+        clear_key_cache(finger, user)
         return keys, None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()

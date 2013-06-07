@@ -12,6 +12,8 @@ ACCOUNT_DOMAIN_INVAILD = 'Domain invaild'
 ACCOUNT_USERNAME_INVAILD = 'username invaild'
 ACCOUNT_EMAIL_INVAILD = 'email invaild'
 ACCOUNT_KEY_EXISTS = 'key exists'
+ACCOUNT_KEY_INVAILD = 'key invaild'
+ACCOUNT_USAGE_INVAILD = 'usage invaild'
 
 ORGANIZATION_NAME_INVALID = 'organization name invaild'
 ORGANIZATION_LIMIT = 'Plan limit'

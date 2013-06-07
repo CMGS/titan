@@ -10,7 +10,7 @@ from flask import g, request, redirect, url_for
 from utils import code
 from utils.helper import MethodView, Obj
 from utils.account import login_required
-from utils.validators import check_organization_name, check_git
+from utils.validators import check_team_name, check_git
 from utils.organization import member_required, team_member_required, \
         process_file
 
@@ -31,7 +31,7 @@ class CreateTeam(MethodView):
         status = check_git(name)
         if not status:
             return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
-        status = check_organization_name(display)
+        status = check_team_name(display)
         if not status:
             return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
         team, error = create_team(name, display, g.current_user, organization, members=1)
@@ -94,7 +94,7 @@ class SetTeam(MethodView):
                 return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
             attr['name'] = name
         if display:
-            status = check_organization_name(display)
+            status = check_team_name(display)
             if not status:
                 return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
             attr['display'] = display

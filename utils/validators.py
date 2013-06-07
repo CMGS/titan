@@ -13,22 +13,6 @@ def check_password(password):
         return False
     return True
 
-def check_domain(domain):
-    if not domain:
-        return False
-    if not re.search(r'^[a-zA-Z0-9_-]{4,10}$', domain, re.I):
-        return False
-    return True
-
-def check_username(username):
-    if not username:
-        return False
-    if not isinstance(username, unicode):
-        username = unicode(username, 'utf-8')
-    if not re.search(ur'^[\u4e00-\u9fa5\w]{1,20}$', username, re.I):
-        return False
-    return True
-
 def check_email(email):
     if not email:
         return False
@@ -57,22 +41,35 @@ def check_login_info(email, password):
         return False, code.ACCOUNT_PASSWORD_INVAILD
     return True, None
 
-# FOR Organization
+# FOR Others
 
-def check_organization_name(name):
+def check_name(name, n=16):
     if not name:
         return False
     if not isinstance(name, unicode):
         name = unicode(name, 'utf-8')
-    if not re.search(ur'^[\u4e00-\u9fa5\w]{1,30}$', name, re.I):
+    if not re.search(ur'^[\u4e00-\u9fa5\w]{1,%d}$' % n, name, re.I):
         return False
     return True
 
+check_username = check_name
+check_key_usage = lambda usage: check_name(usage, 20)
+check_team_name = check_organization_name = lambda name: check_name(name, 30)
+
+def check_unique(u, n=4, m=10):
+    if not u:
+        return False
+    if not re.search(r'^[a-zA-Z0-9_-]{%d,%d}$' % (n, m), u, re.I):
+        return False
+    return True
+
+check_domain = check_unique
+
+# FOR Organization
+
 def check_git(git):
     '''Team and organization git name checker'''
-    if not git:
-        return False
-    if not re.search(r'^[a-zA-Z0-9_-]{3,10}$', git, re.I):
+    if not check_unique(git, n=3):
         return False
     if git in BLACK_LIST:
         return False
@@ -88,5 +85,6 @@ def check_organization_plan(organization, incr=0):
 BLACK_LIST = [
     'register', 'team', 'account', \
     'login', 'logout', 'forget', 'reset', \
-    'setting', 'invite', 'organization',
+    'setting', 'invite', 'organization', \
+    'keys', 'alias',
 ]
