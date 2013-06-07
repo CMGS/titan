@@ -80,7 +80,7 @@ class Keys(db.Model):
     __tablename__ = 'keys'
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     uid = db.Column(db.Integer, index=True, nullable=False)
-    key = db.Column(db.Text, unique=True, nullable=False)
+    key = db.Column(db.Text, nullable=False)
     finger = db.Column(db.CHAR(32), unique=True, nullable=False)
     usage = db.Column(db.CHAR(30), nullable=False)
 

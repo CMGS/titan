@@ -3,8 +3,6 @@
 <style>
 .form-setting {
   max-width: 600px;
-  padding: 19px 29px 29px;
-  margin: 0 auto 20px;
   -webkit-border-radius: 5px;
      -moz-border-radius: 5px;
           border-radius: 5px;
@@ -23,21 +21,32 @@
 </style>
 {% endblock %}
 {% block content %}
-<form class="form-setting" method="POST" action="{{ url_for('account.setting') }}">
-    <h2 class="form-setting-heading">Setting</h2>
-    {% if error %}
-    <div class="alert alert-info">
-      <button type="button" class="close" data-dismiss="alert">&times;</button>
-      {{ error }}
+<div class="row-fluid">
+    <div class="span3">
+        <ul class="nav nav-tabs nav-stacked">
+            <li><a href="{{ url_for('account.setting') }}">Account Setting</a></li>
+            <li><a href="{{ url_for('account.keys')  }}">SSHkey Setting</a></li>
+            <li><a href="#">Alia Setting</a></li>
+        </ul>
     </div>
-    {% endif %}
-    <input name="name" type="text" class="input-block-level" placeholder="{{ g.current_user.name }}">
-    <input name="password" type="password" class="input-block-level" placeholder="Password">
-    <input name="domain" type="text" class="input-block-level" {% if g.current_user.domain %} disabled="true" value="{{g.current_user.domain}}" {% endif %} placeholder="Domain">
-    <input name="city" type="text" class="input-block-level" placeholder="{% if g.current_user.city %}{{ g.current_user.city }}{% else %}City{% endif %}">
-    <input name="title" type="text" class="input-block-level" placeholder="{% if g.current_user.title %}{{ g.current_user.title }}{% else %}Title{% endif %}">
-    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-    <button class="btn btn-large btn-primary" type="submit">Submit</button>
-</form>
+    <div class="span9">
+        <form class="form-setting" method="POST" action="{{ url_for('account.setting') }}">
+            <h2 class="form-setting-heading">Setting</h2>
+            {% if error %}
+            <div class="alert alert-info">
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+              {{ error }}
+            </div>
+            {% endif %}
+            <input name="name" type="text" class="input-block-level" placeholder="{{ g.current_user.name }}">
+            <input name="password" type="password" class="input-block-level" placeholder="Password">
+            <input name="domain" type="text" class="input-block-level" {% if g.current_user.domain %} disabled="true" value="{{g.current_user.domain}}" {% endif %} placeholder="Domain">
+            <input name="city" type="text" class="input-block-level" placeholder="{% if g.current_user.city %}{{ g.current_user.city }}{% else %}City{% endif %}">
+            <input name="title" type="text" class="input-block-level" placeholder="{% if g.current_user.title %}{{ g.current_user.title }}{% else %}Title{% endif %}">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-large btn-primary" type="submit">Submit</button>
+        </form>
+    </div>
+</div>
 {% endblock %}
 {% block subtitle %}Setting{% endblock %}

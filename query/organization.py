@@ -107,7 +107,7 @@ def create_organization(user, name, git, members=0, admin=0, verify=None):
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
         if 'Duplicate entry' in e.message:
-            return None, code.ORGANIZATION_EXISTS
+            return None, code.ORGANIZATION_GITNAME_EXISTS
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
 
@@ -222,7 +222,7 @@ def update_organization(organization, name, git, location):
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
         if 'Duplicate entry' in e.message:
-            return None, code.ORGANIZATION_EXISTS
+            return None, code.ORGANIZATION_GITNAME_EXISTS
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
 

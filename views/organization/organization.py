@@ -32,7 +32,7 @@ class Register(MethodView):
         if not check_organization_name(name):
             return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
         if not check_git(git):
-            return self.render_template(error=code.ORGANIZATION_EXISTS)
+            return self.render_template(error=code.ORGANIZATION_GITNAME_INVAILD)
         if g.current_user:
             organization, error = create_organization(g.current_user, name, git, members=1, admin=1)
             if error:
@@ -102,12 +102,10 @@ class Setting(MethodView):
         gitname = request.form.get('git', None)
         location = request.form.get('location', None)
 
-        status = check_organization_name(name)
-        if name and not status:
+        if name and not check_organization_name(name):
             return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
-        status = check_git(gitname)
-        if gitname and not status:
-            return self.render_template(error=code.ORGANIZATION_EXISTS)
+        if gitname and not check_git(gitname):
+            return self.render_template(error=code.ORGANIZATION_GITNAME_INVAILD)
 
         organization, error = update_organization(organization, name, gitname, location)
         if error:

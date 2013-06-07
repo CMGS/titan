@@ -1,7 +1,7 @@
 #!/usr/local/bin/python2.7
 #coding:utf-8
 
-from flask import request, redirect, url_for
+from flask import request, redirect, url_for, g
 
 from utils import code
 from utils.helper import MethodView
