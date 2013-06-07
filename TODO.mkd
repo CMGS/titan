@@ -19,7 +19,6 @@
 
 ## Users
 
-* Manager SSH Key
 * 别名
 
 ## Others
@@ -36,9 +35,11 @@
 
 * 接入Repos
 * Titan自身功能不带slash
+* Organization可以选择套餐
 
 ## Done
 
++ Manager SSH Key
 + 发邮件的时候验证邮件地址
 + 整理界面
 + 增加Organization_required修饰器，类似于login_required
