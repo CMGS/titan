@@ -125,6 +125,20 @@ def create_forget(uid, stub):
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
 
+def create_user(username, password, email):
+    try:
+        user = User(username, password, email)
+        db.session.add(user)
+        db.session.commit()
+        clear_user_cache(user)
+        return user, None
+    except sqlalchemy.exc.IntegrityError, e:
+        db.session.rollback()
+        if 'Duplicate entry' in e.message:
+            return None, code.ACCOUNT_EMAIL_EXISTS
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
+
 # Update
 
 def update_account(user, **kwargs):
@@ -149,19 +163,4 @@ def update_account(user, **kwargs):
             return None, code.ACCOUNT_DOMIAN_EXISTS
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
-
-def create_user(username, password, email):
-    try:
-        user = User(username, password, email)
-        db.session.add(user)
-        db.session.commit()
-        clear_user_cache(user)
-        return user, None
-    except sqlalchemy.exc.IntegrityError, e:
-        db.session.rollback()
-        if 'Duplicate entry' in e.message:
-            return None, code.ACCOUNT_EMAIL_EXISTS
-        logger.exception(e)
-        return None, code.UNHANDLE_EXCEPTION
-
 

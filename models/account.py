@@ -104,3 +104,7 @@ class Alias(db.Model):
         self.uid = uid
         self.email = email
 
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
