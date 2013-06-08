@@ -1,0 +1,37 @@
+{% extends "account.setting.html" %}
+{% block subtitle %}Alias Setting{% endblock %}
+{% block subcontent %}
+<h2>Alias</h2>
+<ul class="nav nav-tabs nav-stacked">
+    {% for a in alias %}
+    <li>
+        <p>
+        {% set default = a.email == g.current_user.email %}
+        <strong>{{ a.email }} {% if default  %}(default){% endif %}</strong>
+        {% if not default %}<a class="btn btn-primary" href="{{ url_for('account.delalias', aid=a.id) }}">DELETE</a>{% endif %}
+        <p>
+    </li>
+    {% endfor %}
+</ul>
+<hr>
+<form class="form-setting" method="POST">
+    <h2 class="form-setting-heading">Add emails</h2>
+    {% if error %}
+    <div class="alert alert-info">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      {{ error }}
+    </div>
+    {% endif %}
+    {% if send %}
+    <div class="alert">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      {{ send }}
+    </div>
+    {% endif %}
+    <input name="email" type="text" class="input-block-level" placeholder="email">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <br />
+    <button class="btn btn-large btn-primary" type="submit">Submit</button>
+</form>
+{% endblock %}
+

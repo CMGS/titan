@@ -41,5 +41,5 @@ account.add_url_rule('/setting/keys', view_func=keys, methods=['GET', 'POST'])
 account.add_url_rule('/setting/keys/delete/<int:kid>', view_func=delete_key, methods=['GET'])
 account.add_url_rule('/setting/alias', view_func=alias, methods=['GET', 'POST'])
 account.add_url_rule('/setting/alias/verify/<stub>', view_func=verify_alias, methods=['GET'])
-account.add_url_rule('/setting/alias/delete/<int:aid>', view_func=delete_alias, methods=['POST'])
+account.add_url_rule('/setting/alias/delete/<int:aid>', view_func=delete_alias, methods=['GET'])
 

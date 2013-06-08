@@ -43,7 +43,7 @@ class Register(MethodView):
         if error:
             return self.render_template(error=error)
         send_verify_mail(verify)
-        return self.render_template(send=1)
+        return self.render_template(send=code.ORGANIZATION_CREATE_SUCCESS)
 
 class Invite(MethodView):
     decorators = [member_required(admin=True), login_required('account.login')]

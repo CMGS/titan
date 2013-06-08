@@ -33,6 +33,10 @@ def send_forget_mail(user, stub):
     content = render_template('email.forget.html', user=user, stub=stub)
     async_send_mail(user.email, code.EMAIL_FORGET_TITLE, content)
 
+def send_verify_mail(email, url):
+    content = render_template('email.verify.html', url=url)
+    async_send_mail(email, code.EMAIL_VERIFY_TITLE, content)
+
 def account_login(user):
     g.session['user_id'] = user.id
     g.session['user_token'] = user.token

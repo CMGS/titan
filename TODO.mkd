@@ -19,7 +19,8 @@
 
 ## Users
 
-* 别名
+* 退出组织（只准主动），删除team member对应，已有仓库停止读写访问，删除member对应，更新相应数据。
+* Email唯一，所以一旦占有了类似于a@douban.com之后，新加入分配为a@douban.com的就没法再加入。
 
 ## Others
 
@@ -39,6 +40,7 @@
 
 ## Done
 
++ 别名
 + Manager SSH Key
 + 发邮件的时候验证邮件地址
 + 整理界面

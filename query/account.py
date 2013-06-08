@@ -53,13 +53,21 @@ def get_keys_by_uid(uid):
 def get_key_by_id(kid):
     return Keys.query.get(kid)
 
-@cache('account:key:{s}', 864000)
+@cache('account:key:{finger}', 864000)
 def get_keys_by_finger(finger):
     return Keys.query.filter_by(finger=finger).limit(1).first()
 
-@cache('account:alias:{uid}', 864000)
+@cache('account:alias:user:{uid}', 864000)
 def get_alias_by_uid(uid):
     return Alias.query.filter_by(uid=uid).all()
+
+@cache('account:alias:{aid}', 864000)
+def get_alias_by_id(aid):
+    return Alias.query.get(aid)
+
+@cache('account:alias:{email}', 864000)
+def get_alias_by_email(email):
+    return Alias.query.filter_by(email=email).limit(1).first()
 
 def get_user_by(**kw):
     return User.query.filter_by(**kw)
@@ -85,6 +93,16 @@ def clear_forget(forget, delete=True):
         forget.delete()
     backend.delete('account:forget:%s' % forget.stub)
     backend.delete('account:forget:{uid}'.format(uid=forget.uid))
+
+def clear_alias_cache(user, email, aid=None):
+    keys = [
+        'account:alias:{email}'.format(email=email),
+        'account:alias:user:{uid}'.format(uid=user.id),
+    ]
+    if aid:
+        keys.append('account:alias:{aid}'.format(aid=aid))
+    backend.delete_many(*keys)
+
 
 def clear_key_cache(key, user=None):
     keys = [
@@ -133,9 +151,26 @@ def create_user(username, password, email):
     try:
         user = User(username, password, email)
         db.session.add(user)
+        db.session.flush(user)
+        alias = Alias(user.id, email)
+        db.session.add(alias)
         db.session.commit()
         clear_user_cache(user)
         return user, None
+    except sqlalchemy.exc.IntegrityError, e:
+        db.session.rollback()
+        if 'Duplicate entry' in e.message:
+            return None, code.ACCOUNT_EMAIL_EXISTS
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
+
+def create_alias(user, email):
+    try:
+        alias = Alias(user.id, email)
+        db.session.add(alias)
+        db.session.commit()
+        clear_alias_cache(user, email)
+        return alias, None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
         if 'Duplicate entry' in e.message:
