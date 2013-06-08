@@ -13,7 +13,7 @@ from utils.organization import send_verify_mail, member_required
 from utils.validators import check_organization_name, check_git, \
         check_organization_plan, check_email
 from query.account import get_user_by_email, get_user
-from query.organization import get_member, create_organization, \
+from query.organization import get_organization_member, create_organization, \
         create_verify, update_organization, get_teams_by_ogranization, \
         get_team_members
 
@@ -76,7 +76,7 @@ class Invite(MethodView):
         user = get_user_by_email(email)
         if not user:
             return False
-        member = get_member(oid, user.id)
+        member = get_organization_member(oid, user.id)
         if member:
             return True
         return False

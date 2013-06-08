@@ -11,7 +11,7 @@ from flask import g, render_template, url_for, \
 from utils import code
 from config import ALLOWED_EXTENSIONS
 from utils.mail import async_send_mail
-from query.organization import get_member, get_organization_by_git, \
+from query.organization import get_organization_member, get_organization_by_git, \
         get_team_by_name, get_team_member
 
 logger = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ def member_required(admin=False):
             organization = get_organization_by_git(git)
             if not organization:
                 raise abort(404)
-            member = get_member(organization.id, g.current_user.id)
+            member = get_organization_member(organization.id, g.current_user.id)
             if not member:
                 raise abort(403)
             if admin and not member.admin:
