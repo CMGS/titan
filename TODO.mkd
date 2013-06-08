@@ -35,7 +35,7 @@
 
 * 接入Repos
 * Titan自身功能不带slash
-* Organization可以选择套餐
+* Organization可以选择套餐, 立即生效，必须余额大于套餐价格，下个月开始扣费
 
 ## Done
 
