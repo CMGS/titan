@@ -2,7 +2,7 @@
 #coding:utf-8
 
 from utils.helper import MethodView
-from utils.account import login_required
+from utils.account import login_required, get_alias_by_uid
 
 class Alias(MethodView):
     decorators = [login_required('account.login')]
@@ -13,8 +13,8 @@ class Alias(MethodView):
         pass
 
     def render_template(self, error=None):
-        keys = get_keys_by_uid(g.current_user.id)
-        return MethodView.render_template(self, keys=keys, printer=get_fingerprint, error=error)
+        alias = get_alias_by_uid(g.current_user.id)
+        return MethodView.render_template(self, alias=alias, error=error)
 
 class VerifyAlias(MethodView):
     decorators = [login_required('account.login')]

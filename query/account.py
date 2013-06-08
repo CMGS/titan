@@ -57,6 +57,10 @@ def get_key_by_id(kid):
 def get_keys_by_finger(finger):
     return Keys.query.filter_by(finger=finger).limit(1).first()
 
+@cache('account:alias:{uid}', 864000)
+def get_alias_by_uid(uid):
+    return Alias.query.filter_by(uid=uid).all()
+
 def get_user_by(**kw):
     return User.query.filter_by(**kw)
 
