@@ -19,7 +19,7 @@ from query.organization import get_organization_member, create_organization, \
 
 logger = logging.getLogger(__name__)
 
-class Register(MethodView):
+class Create(MethodView):
     def get(self):
         return self.render_template()
 
@@ -27,7 +27,7 @@ class Register(MethodView):
         name = request.form.get('name', None)
         git = request.form.get('git', None)
         email = request.form.get('email', None)
-        if not check_email(email):
+        if email and not check_email(email):
             return self.render_template(error=code.ACCOUNT_EMAIL_INVAILD)
         if not check_organization_name(name):
             return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
