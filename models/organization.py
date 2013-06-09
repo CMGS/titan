@@ -24,7 +24,7 @@ class Organization(db.Model):
     location = db.Column(db.String(200))
     create = db.Column(db.DateTime, default=datetime.now)
     creator = db.Column(db.Integer, nullable=False)
-    cost = db.Column(db.Integer, nullable=False)
+    cost = db.Column(db.Integer, nullable=False, default=0)
 
     def __init__(self, name, git, creator, members=0):
         self.name = name
