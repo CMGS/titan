@@ -23,14 +23,12 @@ class Organization(db.Model):
     balance = db.Column(db.Float, default=0.0, nullable=False)
     location = db.Column(db.String(200))
     create = db.Column(db.DateTime, default=datetime.now)
-    creator = db.Column(db.Integer, nullable=False)
     cost = db.Column(db.Integer, nullable=False, default=0)
 
-    def __init__(self, name, git, creator, members=0):
+    def __init__(self, name, git, members=0):
         self.name = name
         self.git = git
         self.members = members
-        self.creator = creator
 
     def set_args(self, **kwargs):
         for k, v in kwargs.iteritems():
