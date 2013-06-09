@@ -77,7 +77,7 @@ def check_git(git):
 
 def check_organization_plan(organization, incr=0):
     # TODO 计算有多少人了
-    if organization.members + incr > config.PLAN[organization.plan]:
+    if organization.members + incr > config.PACKAGE_PLAN[organization.plan]:
         return False
     return True
 

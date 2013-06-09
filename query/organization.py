@@ -94,7 +94,7 @@ def clear_verify(verify, delete=True):
 
 def create_organization(user, name, git, members=0, admin=0, verify=None):
     try:
-        organization = Organization(name, git, members=1)
+        organization = Organization(name, git, user.id, members=1)
         db.session.add(organization)
         db.session.flush()
         members = Members(organization.id, user.id, admin=1)

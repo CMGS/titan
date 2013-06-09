@@ -23,7 +23,7 @@ FORGET_STUB_EXPIRE = 30*60
 GRAVATAR_BASE_URL = 'http://www.gravatar.com/avatar/'
 GRAVATAR_EXTRA = ''
 
-PLAN = {
+PACKAGE_PLAN = {
     1: 5,
     2: 30,
     3: 60,
@@ -31,6 +31,16 @@ PLAN = {
     5: 150,
     6: 200,
     7: 999
+}
+
+PACKAGE_COST = {
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+    6: 0,
+    7: 0,
 }
 
 REPO_LIMIT = {
