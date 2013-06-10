@@ -3,6 +3,7 @@
 
 import logging
 
+from flaskext.csrf import csrf_exempt
 from flask import redirect, request, url_for, abort, g
 
 from utils import code
@@ -89,7 +90,7 @@ class Register(MethodView):
         return redirect(url_for('organization.view', git=organization.git))
 
 class Login(MethodView):
-    decorators = [login_required(need=False)]
+    decorators = [login_required(need=False), csrf_exempt]
     def get(self):
         login_url = url_for('account.login', **request.args)
         return self.render_template(login_url=login_url)

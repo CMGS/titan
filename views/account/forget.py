@@ -4,6 +4,7 @@
 import logging
 
 from flask import redirect, request, url_for, g
+from flaskext.csrf import csrf_exempt
 
 from utils import code
 from utils.helper import MethodView
@@ -17,7 +18,7 @@ from query.account import get_user_by_email, create_forget, \
 logger = logging.getLogger(__name__)
 
 class Forget(MethodView):
-    decorators = [login_required(need=False)]
+    decorators = [login_required(need=False), csrf_exempt]
     def get(self):
         return self.render_template()
 

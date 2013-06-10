@@ -2,7 +2,6 @@
 #coding:utf-8
 
 from flask import Blueprint
-from flaskext.csrf import csrf_exempt
 
 from utils.helper import make_view
 from views.account.setting import Setting
@@ -19,9 +18,9 @@ account = Blueprint(MODULE_NAME, __name__)
 reset = view_func(Reset)
 setting = view_func(Setting)
 register = view_func(Register)
-login = csrf_exempt(view_func(Login))
-forget = csrf_exempt(view_func(Forget))
-logout = csrf_exempt(view_func(Logout))
+login = view_func(Login)
+logout = view_func(Logout)
+forget = view_func(Forget)
 
 keys = view_func(Keys, module='keys', tmpl='setting')
 delete_key = view_func(DelKey, module='keys', tmpl='delete')
