@@ -1,4 +1,4 @@
-Flask==0.9
+Flask==0.10.1
 Flask-SQLAlchemy==0.16
 Jinja2==2.7
 MarkupSafe==0.18
