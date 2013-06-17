@@ -37,7 +37,7 @@ class Organization(db.Model):
         db.session.commit()
 
     def add_balance(self, balance):
-        raise NotImplemented
+        raise NotImplementedError
 
 class Team(db.Model):
     __tablename__ = 'team'

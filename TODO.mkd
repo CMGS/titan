@@ -12,6 +12,7 @@
 * 已登录 --》另外一个邮箱被邀请 --》输入另外一个邮箱 --》Join Organization
 
 * Admin 能管理Team/Members/Repos/Permits
+* Admin 能处理Repos归属
 
 ## Team
 
