@@ -28,16 +28,12 @@
                     <blockquote>
                         <p>{{ team.display }} members: {{ team.members }}</p>
                         <p>
-                            {% set joined=False %}
                             {% for m in team_members(team) %}
                                 <a href="#"><img height="24px" width="24px" src="{{ m.avatar(24) }}" /></a>
-                                {% if m.id == g.current_user.id %}{% set joined=True %}{% endif %}
                             {% endfor %}
                         </p>
                     </blockquote>
-                    {% if not team.private or joined or member.admin %}
                     <p><a href="{{ url_for('organization.viewteam', git=organization.git, tname=team.name) }}">view team</a></p>
-                    {% endif %}
                 </td>
             </tr>
         {% endfor %}

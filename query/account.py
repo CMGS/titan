@@ -19,7 +19,7 @@ def get_user(uid):
     try:
         uid = int(uid)
     except ValueError:
-        if check_username(uid):
+        if not check_username(uid):
             return None
         return get_user_by_name(name=uid)
     else:

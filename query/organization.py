@@ -149,9 +149,9 @@ def create_team(name, display, user, organization, private=0, members=0):
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
 
-def create_team_members(organization, team, user):
+def create_team_members(organization, team, user, admin=0):
     try:
-        team_member = TeamMembers(team.id, user.id)
+        team_member = TeamMembers(team.id, user.id, admin=admin)
         team.members = Team.members + 1
         db.session.add(team_member)
         db.session.add(team)

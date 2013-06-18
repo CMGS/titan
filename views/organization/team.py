@@ -16,7 +16,7 @@ from utils.organization import member_required, team_member_required, \
 
 from query.account import get_user
 from query.organization import create_team, create_team_members, \
-        quit_team, update_team, get_team_members
+        quit_team, update_team, get_team_members, get_organization_member
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +83,27 @@ class ViewTeam(MethodView):
         users = (get_user(member.uid) for member in members)
         return self.render_template(organization=organization, team_member=team_member, \
                 team=team, users=users, member=member)
+
+class AddMember(MethodView):
+    decorators = [
+        team_member_required(admin=True), \
+        member_required(admin=False), \
+        login_required('account.login')
+    ]
+    def get(self, organization, member, team, team_member):
+        return self.render_template(organization=organization, team=team)
+
+    def post(self, organization, member, team, team_member):
+        name = request.form.get('name', None)
+        admin = 1 if 'admin' in request.form else 0
+        user = get_user(name)
+        if not user:
+            return self.render_template(organization=organization, team=team, error=code.ACCOUNT_NO_SUCH_USER)
+        is_member = get_organization_member(organization.id, user.id)
+        if not is_member:
+            return self.render_template(organization=organization, team=team, error=code.ORGANIZATION_MEMBER_NOT_EXISTS)
+        create_team_members(organization, team, user, admin=admin)
+        return redirect(url_for('organization.viewteam', git=organization.git, tname=team.name))
 
 class SetTeam(MethodView):
     decorators = [

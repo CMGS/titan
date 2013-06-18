@@ -4,7 +4,7 @@
 from flask import Blueprint
 from utils.helper import make_view
 from views.organization.team import CreateTeam, JoinTeam, \
-        QuitTeam, ViewTeam, SetTeam
+        QuitTeam, ViewTeam, SetTeam, AddMember
 from views.organization.organization import Create, Invite, View, Setting
 
 MODULE_NAME = 'organization'
@@ -19,6 +19,7 @@ create = view_func(Create)
 
 join_team = view_func(JoinTeam)
 quit_team = view_func(QuitTeam)
+add_member = view_func(AddMember, module='team', tmpl='add')
 view_team = view_func(ViewTeam, module='team', tmpl='view')
 set_team = view_func(SetTeam, module='team', tmpl='setting')
 create_team = view_func(CreateTeam, module='team', tmpl='create')
@@ -29,6 +30,7 @@ organization.add_url_rule('/<git>/invite', view_func=invite, methods=['GET', 'PO
 organization.add_url_rule('/<git>/create', view_func=create_team, methods=['GET', 'POST'])
 organization.add_url_rule('/<git>/setting', view_func=setting, methods=['GET', 'POST'])
 organization.add_url_rule('/<git>/<tname>/', view_func=view_team, methods=['GET', ])
+organization.add_url_rule('/<git>/<tname>/add', view_func=add_member, methods=['GET', 'POST'])
 organization.add_url_rule('/<git>/<tname>/join', view_func=join_team, methods=['POST', ])
 organization.add_url_rule('/<git>/<tname>/quit', view_func=quit_team, methods=['POST', ])
 organization.add_url_rule('/<git>/<tname>/setting', view_func=set_team, methods=['GET', 'POST'])
