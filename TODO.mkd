@@ -16,11 +16,6 @@
 
 ## Team
 
-* Team 有public和private
-* 是否让任何人创建Team由Organization Admin决定
-* public的team任何人都能加入和退出，private的只允许被添加(Organization Admin不受限制)
-* Team允许没有任何成员，包括管理员，这时候需要Organization Admin来决断
-* Team的设置只能由Team leader或者Organization Admin设定
 * Team Leader 或者 Organization Admin 能解散Team
 * 解散Team会解除所有的Team member联系以及仓库联系，仓库转移到Organization下
 
@@ -53,6 +48,11 @@
 
 ## Done
 
++ Team 有public和private
++ 是否让任何人创建Team由Organization Admin决定
++ public的team任何人都能加入和退出，private的只允许被 Team Leader 添加(Organization Admin不受限制)
++ Team允许没有任何成员，包括管理员，这时候需要Organization Admin来决断
++ Team的设置只能由Team leader或者Organization Admin设定
 + 别名
 + Manager SSH Key
 + 发邮件的时候验证邮件地址
