@@ -198,10 +198,8 @@ def update_account(user, **kwargs):
             clear_forget(forget, delete=False)
         clear_user_cache(user)
         return user, None
-    except sqlalchemy.exc.IntegrityError, e:
+    except Exception, e:
         db.session.rollback()
-        if 'Duplicate entry' in e.message:
-            return None, code.ACCOUNT_DOMIAN_EXISTS
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
 
