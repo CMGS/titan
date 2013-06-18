@@ -40,9 +40,8 @@
               {{ error }}
             </div>
             {% endif %}
-            <input name="name" disabled="true" type="text" class="input-block-level" placeholder="{{ g.current_user.name }}">
-            <input name="password" type="password" class="input-block-level" placeholder="Password">
             <input name="display" type="text" class="input-block-level" value="{{g.current_user.display}}" placeholder="Display">
+            <input name="password" type="password" class="input-block-level" placeholder="Password">
             <input name="city" type="text" class="input-block-level" placeholder="{% if g.current_user.city %}{{ g.current_user.city }}{% else %}City{% endif %}">
             <input name="title" type="text" class="input-block-level" placeholder="{% if g.current_user.title %}{{ g.current_user.title }}{% else %}Title{% endif %}">
             <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
