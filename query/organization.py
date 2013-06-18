@@ -129,12 +129,12 @@ def create_members(organization, user, verify):
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
 
-def create_team(name, display, user, organization, members=0):
+def create_team(name, display, user, organization, private=0, members=0):
     try:
-        team = Team(organization.id, name, display, members)
+        team = Team(organization.id, name, display, private, members)
         db.session.add(team)
         db.session.flush()
-        team_member = TeamMembers(team.id, user.id)
+        team_member = TeamMembers(team.id, user.id, admin=1)
         organization.teams = Organization.teams + 1
         db.session.add(team_member)
         db.session.add(organization)
@@ -207,7 +207,7 @@ def update_team(organization, old_team, team, **attr):
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
 
-def update_organization(organization, name, git, location):
+def update_organization(organization, name, git, location, allow):
     try:
         if name:
             organization.name = name
@@ -215,6 +215,7 @@ def update_organization(organization, name, git, location):
             organization.git = git
         if location:
             organization.location = location
+        organization.allow = allow
         db.session.add(organization)
         db.session.commit()
         clear_organization_cache(organization)

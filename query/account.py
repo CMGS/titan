@@ -76,6 +76,8 @@ def get_current_user():
     if not g.session or not g.session.get('user_id') or not g.session.get('user_token'):
         return None
     user = get_user(g.session['user_id'])
+    if not user:
+        return None
     if g.session['user_token'] != user.token:
         return None
     return user

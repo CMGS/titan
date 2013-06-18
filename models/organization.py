@@ -24,6 +24,7 @@ class Organization(db.Model):
     location = db.Column(db.String(200))
     create = db.Column(db.DateTime, default=datetime.now)
     cost = db.Column(db.Integer, nullable=False, default=0)
+    allow = db.Column(BIT(1), nullable=False, default=0)
 
     def __init__(self, name, git, members=0):
         self.name = name
@@ -50,10 +51,12 @@ class Team(db.Model):
     pic = db.Column(db.String(255), default='default.png')
     repos = db.Column(db.Integer, default=0)
     create = db.Column(db.DateTime, default=datetime.now)
+    private = db.Column(BIT(1), nullable=False, default=0)
 
-    def __init__(self, oid, name, display, members=0):
+    def __init__(self, oid, name, display, private=0, members=0):
         self.oid = oid
         self.name = name
+        self.private = private
         self.display = display
         self.members = members
 
@@ -84,11 +87,20 @@ class TeamMembers(db.Model):
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     tid = db.Column(db.Integer, index=True, nullable=False)
     uid = db.Column(db.Integer, index=True, nullable=False)
+    admin = db.Column(BIT(1), nullable=False, default=0)
     join = db.Column(db.DateTime, default=datetime.now)
 
-    def __init__(self, tid, uid):
+    def __init__(self, tid, uid, admin=0):
         self.tid = tid
         self.uid = uid
+        self.admin = admin
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def set_as_admin(self):
+        self.admin = 1
 
 class Verify(db.Model):
     __tablename__ = 'verify'

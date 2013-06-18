@@ -101,13 +101,14 @@ class Setting(MethodView):
         name = request.form.get('name', None)
         gitname = request.form.get('git', None)
         location = request.form.get('location', None)
+        allow = 1 if 'allow' in request.form else 0
 
         if name and not check_organization_name(name):
             return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
         if gitname and not check_git(gitname):
             return self.render_template(error=code.ORGANIZATION_GITNAME_INVAILD)
 
-        organization, error = update_organization(organization, name, gitname, location)
+        organization, error = update_organization(organization, name, gitname, location, allow)
         if error:
             return self.render_template(error=error)
         return redirect(url_for('organization.view', git=organization.git))

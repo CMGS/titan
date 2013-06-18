@@ -16,7 +16,19 @@
 
 ## Team
 
-* 在Organization Admin里面才能删除Team
+* Team 有public和private
+* 是否让任何人创建Team由Organization Admin决定
+* public的team任何人都能加入和退出，private的只允许被添加(Organization Admin不受限制)
+* Team允许没有任何成员，包括管理员，这时候需要Organization Admin来决断
+* Team的设置只能由Team leader或者Organization Admin设定
+* Team Leader 或者 Organization Admin 能解散Team
+* 解散Team会解除所有的Team member联系以及仓库联系，仓库转移到Organization下
+
+## Repos
+
+* 项目只允许在team或者organization下，fork可在个人目录下
+* 项目由项目所有者拥有删除权限
+* 项目可以被Organization Admin和项目Owner拥有Transfer权限
 
 ## Users
 

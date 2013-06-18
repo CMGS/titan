@@ -30,9 +30,12 @@
       {{ error }}
     </div>
     {% endif %}
-    <input name="name" type="text" class="input-block-level" placeholder="Name">
-    <input name="git" type="text" class="input-block-level" placeholder="Git name">
-    <input name="location" type="text" class="input-block-level" placeholder="Location">
+    <input name="name" type="text" value="{{ organization.name }}" class="input-block-level" placeholder="Name">
+    <input name="git" type="text" value="{{ organization.git }}" class="input-block-level" placeholder="Git name">
+    <input name="location" type="text" {% if organization.location %} value="{{ organization.location }}" {% endif %} class="input-block-level" placeholder="Location">
+    <label class="checkbox">
+        <input name="allow" type="checkbox" {% if organization.allow %} checked {% endif %}">允许其他人建立小组
+    </label>
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     <button class="btn btn-large btn-primary" type="submit">Submit</button>
 </form>

@@ -23,6 +23,9 @@
             <button class="btn btn-large btn-primary" type="submit">Quit</button>
         </form>
         {% endif %}
+        {% if member.admin or team_member.admin %}
+        <a href="{{ url_for('organization.setteam', git=organization.git, tname=team.name) }}">Setting</a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

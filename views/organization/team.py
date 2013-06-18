@@ -5,7 +5,7 @@ import time
 import logging
 
 from sheep.api.files import get_uploader, purge
-from flask import g, request, redirect, url_for
+from flask import g, request, redirect, url_for, abort
 
 from utils import code
 from utils.helper import MethodView, Obj
@@ -23,21 +23,33 @@ logger = logging.getLogger(__name__)
 class CreateTeam(MethodView):
     decorators = [member_required(admin=False), login_required('account.login'),]
     def get(self, organization, member):
+        if not self.check_permits(organization, member):
+            raise abort(403)
         return self.render_template(organization=organization)
 
     def post(self, organization, member):
+        if not self.check_permits(organization, member):
+            raise abort(403)
         name = request.form.get('name', None)
         display = request.form.get('display', None)
+        private = 1 if 'private' in request.form else 0
         status = check_git(name)
         if not status:
             return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
         status = check_team_name(display)
         if not status:
             return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
-        team, error = create_team(name, display, g.current_user, organization, members=1)
+        team, error = create_team(name, display, g.current_user, organization, private=private, members=1)
         if error:
             return self.render_template(organization=organization, error=error)
         return redirect(url_for('organization.viewteam', git=organization.git, tname=team.name))
+
+    def check_permits(self, organization, member):
+        if organization.allow:
+            return True
+        if member.admin:
+            return True
+        return False
 
 class JoinTeam(MethodView):
     decorators = [
@@ -57,8 +69,7 @@ class QuitTeam(MethodView):
         login_required('account.login')
     ]
     def post(self, organization, member, team, team_member):
-        if team_member:
-            quit_team(organization, team, team_member, g.current_user)
+        quit_team(organization, team, team_member, g.current_user)
         return redirect(url_for('organization.viewteam', git=organization.git, tname=team.name))
 
 class ViewTeam(MethodView):
@@ -71,11 +82,11 @@ class ViewTeam(MethodView):
         members = get_team_members(team.id)
         users = (get_user(member.uid) for member in members)
         return self.render_template(organization=organization, team_member=team_member, \
-                team=team, users=users)
+                team=team, users=users, member=member)
 
 class SetTeam(MethodView):
     decorators = [
-        team_member_required(), \
+        team_member_required(admin=True), \
         member_required(admin=False), \
         login_required('account.login')
     ]
@@ -86,8 +97,9 @@ class SetTeam(MethodView):
         upload_avatar = request.files['file']
         name = request.form.get('name', None)
         display = request.form.get('display', None)
+        private = 1 if 'private' in request.form else 0
         pic = None
-        attr = {}
+        attr = {'private':private}
         if name:
             status = check_git(name)
             if not status:

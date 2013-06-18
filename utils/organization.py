@@ -41,7 +41,7 @@ def member_required(admin=False):
         return _
     return _member_required
 
-def team_member_required(need=True):
+def team_member_required(need=True, admin=False):
     def _team_member_required(f):
         @wraps(f)
         def _(organization, member, *args, **kwargs):
@@ -52,7 +52,15 @@ def team_member_required(need=True):
             if not team:
                 raise abort(404)
             team_member = get_team_member(team.id, g.current_user.id)
-            if need and not team_member:
+            if member.admin:
+                return f(organization, member, team, team_member, *args, **kwargs)
+            if team.private:
+                require = True
+            else:
+                require = need
+            if require and not team_member:
+                return redirect(url_for('organization.view', git=organization.git))
+            if admin and not team_member.admin:
                 return redirect(url_for('organization.viewteam', git=organization.git, tname=team.name))
             return f(organization, member, team, team_member, *args, **kwargs)
         return _
