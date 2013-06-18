@@ -52,7 +52,7 @@ def check_name(name, n=16):
         return False
     return True
 
-check_username = check_name
+check_display = check_name
 check_key_usage = lambda usage: check_name(usage, 20)
 check_team_name = check_organization_name = lambda name: check_name(name, 30)
 
@@ -63,7 +63,7 @@ def check_unique(u, n=4, m=10):
         return False
     return True
 
-check_domain = check_unique
+check_username = lambda name: check_unique(name, 2, 25)
 
 # FOR Organization
 

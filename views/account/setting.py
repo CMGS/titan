@@ -6,8 +6,7 @@ from flask import g, request
 from utils import code
 from utils.helper import MethodView
 from utils.account import login_required, account_login
-from utils.validators import check_password, check_domain, \
-        check_username
+from utils.validators import check_password, check_display
 
 from query.account import get_current_user, update_account
 
@@ -18,25 +17,18 @@ class Setting(MethodView):
 
     def post(self):
         user = g.current_user
-        username = request.form.get('name', None)
         password = request.form.get('password', None)
-        domain = request.form.get('domain', None)
+        display = request.form.get('display', None)
         city = request.form.get('city', '')
         title = request.form.get('title', '')
 
         attrs = {}
 
-        if username != user.name:
-            status = check_username(username)
+        if display != user.display:
+            status = check_display(display)
             if not status:
                 return self.render_template(error=code.ACCOUNT_USERNAME_INVAILD)
-            attrs['name'] = username
-
-        if domain and not user.domain:
-            status = check_domain(domain)
-            if not status:
-                return self.render_template(error=code.ACCOUNT_DOMAIN_INVAILD)
-            attrs['domain'] = domain
+            attrs['display'] = display
 
         if password:
             status = check_password(password)

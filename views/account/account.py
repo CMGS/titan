@@ -13,7 +13,8 @@ from utils.account import login_required, account_login, \
 from utils.validators import check_register_info, check_login_info
 from query.account import create_user, get_user_by
 from query.organization import create_members, get_verify_by_stub, \
-        get_organization_by_git, create_organization
+        get_organization_by_git, create_organization, clear_verify, \
+        get_organization_member
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +83,11 @@ class Register(MethodView):
             organization, error = create_organization(user, verify.name, verify.git, members=1, admin=1, verify=verify)
             if error:
                 return self.render_template(verify=verify, error=error)
+            return redirect(url_for('organization.view', git=organization.git))
+
+        member = get_organization_member(organization.id, user.id)
+        if member:
+            clear_verify(verify)
             return redirect(url_for('organization.view', git=organization.git))
 
         member, error = create_members(organization, user, verify)

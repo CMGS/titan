@@ -9,7 +9,7 @@ from datetime import datetime
 from flask import g
 from models.account import User, Forget, \
         Keys, Alias, db
-from utils.validators import check_domain
+from utils.validators import check_username
 from sheep.api.cache import backend, cache
 
 logger = logging.getLogger(__name__)
@@ -19,15 +19,15 @@ def get_user(uid):
     try:
         uid = int(uid)
     except ValueError:
-        if check_domain(uid):
+        if check_username(uid):
             return None
-        return get_user_by_domain(domain=uid)
+        return get_user_by_name(name=uid)
     else:
         return User.query.get(uid)
 
-@cache('account:{domain}', 86400)
-def get_user_by_domain(domain):
-    return get_user_by(domain=domain).limit(1).first()
+@cache('account:{name}', 86400)
+def get_user_by_name(name):
+    return get_user_by(name=name).limit(1).first()
 
 @cache('account:{email}', 86400)
 def get_user_by_email(email):
@@ -83,7 +83,7 @@ def get_current_user():
 # Clear
 
 def clear_user_cache(user):
-    keys = ['account:%s' % key for key in [str(user.id), user.domain, user.email]]
+    keys = ['account:%s' % key for key in [str(user.id), user.name, user.email]]
     backend.delete_many(*keys)
 
 def clear_forget(forget, delete=True):
@@ -147,11 +147,11 @@ def create_forget(uid, stub):
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
 
-def create_user(username, password, email):
+def create_user(name, password, email):
     try:
-        user = User(username, password, email)
+        user = User(name, password, email)
         db.session.add(user)
-        db.session.flush(user)
+        db.session.flush()
         alias = Alias(user.id, email)
         db.session.add(alias)
         db.session.commit()
@@ -159,8 +159,10 @@ def create_user(username, password, email):
         return user, None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
-        if 'Duplicate entry' in e.message:
+        if 'Duplicate entry' in e.message and 'email' in e.message:
             return None, code.ACCOUNT_EMAIL_EXISTS
+        if 'Duplicate entry' in e.message and 'name' in e.message:
+            return None, code.ACCOUNT_USERNAME_EXISTS
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
 

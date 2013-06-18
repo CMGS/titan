@@ -55,13 +55,7 @@
             {% else %}
                 <li><a href="#"><img src="{{ g.current_user.avatar(18) }}" /></a></li>
                 <li>
-                    {% if g.current_user.domain %}
-                    <a href="#">
-                    {% else %}
-                    <a href="#">
-                    {% endif %}
-                    {{ g.current_user.name }}
-                </a>
+                    <a href="#">{{ g.current_user.display }}</a>
                 </li>
                 <li><a href="{{ url_for('account.setting') }}">Setting</a></li>
                 <li><a href="{{ url_for('account.logout') }}">Logout</a></li>

@@ -19,19 +19,20 @@ def init_account_db(app):
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.CHAR(16), nullable=False)
+    name = db.Column(db.CHAR(25), nullable=False, unique=True)
     passwd = db.Column(db.CHAR(50), nullable=False)
-    domain = db.Column(db.String(20), unique=True)
+    display = db.Column(db.String(16), nullable=False)
     email = db.Column(db.String(200), nullable=False, unique=True)
     token = db.Column(db.CHAR(16))
     city = db.Column(db.String(150))
     title = db.Column(db.String(150))
     join = db.Column(db.DateTime, default=datetime.now)
 
-    def __init__(self, username, password, email):
-        self.name = username
+    def __init__(self, name, password, email):
+        self.name = name
         self.passwd = User.create_password(password)
         self.email = email.lower()
+        self.display = name
         self.token = create_token(16)
 
     @staticmethod
