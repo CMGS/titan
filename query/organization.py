@@ -61,10 +61,10 @@ def get_organization_by(**kw):
 
 # Clear
 
-def clear_organization_cache(organization, user=None):
+def clear_organization_cache(organization, old_git='', user=None):
     keys = [
         'organization:{oid}'.format(oid=organization.id),
-        'organization:git:{git}'.format(git=organization.git),
+        'organization:git:{git}'.format(git=old_git or organization.git),
     ]
     if user:
         keys.append('organization:member:{oid}:{uid}'.format(oid=organization.id, uid=user.id))
@@ -209,16 +209,19 @@ def update_team(organization, team, **attr):
 
 def update_organization(organization, name, git, location, allow):
     try:
+        old_git = ''
         if name:
             organization.name = name
         if git:
+            old_git = organization.git
             organization.git = git
         if location:
             organization.location = location
         organization.allow = allow
         db.session.add(organization)
         db.session.commit()
-        clear_organization_cache(organization)
+        # Ugly 如果修改了Git，需要清理的是老GitName的数据，而非新的
+        clear_organization_cache(organization, old_git=old_git)
         return organization, None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
