@@ -1,10 +1,8 @@
-{% extends "base.html" %}
+{% extends "organization.view.html" %}
 {% block add_js %}
 <style>
 .form-create {
   max-width: 500px;
-  padding: 19px 29px 29px;
-  margin: 0 auto 20px;
   -webkit-border-radius: 5px;
      -moz-border-radius: 5px;
           border-radius: 5px;
@@ -22,7 +20,7 @@
 </style>
 {% endblock %}
 {% block subtitle %}Create Team{% endblock %}
-{% block content %}
+{% block subcontent %}
 <form class="form-create" method="POST">
     <h2 class="form-create-heading">Create Team</h2>
     {% if error %}

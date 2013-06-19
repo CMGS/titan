@@ -1,4 +1,24 @@
 {% extends "team.view.html" %}
+{% block add_js %}
+<style>
+.form-add {
+  max-width: 500px;
+  -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+          border-radius: 5px;
+}
+.form-add .form-add-heading,
+.form-add .checkbox {
+  margin-bottom: 10px;
+}
+.form-add input[type="text"] {
+  font-size: 16px;
+  height: auto;
+  margin-bottom: 15px;
+  padding: 7px 9px;
+}
+</style>
+{% endblock %}
 {% block subtitle %}Team Add Member{% endblock %}
 {% block subcontent %}
 {% if error %}

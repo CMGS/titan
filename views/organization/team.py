@@ -25,7 +25,10 @@ class CreateTeam(MethodView):
     def get(self, organization, member):
         if not self.check_permits(organization, member):
             raise abort(403)
-        return self.render_template(organization=organization)
+        return self.render_template(
+                    organization=organization, \
+                    member=member, \
+                )
 
     def post(self, organization, member):
         if not self.check_permits(organization, member):
@@ -35,13 +38,25 @@ class CreateTeam(MethodView):
         private = 1 if 'private' in request.form else 0
         status = check_git(name)
         if not status:
-            return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
+            return self.render_template(
+                        organization=organization, \
+                        member=member, \
+                        error=code.ORGANIZATION_GITNAME_INVALID, \
+                    )
         status = check_team_name(display)
         if not status:
-            return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
+            return self.render_template(
+                            organization=organization, \
+                            member=member, \
+                            error=code.ORGANIZATION_NAME_INVALID, \
+                    )
         team, error = create_team(name, display, g.current_user, organization, private=private, members=1)
         if error:
-            return self.render_template(organization=organization, error=error)
+            return self.render_template(
+                    organization=organization, \
+                    member=member, \
+                    error=error, \
+                    )
         return redirect(url_for('organization.viewteam', git=organization.git, tname=team.name))
 
     def check_permits(self, organization, member):
@@ -106,10 +121,20 @@ class AddMember(MethodView):
         admin = 1 if 'admin' in request.form else 0
         user = get_user(name)
         if not user:
-            return self.render_template(organization=organization, team=team, error=code.ACCOUNT_NO_SUCH_USER)
+            return self.render_template(
+                        organization=organization, \
+                        team_member=team_member, \
+                        team=team, member=member, \
+                        error=code.ACCOUNT_NO_SUCH_USER, \
+                   )
         is_member = get_organization_member(organization.id, user.id)
         if not is_member:
-            return self.render_template(organization=organization, team=team, error=code.ORGANIZATION_MEMBER_NOT_EXISTS)
+            return self.render_template(
+                        organization=organization, \
+                        team_member=team_member, \
+                        team=team, member=member, \
+                        error=code.ORGANIZATION_MEMBER_NOT_EXISTS, \
+                   )
         create_team_members(organization, team, user, admin=admin)
         return redirect(url_for('organization.viewteam', git=organization.git, tname=team.name))
 
@@ -137,28 +162,52 @@ class SetTeam(MethodView):
         if name:
             status = check_git(name)
             if not status:
-                return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
+                return self.render_template(
+                            organization=organization, \
+                            team_member=team_member, \
+                            team=team, member=member, \
+                            salt=time.time(), \
+                            error=code.ORGANIZATION_GITNAME_INVALID, \
+                       )
             attr['name'] = name
         if display:
             status = check_team_name(display)
             if not status:
-                return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
+                return self.render_template(
+                            organization=organization, \
+                            team_member=team_member, \
+                            team=team, member=member, \
+                            salt=time.time(), \
+                            error=code.ORGANIZATION_NAME_INVALID, \
+                       )
             attr['display'] = display
         if upload_avatar:
-            pic = self.get_pic(organization, team, upload_avatar)
+            pic = self.get_pic(organization, team, member, team_member, upload_avatar)
             attr['pic'] = pic
 
         old_team = self.get_old_team(team)
         team, error = update_team(organization, old_team, team, **attr)
         if error:
-            return self.render_template(team=team, error=error)
+            return self.render_template(
+                        organization=organization, \
+                        team_member=team_member, \
+                        team=team, member=member, \
+                        salt=time.time(), \
+                        error=error, \
+                   )
         return redirect(url_for('organization.setteam', git=organization.git, tname=team.name))
 
-    def get_pic(self, organization, team, upload_avatar):
+    def get_pic(self, organization, team, member, team_member, upload_avatar):
         uploader = get_uploader()
         filename, stream, error = process_file(team, upload_avatar)
         if error:
-            return self.render_template(team=team, error=error, salt=time.time())
+            return self.render_template(
+                        organization=organization, \
+                        team_member=team_member, \
+                        team=team, member=member, \
+                        salt=time.time(), \
+                        error=error, \
+                   )
         uploader.writeFile(filename, stream)
         purge(filename)
         return filename

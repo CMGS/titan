@@ -1,4 +1,24 @@
 {% extends "team.view.html" %}
+{% block add_js %}
+<style>
+.form-modify {
+  max-width: 500px;
+  -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+          border-radius: 5px;
+}
+.form-modify .form-modify-heading,
+.form-modify .checkbox {
+  margin-bottom: 10px;
+}
+.form-modify input[type="text"] {
+  font-size: 16px;
+  height: auto;
+  margin-bottom: 15px;
+  padding: 7px 9px;
+}
+</style>
+{% endblock %}
 {% block subtitle %}Team Setting {{ team.name }}{% endblock %}
 {% block subcontent %}
 {% if error %}
