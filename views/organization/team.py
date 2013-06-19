@@ -81,8 +81,10 @@ class ViewTeam(MethodView):
     def get(self, organization, member, team, team_member):
         members = get_team_members(team.id)
         users = (get_user(member.uid) for member in members)
-        return self.render_template(organization=organization, team_member=team_member, \
-                team=team, users=users, member=member)
+        return self.render_template(
+                    organization=organization, team_member=team_member, \
+                    team=team, users=users, member=member, \
+               )
 
 class AddMember(MethodView):
     decorators = [
@@ -91,7 +93,11 @@ class AddMember(MethodView):
         login_required('account.login')
     ]
     def get(self, organization, member, team, team_member):
-        return self.render_template(organization=organization, team=team)
+        return self.render_template(
+                    organization=organization, \
+                    team_member=team_member, \
+                    team=team, member=member, \
+               )
 
     def post(self, organization, member, team, team_member):
         name = request.form.get('name', None)
@@ -112,7 +118,12 @@ class SetTeam(MethodView):
         login_required('account.login')
     ]
     def get(self, organization, member, team, team_member):
-        return self.render_template(organization=organization, team=team, salt=time.time())
+        return self.render_template(
+                    organization=organization, \
+                    team_member=team_member, \
+                    team=team, member=member, \
+                    salt=time.time(), \
+               )
 
     def post(self, organization, member, team, team_member):
         upload_avatar = request.files['file']

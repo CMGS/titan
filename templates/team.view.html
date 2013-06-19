@@ -2,14 +2,23 @@
 {% block subtitle %}{{ organization.name }} {{ team.name }}{% endblock %}
 {% block content %}
 <div class="row-fluid">
-    <div class="span2">
+    <div class="span3">
+        {% if users %}
         <ul class="nav nav-tabs nav-stacked">
             {% for user in users %}
             <li><a href="#">{{ user.name }} <img src="{{ user.avatar(24) }}" /></a></li>
             {% endfor %}
         </ul>
+        {% endif %}
+        <ul class="nav nav-tabs nav-stacked">
+            {% if member.admin or team_member.admin %}
+            <li><a href="{{ url_for('organization.setteam', git=organization.git, tname=team.name) }}">Team Setting</a></li>
+            <li><a href="{{ url_for('organization.addmember', git=organization.git, tname=team.name) }}">Add Member</a></li>
+            {% endif %}
+        </ul>
     </div>
-    <div class="span10">
+    <div class="span9">
+        {% block subcontent %}
         <h2>{{ organization.name }}</h2>
         <h3>{{ team.name }}</h3>
         {% if not team_member %}
@@ -23,9 +32,7 @@
             <button class="btn btn-large btn-primary" type="submit">Quit</button>
         </form>
         {% endif %}
-        {% if member.admin or team_member.admin %}
-        <a href="{{ url_for('organization.setteam', git=organization.git, tname=team.name) }}">Setting</a>
-        {% endif %}
+        {% endblock %}
     </div>
 </div>
 {% endblock %}
