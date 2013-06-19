@@ -52,16 +52,12 @@ def team_member_required(need=True, admin=False):
             if not team:
                 raise abort(404)
             team_member = get_team_member(team.id, g.current_user.id)
-            if member.admin:
-                return f(organization, member, team, team_member, *args, **kwargs)
-            if team.private:
-                require = True
-            else:
-                require = need
-            if require and not team_member:
-                return redirect(url_for('organization.view', git=organization.git))
-            if admin and not team_member.admin:
-                return redirect(url_for('organization.viewteam', git=organization.git, tname=team.name))
+            if not member.admin:
+                require = True if team.private else need
+                if require and not team_member:
+                    return redirect(url_for('organization.view', git=organization.git))
+                if admin and not team_member.admin:
+                    return redirect(url_for('organization.viewteam', git=organization.git, tname=team.name))
             return f(organization, member, team, team_member, *args, **kwargs)
         return _
     return _team_member_required
