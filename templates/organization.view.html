@@ -14,6 +14,7 @@
         </ul>
     </div>
     <div class="span9">
+        {% block subcontent %}
         <h1>{{ organization.name }}</h1>
         <blockquote>
             <p>ssh ident: {{ organization.git }}</p>
@@ -21,7 +22,7 @@
             <p>location: {{ organization.location }} create: {{ organization.create }}</p>
         </blockquote>
         <table class="table table-striped">
-        {% for team in teams() %}
+        {% for team in teams %}
             <tr>
                 <td>
                     <p><img height="140px" width="140px" src="{{ team.pic | u_files }}" class="img-polaroid"></p>
@@ -42,6 +43,7 @@
             </tr>
         {% endfor %}
         </table>
+        {% endblock %}
     </div>
 </div>
 {% endblock %}

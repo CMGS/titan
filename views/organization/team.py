@@ -82,8 +82,10 @@ class ViewTeam(MethodView):
         members = get_team_members(team.id)
         users = (get_user(member.uid) for member in members)
         return self.render_template(
-                    organization=organization, team_member=team_member, \
-                    team=team, users=users, member=member, \
+                    organization=organization, \
+                    team_member=team_member, \
+                    team=team, member=member, \
+                    users=users, \
                )
 
 class AddMember(MethodView):

@@ -48,7 +48,10 @@ class Create(MethodView):
 class Invite(MethodView):
     decorators = [member_required(admin=True), login_required('account.login')]
     def get(self, organization, member):
-        return self.render_template()
+        return self.render_template(
+                    organization=organization, \
+                    member=member, \
+               )
 
     def post(self, organization, member):
         count = 0
@@ -62,15 +65,27 @@ class Invite(MethodView):
             # 超过上限禁止增员
             count += 1
             if not check_organization_plan(organization, count):
-                return self.render_template(send=code.ORGANIZATION_LIMIT)
+                return self.render_template(
+                            organization=organization, \
+                            member=member, \
+                            send=code.ORGANIZATION_LIMIT, \
+                       )
             if not check_email(email):
-                return self.render_template(error=code.ACCOUNT_EMAIL_INVAILD)
+                return self.render_template(
+                            organization=organization, \
+                            member=member, \
+                            error=code.ACCOUNT_EMAIL_INVAILD, \
+                       )
             stub = create_token(20)
             verify, error = create_verify(stub, email, organization.name, organization.git, admin=admin)
             if not verify:
                 continue
             send_verify_mail(verify)
-        return self.render_template(send=code.ORGANIZATION_INVITE_SUCCESS)
+        return self.render_template(
+                    organization=organization, \
+                    member=member, \
+                    send=code.ORGANIZATION_INVITE_SUCCESS, \
+               )
 
     def is_member(self, oid, email):
         user = get_user_by_email(email)
@@ -84,35 +99,54 @@ class Invite(MethodView):
 class View(MethodView):
     decorators = [member_required(admin=False), login_required('account.login')]
     def get(self, organization, member):
-        def teams():
-            for team in get_teams_by_ogranization(organization.id):
-                members = get_team_members(team.id)
-                members = (get_user(m.uid) for m in members)
-                joined = True if get_team_member(team.id, g.current_user.id) else False
-                setattr(team, '__members', members)
-                setattr(team, '__joined', joined)
-                yield team
-        return self.render_template(organization=organization, \
-                member=member, teams=teams)
+        return self.render_template(
+                    organization=organization, \
+                    member=member, \
+                    teams=self.get_teams(organization)
+                )
+
+    def get_teams(self, organization):
+        for team in get_teams_by_ogranization(organization.id):
+            members = get_team_members(team.id)
+            members = (get_user(m.uid) for m in members)
+            joined = True if get_team_member(team.id, g.current_user.id) else False
+            setattr(team, '__members', members)
+            setattr(team, '__joined', joined)
+            yield team
 
 class Setting(MethodView):
     decorators = [member_required(admin=True), login_required('account.login')]
     def get(self, organization, member):
-        return self.render_template(organization=organization)
+        return self.render_template(
+                    organization=organization, \
+                    member=member, \
+               )
 
-    def post(self, organization, members):
+    def post(self, organization, member):
         name = request.form.get('name', None)
         gitname = request.form.get('git', None)
         location = request.form.get('location', None)
         allow = 1 if 'allow' in request.form else 0
 
         if name and not check_organization_name(name):
-            return self.render_template(error=code.ORGANIZATION_NAME_INVALID)
+            return self.render_template(
+                        organization=organization, \
+                        member=member, \
+                        error=code.ORGANIZATION_NAME_INVALID
+                   )
         if gitname and not check_git(gitname):
-            return self.render_template(error=code.ORGANIZATION_GITNAME_INVAILD)
+            return self.render_template(
+                        organization=organization, \
+                        member=member, \
+                        error=code.ORGANIZATION_GITNAME_INVAILD
+                   )
 
         organization, error = update_organization(organization, name, gitname, location, allow)
         if error:
-            return self.render_template(error=error)
+            return self.render_template(
+                        organization=organization, \
+                        member=member, \
+                        error=error
+                   )
         return redirect(url_for('organization.view', git=organization.git))
 
