@@ -27,13 +27,7 @@ class Create(MethodView):
     def post(self, organization, members):
         repopath = request.form.get('path', '')
         reponame = request.form.get('name', '')
-        repopath = repopath.split('/', 2)
-        if len(repopath) not in [1, 2]:
-            return self.render_template(
-                        organization=organization, \
-                        teams=self.get_joined_teams(organization), \
-                        error = code.REPOS_PATH_INVALID, \
-                    )
+        team_name = repopath.strip('/').split('/', 1)[0]
 
         if not check_reponame(reponame):
             return self.render_template(
@@ -42,10 +36,7 @@ class Create(MethodView):
                         error = code.REPOS_NAME_INVALID, \
                     )
 
-        organization_git = repopath[0]
-        team_name = '' if len(repopath) == 1 else repopath[1]
-        if organization_git != organization.git or \
-            (team_name and not get_team_by_name(organization.id, team_name)):
+        if team_name and not get_team_by_name(organization.id, team_name):
             return self.render_template(
                         organization=organization, \
                         teams=self.get_joined_teams(organization), \

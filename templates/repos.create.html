@@ -35,9 +35,9 @@
     <label class="select">
         <p>Repo path</p>
         <select name="path">
-            <option>{{ organization.git }}</option>
+            <option>/</option>
             {% for team in teams %}
-            <option>{{ organization.git }}/{{ team.name }}</option>
+            <option>/{{ team.name }}</option>
             {% endfor %}
         </select>
     </label>
