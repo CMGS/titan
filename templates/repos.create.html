@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block subtitle %}Create a Repo{% endblock %}
+{% block add_js %}
+<style>
+.form-create {
+  max-width: 500px;
+  padding: 19px 29px 29px;
+  margin: 0 auto 20px;
+  -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+          border-radius: 5px;
+}
+.form-create .form-create-heading,
+.form-create .checkbox {
+  margin-bottom: 10px;
+}
+.form-create input[type="text"] {
+  font-size: 16px;
+  height: auto;
+  margin-bottom: 15px;
+  padding: 7px 9px;
+  width: 300px;
+}
+</style>
+{% endblock %}
+{% block content %}
+<form class="form-create" method="POST">
+    <h2 class="form-create-heading">Create a Repo</h2>
+    {% if error %}
+    <div class="alert alert-error">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      {{ error }}
+    </div>
+    {% endif %}
+    <label class="select">
+        <p>Repo path</p>
+        <select name="path">
+            <option>{{ organization.git }}</option>
+            {% for team in teams %}
+            <option>{{ organization.git }}/{{ team.name }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label class="text">
+        <p>Repo name</p>
+        <input name="name" type="text" class="input-block-level" placeholder="Name">
+    </label>
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <button class="btn btn-large btn-primary" type="submit">Submit</button>
+</form>
+{% endblock %}
