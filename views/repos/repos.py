@@ -34,6 +34,14 @@ class Create(MethodView):
                         teams=self.get_joined_teams(organization), \
                         error = code.REPOS_PATH_INVALID, \
                     )
+
+        if not check_reponame(reponame):
+            return self.render_template(
+                        organization=organization, \
+                        teams=self.get_joined_teams(organization), \
+                        error = code.REPOS_NAME_INVALID, \
+                    )
+
         organization_git = repopath[0]
         team_name = '' if len(repopath) == 1 else repopath[1]
         if organization_git != organization.git or \
@@ -43,7 +51,6 @@ class Create(MethodView):
                         teams=self.get_joined_teams(organization), \
                         error = code.REPOS_PATH_INVALID, \
                     )
-
 
         return 'Hello World'
 

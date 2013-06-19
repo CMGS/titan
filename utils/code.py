@@ -31,6 +31,8 @@ ORGANIZATION_TEAM_MEMBER_EXISTS = 'team member exists'
 ORGANIZATION_VERIFY_STUB_EXPIRED = 'stub expired'
 
 REPOS_PATH_INVALID = 'repo path invaild'
+REPOS_NAME_INVALID = 'repo name invaild'
+REPOS_PATH_EXISTS = 'repo path exists'
 
 UNHANDLE_EXCEPTION = 'Server fault'
 
