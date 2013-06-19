@@ -15,7 +15,7 @@ class Create(MethodView):
     decorators = [member_required(admin=False), login_required('account.login')]
     def get(self, organization, members):
         teams = get_teams_by_ogranization(organization.id)
-        return self.render_template(teams=teams)
+        return self.render_template(organization=organization, teams=teams)
 
     def post(self, organization, members):
         name = request.form.get('name', None)

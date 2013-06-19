@@ -21,19 +21,23 @@
             <p>location: {{ organization.location }} create: {{ organization.create }}</p>
         </blockquote>
         <table class="table table-striped">
-        {% for team in teams %}
+        {% for team in teams() %}
             <tr>
                 <td>
                     <p><img height="140px" width="140px" src="{{ team.pic | u_files }}" class="img-polaroid"></p>
                     <blockquote>
                         <p>{{ team.display }} members: {{ team.members }}</p>
                         <p>
-                            {% for m in team_members(team) %}
+                            {% for m in team.__members %}
                                 <a href="#"><img height="24px" width="24px" src="{{ m.avatar(24) }}" /></a>
                             {% endfor %}
                         </p>
                     </blockquote>
+                    {% if team.private and not team.__joined %}
+                    <p> private </p>
+                    {% else %}
                     <p><a href="{{ url_for('organization.viewteam', git=organization.git, tname=team.name) }}">view team</a></p>
+                    {% endif %}
                 </td>
             </tr>
         {% endfor %}
