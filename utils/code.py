@@ -30,6 +30,8 @@ ORGANIZATION_TEAM_EXISTS = 'team exists'
 ORGANIZATION_TEAM_MEMBER_EXISTS = 'team member exists'
 ORGANIZATION_VERIFY_STUB_EXPIRED = 'stub expired'
 
+REPOS_PATH_INVALID = 'repo path invaild'
+
 UNHANDLE_EXCEPTION = 'Server fault'
 
 VERIFY_ALREAD_EXISTS = 'you had send a mail already'

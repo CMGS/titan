@@ -63,6 +63,7 @@ def check_unique(u, n=4, m=10):
         return False
     return True
 
+check_reponame = lambda name: check_unique(name, 1, 30)
 check_username = lambda name: check_unique(name, 2, 25)
 
 # FOR Organization
@@ -86,5 +87,6 @@ BLACK_LIST = [
     'register', 'team', 'account', \
     'login', 'logout', 'forget', 'reset', \
     'setting', 'invite', 'organization', \
-    'keys', 'alias',
+    'keys', 'alias', 'repos', 'add', 'create', \
+    'join', 'quit', \
 ]

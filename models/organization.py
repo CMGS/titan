@@ -15,7 +15,7 @@ class Organization(db.Model):
     __tablename__ = 'organization'
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.CHAR(30), nullable=False)
-    git = db.Column(db.CHAR(10), unique=True, nullable=False)
+    git = db.Column(db.CHAR(15), unique=True, nullable=False)
     repos = db.Column(db.Integer, nullable=False, default=0)
     teams = db.Column(db.Integer, nullable=False, default=0)
     members = db.Column(db.Integer, nullable=False, default=0)

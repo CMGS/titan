@@ -19,7 +19,7 @@ class Repos(db.Model):
     tid = db.Column(db.Integer, nullable=False, default=0)
     uid = db.Column(db.Integer, nullable=False)
     summary = db.Column(db.String(200))
-    path = db.Column(db.CHAR(50), index=True, nullable=False)
+    path = db.Column(db.String(150), index=True, nullable=False)
     parent = db.Column(db.Integer, nullable=False, default=0)
     forks = db.Column(db.Integer, nullable=False, default=0)
     create = db.Column(db.DateTime, default=datetime.now)
