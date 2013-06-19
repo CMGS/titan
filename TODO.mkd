@@ -53,6 +53,7 @@
 + public的team任何人都能加入和退出，private的只允许被 Team Leader 添加(Organization Admin不受限制)
 + Team允许没有任何成员，包括管理员，这时候需要Organization Admin来决断
 + Team的设置只能由Team leader或者Organization Admin设定
++ Team的添加成员也只能由Team Leader或者Organizatio Admin执行
 + 别名
 + Manager SSH Key
 + 发邮件的时候验证邮件地址
