@@ -1,6 +1,7 @@
 #!/usr/local/bin/python2.7
 #coding:utf-8
 
+import os
 import logging
 
 from flask import g, request
@@ -10,6 +11,8 @@ from utils.helper import MethodView
 from utils.account import login_required
 from utils.validators import check_reponame
 from utils.organization import member_required
+
+from query.repos import create_repo
 
 from query.organization import get_teams_by_ogranization, get_team_member, \
         get_team_by_name
@@ -26,23 +29,32 @@ class Create(MethodView):
 
     def post(self, organization, members):
         repopath = request.form.get('path', '')
-        reponame = request.form.get('name', '')
-        team_name = repopath.strip('/').split('/', 1)[0]
+        name = request.form.get('name', '')
+        summary = request.form.get('summary', '')
+        teamname = repopath.strip('/').split('/', 1)[0]
 
-        if not check_reponame(reponame):
+        if not check_reponame(name):
             return self.render_template(
                         organization=organization, \
                         teams=self.get_joined_teams(organization), \
                         error = code.REPOS_NAME_INVALID, \
                     )
-
-        if team_name and not get_team_by_name(organization.id, team_name):
+        team = get_team_by_name(organization.id, teamname) if teamname else None
+        if teamname and not team:
             return self.render_template(
                         organization=organization, \
                         teams=self.get_joined_teams(organization), \
                         error = code.REPOS_PATH_INVALID, \
                     )
 
+        path = os.path.join(teamname, '%s.git' % name)
+        repo, error = create_repo(name, path, g.current_user, organization, team=team, summary=summary)
+        if error:
+            return self.render_template(
+                        organization=organization, \
+                        teams=self.get_joined_teams(organization), \
+                        error = error, \
+                    )
         return 'Hello World'
 
     def get_joined_teams(self, organization):

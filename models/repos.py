@@ -24,7 +24,7 @@ class Repos(db.Model):
     forks = db.Column(db.Integer, nullable=False, default=0)
     create = db.Column(db.DateTime, default=datetime.now)
 
-    def __init__(self, name, path, oid, uid, tid=0, summary='', parent=0, forks=0):
+    def __init__(self, name, path, oid, uid, tid=0, summary='', parent=0):
         self.name = name
         self.path = path
         self.oid = oid
@@ -32,7 +32,6 @@ class Repos(db.Model):
         self.tid = tid
         self.summary = summary
         self.parent = parent
-        self.forks = forks
 
     def set_args(self, **kwargs):
         for k, v in kwargs.iteritems():

@@ -45,6 +45,10 @@
         <p>Repo name</p>
         <input name="name" type="text" class="input-block-level" placeholder="Name">
     </label>
+    <label class="text">
+        <p>Summary</p>
+        <input name="summary" type="text" class="input-block-level" placeholder="Summary">
+    </label>
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     <button class="btn btn-large btn-primary" type="submit">Submit</button>
 </form>
