@@ -154,22 +154,11 @@ class SetTeam(MethodView):
 
     def post(self, organization, member, team, team_member):
         upload_avatar = request.files['file']
-        name = request.form.get('name', None)
         display = request.form.get('display', None)
         private = 1 if 'private' in request.form else 0
         pic = None
         attr = {'private':private}
-        if name:
-            status = check_git(name)
-            if not status:
-                return self.render_template(
-                            organization=organization, \
-                            team_member=team_member, \
-                            team=team, member=member, \
-                            salt=time.time(), \
-                            error=code.ORGANIZATION_GITNAME_INVALID, \
-                       )
-            attr['name'] = name
+
         if display:
             status = check_team_name(display)
             if not status:
@@ -185,8 +174,7 @@ class SetTeam(MethodView):
             pic = self.get_pic(organization, team, member, team_member, upload_avatar)
             attr['pic'] = pic
 
-        old_team = self.get_old_team(team)
-        team, error = update_team(organization, old_team, team, **attr)
+        team, error = update_team(organization, team, **attr)
         if error:
             return self.render_template(
                         organization=organization, \
@@ -211,11 +199,4 @@ class SetTeam(MethodView):
         uploader.writeFile(filename, stream)
         purge(filename)
         return filename
-
-    def get_old_team(self, team):
-        # TODO ugly implement
-        old_team = Obj()
-        old_team.id = team.id
-        old_team.name = team.name
-        return old_team
 

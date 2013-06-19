@@ -192,13 +192,13 @@ def quit_team(organization, team, team_member, user):
     db.session.commit()
     clear_team_cache(organization, team, user)
 
-def update_team(organization, old_team, team, **attr):
+def update_team(organization, team, **attr):
     try:
         for k, v in attr.iteritems():
             setattr(team, k, v)
         db.session.add(team)
         db.session.commit()
-        clear_team_cache(organization, old_team)
+        clear_team_cache(organization, team)
         return team, None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()

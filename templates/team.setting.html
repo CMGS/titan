@@ -30,8 +30,8 @@
 <div class="row-fluid">
     <form class="form-modify" enctype="multipart/form-data" method="POST">
         <h2 class="form-modify-heading">Modify Team</h2>
-        <input name="name" type="text" class="input-block-level" placeholder="Name">
-        <input name="display" type="text" class="input-block-level" placeholder="Display Name">
+        <input disabled type="text" class="input-block-level" value="{{ team.name }}" placeholder="Name">
+        <input name="display" type="text" class="input-block-level" value="{{ team.display }}" placeholder="Display Name">
         <label class="checkbox">
             <input name="private" type="checkbox" {% if team.private %} checked {% endif %}>私密小组
         </label>
