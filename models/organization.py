@@ -36,11 +36,11 @@ class Organization(db.Model):
 
 class Team(db.Model):
     __tablename__ = 'team'
-    __table_args__ = (db.UniqueConstraint('oid', 'name', name='uix_oid_name'), )
+    __table_args__ = (db.UniqueConstraint('name', 'oid', name='uix_name_oid'), )
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.CHAR(30), nullable=False)
     display = db.Column(db.CHAR(30), nullable=False)
-    oid = db.Column(db.Integer, index=True, nullable=False)
+    oid = db.Column(db.Integer, nullable=False)
     members = db.Column(db.Integer, nullable=False, default=0)
     pic = db.Column(db.String(255), default='default.png')
     repos = db.Column(db.Integer, default=0)
