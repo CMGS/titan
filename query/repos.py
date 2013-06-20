@@ -4,25 +4,34 @@
 import os
 import logging
 import sqlalchemy.exc
-from utils import code
-from utils.repos import get_jagare
 from sheep.api.cache import cache, backend
 
 from models import db
 from models.repos import Repos
 from models.organization import Organization, Team
 
+from utils import code
+from utils.jagare import get_jagare
 from utils.validators import check_repos_limit
 from query.organization import clear_organization_cache, clear_team_cache
 
 logger = logging.getLogger(__name__)
 
+@cache('repos:{oid}:{path}', 864000)
+def get_repo_by_path(oid, path):
+    return Repos.query.filter_by(path=path, oid=oid).limit(1).first()
+
 # clear
 
-def clear_repo_cache(organization, team=None):
+def clear_repo_cache(organization, repo, team=None):
+    #TODO clear repo cache
+    keys = [
+        'repos:{oid}:{path}'.format(oid=organization.id, path=repo.path),
+    ]
     clear_organization_cache(organization)
     if team:
         clear_team_cache(organization, team)
+    backend.delete_many(*keys)
 
 # create
 
@@ -48,7 +57,7 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=0)
             db.session.rollback()
             return None, error
         db.session.commit()
-        clear_repo_cache(organization, team)
+        clear_repo_cache(organization, repo, team)
         return repo, None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()

@@ -8,6 +8,7 @@ from flask import g, request
 
 from utils import code
 from utils.helper import MethodView
+from utils.repos import repo_required
 from utils.account import login_required
 from utils.validators import check_reponame
 from utils.organization import member_required
@@ -68,4 +69,9 @@ class Create(MethodView):
             if not get_team_member(team.id, g.current_user.id):
                 continue
             yield team
+
+class View(MethodView):
+    decorators = [repo_required, member_required(admin=False), login_required('account.login')]
+    def get(self, organization, member, repo):
+        return repo.path
 
