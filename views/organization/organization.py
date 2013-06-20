@@ -11,7 +11,7 @@ from utils.helper import MethodView
 from utils.account import login_required
 from utils.organization import send_verify_mail, member_required
 from utils.validators import check_organization_name, check_git, \
-        check_organization_plan, check_email
+        check_members_limit, check_email
 from query.account import get_user_by_email, get_user
 from query.organization import get_organization_member, create_organization, \
         create_verify, update_organization, get_teams_by_ogranization, \
@@ -64,7 +64,7 @@ class Invite(MethodView):
 
             # 超过上限禁止增员
             count += 1
-            if not check_organization_plan(organization, count):
+            if not check_members_limit(organization, count):
                 return self.render_template(
                             organization=organization, \
                             member=member, \

@@ -31,7 +31,7 @@
 * 退出组织（只准主动），删除team member对应，已有仓库停止读写访问，删除member对应，更新相应数据。
 * Email唯一，所以一旦占有了类似于a@douban.com之后，新加入分配为a@douban.com的就没法再加入。
 
-## Others
+## SubSystem
 
 * 结构系统
 * Git系统
@@ -41,7 +41,7 @@
 * 成就系统
 * 个人数据统计系统
 
-## TODO
+## Others
 
 * 接入Repos
 * Titan自身功能不带slash

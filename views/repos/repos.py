@@ -39,6 +39,7 @@ class Create(MethodView):
                         teams=self.get_joined_teams(organization), \
                         error = code.REPOS_NAME_INVALID, \
                     )
+
         team = get_team_by_name(organization.id, teamname) if teamname else None
         if teamname and not team:
             return self.render_template(

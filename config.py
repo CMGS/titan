@@ -23,16 +23,6 @@ FORGET_STUB_EXPIRE = 30*60
 GRAVATAR_BASE_URL = 'http://www.gravatar.com/avatar/'
 GRAVATAR_EXTRA = ''
 
-PACKAGE_PLAN = {
-    1: 5,
-    2: 30,
-    3: 60,
-    4: 100,
-    5: 150,
-    6: 200,
-    7: 999
-}
-
 PACKAGE_COST = {
     1: 0,
     2: 0,
@@ -43,11 +33,26 @@ PACKAGE_COST = {
     7: 0,
 }
 
-REPO_LIMIT = {
+REPOS_LIMIT = {
     1: 5,
     2: 100,
     3: 150,
+    4: 999,
+    5: 999,
+    6: 999,
+    7: 999,
 }
+
+MEMBERS_LIMIT = {
+    1: 5,
+    2: 30,
+    3: 60,
+    4: 100,
+    5: 150,
+    6: 200,
+    7: 999
+}
+
 
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 

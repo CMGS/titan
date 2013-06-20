@@ -76,9 +76,21 @@ def check_git(git):
         return False
     return True
 
-def check_organization_plan(organization, incr=0):
+def check_members_limit(organization, incr=0):
     # TODO 计算有多少人了
-    if organization.members + incr > config.PACKAGE_PLAN[organization.plan]:
+    limit = config.MEMBERS_LIMIT[organization.plan]
+    if limit == 999:
+        return True
+    if organization.members + incr > limit:
+        return False
+    return True
+
+def check_repos_limit(organization, incr=0):
+    # TODO 计算有多少仓库了
+    limit = config.REPOS_LIMIT[organization.plan]
+    if limit == 999:
+        return True
+    if organization.members + incr > limit:
         return False
     return True
 
