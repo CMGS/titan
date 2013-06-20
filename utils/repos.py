@@ -1,6 +1,7 @@
 #!/usr/local/bin/python2.7
 #coding:utf-8
 
+import os
 from flask import g, abort
 
 from functools import wraps
@@ -11,9 +12,10 @@ from query.organization import get_team_member
 def repo_required(f):
     @wraps(f)
     def _(organization, member, *args, **kwargs):
-        repopath = kwargs.pop('path', None)
-        path = '%s.git' % repopath
-        if not repopath:
+        teamname = kwargs.pop('tname', '')
+        reponame = kwargs.pop('rname', '')
+        path = os.path.join(teamname, '%s.git' % reponame)
+        if not reponame:
             raise abort(404)
         repo = get_repo_by_path(organization.id, path)
         if not repo:

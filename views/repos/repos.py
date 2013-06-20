@@ -4,7 +4,7 @@
 import os
 import logging
 
-from flask import g, request
+from flask import g, request, redirect, url_for
 
 from utils import code
 from utils.helper import MethodView
@@ -62,7 +62,10 @@ class Create(MethodView):
                         error = error, \
                     )
 
-        return 'Hello World'
+        view_url = url_for('repos.view', git=organization.git, path=name)
+        if teamname:
+            view_url = url_for('repos.view', git=organization.git, teamname=teamname, path=name)
+        return redirect(view_url)
 
     def get_joined_teams(self, organization):
         for team in get_teams_by_ogranization(organization.id):
