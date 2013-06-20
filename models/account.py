@@ -57,9 +57,8 @@ class User(db.Model):
 
 class Forget(db.Model):
     __tablename__ = 'forget'
-    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
-    uid = db.Column('uid', db.Integer, nullable=False, unique=True)
-    stub = db.Column('stub', db.CHAR(20), nullable=False, unique=True)
+    uid = db.Column('uid', db.Integer, primary_key=True)
+    stub = db.Column('stub', db.CHAR(20), primary_key=True)
     created = db.Column(db.DateTime, default=datetime.now)
 
     def __init__(self, uid, stub):

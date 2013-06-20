@@ -36,6 +36,8 @@ def get_user_by_email(email):
 @cache('account:forget:{stub}', 300)
 def get_forget_by_stub(stub):
     forget = Forget.query.filter_by(stub=stub).first()
+    if not forget:
+        return None, code.ACCOUNT_FORGET_STUB_INVAILD
     if (datetime.now()  - forget.created).total_seconds() > config.FORGET_STUB_EXPIRE:
         clear_forget(forget)
         return None, code.ACCOUNT_FORGET_STUB_EXPIRED
@@ -132,6 +134,8 @@ def create_key(user, usage, key, finger):
         return None, code.UNHANDLE_EXCEPTION
 
 def create_forget(uid, stub):
+    import pdb
+    pdb.set_trace()
     forget = get_unique_forget(uid)
     if forget and (datetime.now()  - forget.created).total_seconds() > config.VERIFY_STUB_EXPIRE:
         clear_forget(forget)

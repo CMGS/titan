@@ -32,14 +32,14 @@ class Forget(MethodView):
             forget, error = create_forget(user.id, stub)
             if error:
                 return self.render_template(error=error)
-            send_forget_mail(user, stub)
+            send_forget_mail(user, forget.stub)
         return self.render_template(send=code.ACCOUNT_EMAIL_FORGET)
 
 class Reset(MethodView):
     def get(self, stub):
         forget, error = get_forget_by_stub(stub=stub)
         if error:
-            return self.render_template(error=error)
+            return redirect(url_for('index'))
 
         if g.current_user:
             clear_forget(forget)
