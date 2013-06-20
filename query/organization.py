@@ -18,7 +18,7 @@ def get_organization(oid):
 
 @cache('organization:member:{oid}:{uid}', 86400)
 def get_organization_member(oid, uid):
-    return Members.query.filter_by(oid=oid, uid=uid).limit(1).first()
+    return Members.query.filter_by(uid=uid, oid=oid).limit(1).first()
 
 @cache('organization:member:{uid}', 86400)
 def get_organizations_by_uid(uid):

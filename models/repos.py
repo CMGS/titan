@@ -6,14 +6,14 @@ from models import db
 
 class Repos(db.Model):
     __tablename__ = 'repos'
-    __table_args__ = (db.UniqueConstraint('oid', 'path', name='uix_oid_path'), )
+    __table_args__ = (db.UniqueConstraint('path', 'oid', name='uix_path_oid'), )
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.CHAR(30), nullable=False)
     oid = db.Column(db.Integer, nullable=False, index=True)
     tid = db.Column(db.Integer, nullable=False, index=True, default=0)
     uid = db.Column(db.Integer, nullable=False, index=True)
     summary = db.Column(db.String(200))
-    path = db.Column(db.String(150), index=True, nullable=False)
+    path = db.Column(db.String(150), nullable=False)
     parent = db.Column(db.Integer, nullable=False, default=0)
     forks = db.Column(db.Integer, nullable=False, default=0)
     create = db.Column(db.DateTime, default=datetime.now)

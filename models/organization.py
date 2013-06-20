@@ -36,7 +36,7 @@ class Organization(db.Model):
 
 class Team(db.Model):
     __tablename__ = 'team'
-    __table_args__ = (db.UniqueConstraint('name', 'oid', name='uix_name_oid'), )
+    __table_args__ = (db.UniqueConstraint('oid', 'name', name='uix_oid_name'), )
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.CHAR(30), nullable=False)
     display = db.Column(db.CHAR(30), nullable=False)
@@ -56,7 +56,7 @@ class Team(db.Model):
 
 class Members(db.Model):
     __tablename__ = 'members'
-    __table_args__ = (db.UniqueConstraint('oid', 'uid', name='uix_oid_uid'), )
+    __table_args__ = (db.UniqueConstraint('uid', 'oid', name='uix_uid_oid'), )
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     oid = db.Column(db.Integer, nullable=False)
     uid = db.Column(db.Integer, nullable=False)
@@ -100,7 +100,7 @@ class Verify(db.Model):
     __tablename__ = 'verify'
     git = db.Column(db.CHAR(10), primary_key=True)
     email = db.Column(db.String(200), primary_key=True)
-    stub = db.Column('stub', db.CHAR(20), primary_key=True)
+    stub = db.Column(db.CHAR(20), primary_key=True)
     name = db.Column(db.CHAR(30), nullable=False)
     admin = db.Column(BIT(1), nullable=False, default=0)
     created = db.Column(db.DateTime, default=datetime.now)
