@@ -3,13 +3,7 @@
 
 from datetime import datetime
 from sqlalchemy.dialects.mysql import BIT
-from flask.ext.sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
-def init_organization_db(app):
-    db.init_app(app)
-    db.app = app
-    db.create_all()
+from models import db
 
 class Organization(db.Model):
     __tablename__ = 'organization'

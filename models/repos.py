@@ -2,13 +2,7 @@
 #coding:utf-8
 
 from datetime import datetime
-from flask.ext.sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
-def init_repos_db(app):
-    db.init_app(app)
-    db.app = app
-    db.create_all()
+from models import db
 
 class Repos(db.Model):
     __tablename__ = 'repos'
