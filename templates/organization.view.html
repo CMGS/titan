@@ -28,7 +28,7 @@
                 <td>
                     <p><img height="140px" width="140px" src="{{ team.pic | u_files }}" class="img-polaroid"></p>
                     <blockquote>
-                        <p>{{ team.display }} members: {{ team.members }}</p>
+                        <p>{{ team.display }} members: {{ team.members }} repos: {{ team.repos }}</p>
                         <p>
                             {% for m in team.__members %}
                                 <a href="#"><img height="24px" width="24px" src="{{ m.avatar(24) }}" /></a>

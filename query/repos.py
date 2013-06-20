@@ -1,9 +1,11 @@
 #!/usr/local/bin/python2.7
 #coding:utf-8
 
+import os
 import logging
 import sqlalchemy.exc
 from utils import code
+from utils.repos import get_jagare
 from sheep.api.cache import cache, backend
 
 from models import db
@@ -40,6 +42,11 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=0)
         if not check_repos_limit(organization):
             db.session.rollback()
             return None, code.ORGANIZATION_REPOS_LIMIT
+        jagare = get_jagare(repo.id, parent)
+        ret, error = jagare.init(os.path.join(str(organization.id), repo.path))
+        if not ret:
+            db.session.rollback()
+            return None, error
         db.session.commit()
         clear_repo_cache(organization, team)
         return repo, None
