@@ -12,5 +12,5 @@ repos = Blueprint(MODULE_NAME, __name__)
 
 create = view_func(Create)
 
-repos.add_url_rule('/<git>/repos/create', view_func=create, methods=['GET', 'POST'])
+repos.add_url_rule('/<git>/new', view_func=create, methods=['GET', 'POST'])
 

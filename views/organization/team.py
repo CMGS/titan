@@ -8,7 +8,7 @@ from sheep.api.files import get_uploader, purge
 from flask import g, request, redirect, url_for, abort
 
 from utils import code
-from utils.helper import MethodView, Obj
+from utils.helper import MethodView
 from utils.account import login_required
 from utils.validators import check_team_name, check_git
 from utils.organization import member_required, team_member_required, \

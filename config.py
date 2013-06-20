@@ -56,7 +56,7 @@ MEMBERS_LIMIT = {
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 JAGARE_NODES = [
-    '127.0.0.1:9000',
+    'http://127.0.0.1:9000',
 ]
 
 try:

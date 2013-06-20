@@ -36,6 +36,7 @@ ORGANIZATION_VERIFY_STUB_INVAILD = 'stub invaild'
 REPOS_PATH_INVALID = 'repo path invaild'
 REPOS_NAME_INVALID = 'repo name invaild'
 REPOS_PATH_EXISTS = 'repo path exists'
+REPOS_INIT_FAILED = 'repo init failed'
 
 UNHANDLE_EXCEPTION = 'Server fault'
 
