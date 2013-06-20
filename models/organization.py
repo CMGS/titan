@@ -58,8 +58,8 @@ class Members(db.Model):
     __tablename__ = 'members'
     __table_args__ = (db.UniqueConstraint('oid', 'uid', name='uix_oid_uid'), )
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
-    oid = db.Column(db.Integer, index=True, nullable=False)
-    uid = db.Column(db.Integer, index=True, nullable=False)
+    oid = db.Column(db.Integer, nullable=False)
+    uid = db.Column(db.Integer, nullable=False)
     admin = db.Column(BIT(1), nullable=False, default=0)
     join = db.Column(db.DateTime, default=datetime.now)
 
@@ -79,8 +79,8 @@ class TeamMembers(db.Model):
     __tablename__ = 'team_members'
     __table_args__ = (db.UniqueConstraint('tid', 'uid', name='uix_tid_uid'), )
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
-    tid = db.Column(db.Integer, index=True, nullable=False)
-    uid = db.Column(db.Integer, index=True, nullable=False)
+    tid = db.Column(db.Integer, nullable=False)
+    uid = db.Column(db.Integer, nullable=False)
     admin = db.Column(BIT(1), nullable=False, default=0)
     join = db.Column(db.DateTime, default=datetime.now)
 
