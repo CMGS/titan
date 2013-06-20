@@ -36,7 +36,7 @@ class Organization(db.Model):
 
 class Team(db.Model):
     __tablename__ = 'team'
-    __table_args__ = (db.UniqueConstraint('oid', 'name', name='uix_oid_tname'), )
+    __table_args__ = (db.UniqueConstraint('oid', 'name', name='uix_oid_name'), )
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.CHAR(30), nullable=False)
     display = db.Column(db.CHAR(30), nullable=False)
