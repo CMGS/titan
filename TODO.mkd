@@ -43,13 +43,13 @@
 
 ## Others
 
-* 一种方案限制注册和创建仓库超过上限
 * 接入Repos
 * Titan自身功能不带slash
 * Organization可以选择套餐, 立即生效，必须余额大于套餐价格，下个月开始扣费
 
 ## Done
 
++ 一种方案限制注册和创建仓库超过上限
 + Team 有public和private
 + 是否让任何人创建Team由Organization Admin决定
 + public的team任何人都能加入和退出，private的只允许被 Team Leader 添加(Organization Admin不受限制)

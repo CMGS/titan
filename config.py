@@ -53,8 +53,11 @@ MEMBERS_LIMIT = {
     7: 999
 }
 
-
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+
+JAGARE_NODES = [
+    '127.0.0.1:9000',
+]
 
 try:
     from local_config import *

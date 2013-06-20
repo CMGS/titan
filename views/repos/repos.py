@@ -60,6 +60,7 @@ class Create(MethodView):
                         teams=self.get_joined_teams(organization), \
                         error = error, \
                     )
+
         return 'Hello World'
 
     def get_joined_teams(self, organization):
