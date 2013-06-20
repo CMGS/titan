@@ -47,6 +47,8 @@ def get_team_members(tid):
 @cache('organization:verify:{stub}', 300)
 def get_verify_by_stub(stub):
     verify = Verify.query.filter_by(stub=stub).limit(1).first()
+    if not verify:
+        return None, code.ORGANIZATION_VERIFY_STUB_EXPIRED
     if verify and (datetime.now()  - verify.created).total_seconds() > config.VERIFY_STUB_EXPIRE:
         clear_verify(verify)
         return None, code.ORGANIZATION_VERIFY_STUB_EXPIRED

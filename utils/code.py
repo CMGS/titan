@@ -31,6 +31,7 @@ ORGANIZATION_MEMBER_NOT_EXISTS = 'member not exists'
 ORGANIZATION_TEAM_EXISTS = 'team exists'
 ORGANIZATION_TEAM_MEMBER_EXISTS = 'team member exists'
 ORGANIZATION_VERIFY_STUB_EXPIRED = 'stub expired'
+ORGANIZATION_VERIFY_STUB_INVAILD = 'stub invaild'
 
 REPOS_PATH_INVALID = 'repo path invaild'
 REPOS_NAME_INVALID = 'repo name invaild'

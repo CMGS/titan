@@ -29,8 +29,8 @@ def login_required(next=None, need=True, *args, **kwargs):
         return _
     return _login_required
 
-def send_forget_mail(user, stub):
-    content = render_template('email.forget.html', user=user, stub=stub)
+def send_forget_mail(user, forget):
+    content = render_template('email.forget.html', user=user, forget=forget)
     async_send_mail(user.email, code.EMAIL_FORGET_TITLE, content)
 
 def send_verify_mail(email, url):
