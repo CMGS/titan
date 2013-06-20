@@ -21,13 +21,14 @@ logger = logging.getLogger(__name__)
 
 class Create(MethodView):
     decorators = [member_required(admin=False), login_required('account.login')]
-    def get(self, organization, members):
+    def get(self, organization, member):
         return self.render_template(
                     organization=organization, \
+                    member=member, \
                     teams=self.get_joined_teams(organization)
                 )
 
-    def post(self, organization, members):
+    def post(self, organization, member):
         repopath = request.form.get('path', '')
         name = request.form.get('name', '')
         summary = request.form.get('summary', '')
@@ -36,6 +37,7 @@ class Create(MethodView):
         if not check_reponame(name):
             return self.render_template(
                         organization=organization, \
+                        member=member, \
                         teams=self.get_joined_teams(organization), \
                         error = code.REPOS_NAME_INVALID, \
                     )
@@ -44,6 +46,7 @@ class Create(MethodView):
         if teamname and not team:
             return self.render_template(
                         organization=organization, \
+                        member=member, \
                         teams=self.get_joined_teams(organization), \
                         error = code.REPOS_PATH_INVALID, \
                     )
@@ -53,6 +56,7 @@ class Create(MethodView):
         if error:
             return self.render_template(
                         organization=organization, \
+                        member=member, \
                         teams=self.get_joined_teams(organization), \
                         error = error, \
                     )

@@ -1,11 +1,9 @@
-{% extends "base.html" %}
+{% extends "organization.view.html" %}
 {% block subtitle %}Create a Repo{% endblock %}
 {% block add_js %}
 <style>
 .form-create {
   max-width: 500px;
-  padding: 19px 29px 29px;
-  margin: 0 auto 20px;
   -webkit-border-radius: 5px;
      -moz-border-radius: 5px;
           border-radius: 5px;
@@ -23,7 +21,7 @@
 }
 </style>
 {% endblock %}
-{% block content %}
+{% block subcontent %}
 <form class="form-create" method="POST">
     <h2 class="form-create-heading">Create a Repo</h2>
     {% if error %}
@@ -33,11 +31,11 @@
     </div>
     {% endif %}
     <label class="select">
-        <p>Repo path</p>
+        <p>Under</p>
         <select name="path">
-            <option>/</option>
+            <option value="/">{{ organization.name }}</option>
             {% for team in teams %}
-            <option>/{{ team.name }}</option>
+            <option value="/{{ team.name }}">{{ team.display }}</option>
             {% endfor %}
         </select>
     </label>
