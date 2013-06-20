@@ -35,7 +35,7 @@
                             {% endfor %}
                         </p>
                     </blockquote>
-                    {% if team.private and not team.__joined %}
+                    {% if team.private and not team.__joined and not member.admin %}
                     <p> private </p>
                     {% else %}
                     <p><a href="{{ url_for('organization.viewteam', git=organization.git, tname=team.name) }}">view team</a></p>
