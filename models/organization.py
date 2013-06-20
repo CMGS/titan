@@ -98,12 +98,10 @@ class TeamMembers(db.Model):
 
 class Verify(db.Model):
     __tablename__ = 'verify'
-    __table_args__ = (db.UniqueConstraint('git', 'email', name='uix_git_email'), )
-    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
-    stub = db.Column('stub', db.CHAR(20), nullable=False, unique=True)
-    email = db.Column(db.String(200), nullable=False)
+    git = db.Column(db.CHAR(10), primary_key=True)
+    email = db.Column(db.String(200), primary_key=True)
+    stub = db.Column('stub', db.CHAR(20), primary_key=True)
     name = db.Column(db.CHAR(30), nullable=False)
-    git = db.Column(db.CHAR(10), nullable=False)
     admin = db.Column(BIT(1), nullable=False, default=0)
     created = db.Column(db.DateTime, default=datetime.now)
 

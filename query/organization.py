@@ -63,7 +63,7 @@ def get_organization_by(**kw):
 
 # Clear
 
-def clear_organization_cache(organization, old_git='', user=None):
+def clear_organization_cache(organization, user=None, old_git=''):
     keys = [
         'organization:{oid}'.format(oid=organization.id),
         'organization:git:{git}'.format(git=old_git or organization.git),
@@ -104,7 +104,7 @@ def create_organization(user, name, git, members=0, admin=0, verify=None):
         if verify:
             db.session.delete(verify)
         db.session.commit()
-        clear_organization_cache(organization, user)
+        clear_organization_cache(organization, user=user)
         return organization, None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
@@ -122,7 +122,7 @@ def create_members(organization, user, verify):
         db.session.delete(verify)
         db.session.commit()
         clear_verify(verify, delete=False)
-        clear_organization_cache(organization, user)
+        clear_organization_cache(organization, user=user)
         return member, None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
