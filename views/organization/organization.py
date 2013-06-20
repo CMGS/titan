@@ -68,7 +68,7 @@ class Invite(MethodView):
                 return self.render_template(
                             organization=organization, \
                             member=member, \
-                            send=code.ORGANIZATION_LIMIT, \
+                            send=code.ORGANIZATION_MEMBERS_LIMIT, \
                        )
             if not check_email(email):
                 return self.render_template(
@@ -81,6 +81,7 @@ class Invite(MethodView):
             if not verify:
                 continue
             send_verify_mail(verify)
+
         return self.render_template(
                     organization=organization, \
                     member=member, \

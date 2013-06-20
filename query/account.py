@@ -6,11 +6,14 @@ import logging
 import sqlalchemy.exc
 from utils import code
 from datetime import datetime
+
 from flask import g
-from models.account import User, Forget, \
-        Keys, Alias, db
-from utils.validators import check_username
 from sheep.api.cache import backend, cache
+from utils.validators import check_username
+
+from models import db
+from models.account import User, Forget, \
+        Keys, Alias
 
 logger = logging.getLogger(__name__)
 

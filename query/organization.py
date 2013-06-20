@@ -7,8 +7,11 @@ import sqlalchemy.exc
 from utils import code
 from datetime import datetime
 from sheep.api.cache import cache, backend
+from utils.validators import check_members_limit
+
+from models import db
 from models.organization import Organization, Team, Verify, \
-        Members, TeamMembers, db
+        Members, TeamMembers
 
 logger = logging.getLogger(__name__)
 
@@ -120,6 +123,10 @@ def create_members(organization, user, verify):
         db.session.add(member)
         db.session.add(organization)
         db.session.delete(verify)
+        db.session.flush()
+        if not check_members_limit(organization):
+            db.session.rollback()
+            return None, code.ORGANIZATION_MEMBERS_LIMIT
         db.session.commit()
         clear_verify(verify, delete=False)
         clear_organization_cache(organization, user=user)

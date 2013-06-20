@@ -6,10 +6,12 @@ import sqlalchemy.exc
 from utils import code
 from sheep.api.cache import cache, backend
 
-from query.organization import clear_organization_cache, clear_team_cache
-from models.repos import Repos, db
+from models import db
+from models.repos import Repos
 from models.organization import Organization, Team
 
+from utils.validators import check_repos_limit
+from query.organization import clear_organization_cache, clear_team_cache
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +36,10 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=0)
         if team:
             team.repos = Team.repos + 1
             db.session.add(team)
+        db.session.flush()
+        if not check_repos_limit(organization):
+            db.session.rollback()
+            return None, code.ORGANIZATION_REPOS_LIMIT
         db.session.commit()
         clear_repo_cache(organization, team)
         return repo, None
