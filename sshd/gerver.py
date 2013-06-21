@@ -78,16 +78,14 @@ class Gerver(_):
     def check_permits(self, command, path):
         if not command or not command in ('git-receive-pack', 'git-upload-pack'):
             return False
-        repo = get_repo_by_path(path)
+        repo = get_repo_by_path(self.organization.id, path)
         if not repo:
             return False
         # 4 check permits, organization admin can visit every repos
         # users can visit their own repos
         if not self.member.admin or not repo.uid != self.user.id:
             if repo.tid == 0:
-                if self.check_user_permits(command, repo):
-                    return True
-                return False
+                return self.check_user_permits(command, repo)
             team = get_team(repo.tid)
             if not team:
                 return False
@@ -99,7 +97,7 @@ class Gerver(_):
             return False
         return True
 
-    def check_user_permits(command, repo):
+    def check_user_permits(self, command, repo):
         # TODO 这里需要考虑仓库本身权限
         return True
 

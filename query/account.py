@@ -112,9 +112,11 @@ def clear_alias_cache(user, email, aid=None):
 
 
 def clear_key_cache(key, user=None):
+    import pdb
+    pdb.set_trace()
     keys = [
-        'account.key.{kid}'.format(kid=key.id), \
-        'account.key.{finger}'.format(finger=key.finger), \
+        'account:key:{kid}'.format(kid=key.id), \
+        'account:key:{finger}'.format(finger=key.finger), \
     ]
     if user:
         keys.append('account:keys:{uid}'.format(uid=user.id))
