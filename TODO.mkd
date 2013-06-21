@@ -43,6 +43,7 @@
 
 ## Others
 
+* Maria 接入
 * 访问仓库权限
 * 接入Repos
 * Titan自身功能不带slash

@@ -31,6 +31,10 @@ def get_organizations_by_uid(uid):
 def get_organization_by_git(git):
     return get_organization_by(git=git).limit(1).first()
 
+@cache('organization:team:team:{tid}', 864000)
+def get_team(tid):
+    return Team.query.get(tid)
+
 @cache('organization:team:{oid}', 86400)
 def get_teams_by_ogranization(oid):
     return Team.query.filter_by(oid=oid).all()
@@ -78,6 +82,7 @@ def clear_organization_cache(organization, user=None, old_git=''):
 
 def clear_team_cache(organization, team, user=None):
     keys = [
+        'organization:team:team:{tid}'.format(tid=team.id), \
         'organization:team:members:{tid}'.format(tid=team.id), \
         'organization:team:{oid}'.format(oid=organization.id), \
         'organization:team:{oid}:{name}'.format(oid=organization.id, name=team.name),
