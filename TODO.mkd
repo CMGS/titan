@@ -43,7 +43,6 @@
 
 ## Others
 
-* Maria 接入
 * 访问仓库权限
 * 接入Repos
 * Titan自身功能不带slash
@@ -51,6 +50,7 @@
 
 ## Done
 
++ Maria 接入
 + 一种方案限制注册和创建仓库超过上限
 + Team 有public和private
 + 是否让任何人创建Team由Organization Admin决定
