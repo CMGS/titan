@@ -56,7 +56,7 @@ check_display = check_unicode_name
 check_key_usage = lambda usage: check_unicode_name(usage, m=30)
 check_team_name = check_organization_name = lambda name: check_unicode_name(name, m=30)
 
-def check_name(name, n=4, m=10):
+def check_name(name, n=4, m=15):
     if not name:
         return False
     if not re.search(r'^[a-zA-Z0-9_-]{%d,%d}$' % (n, m), name, re.I):
