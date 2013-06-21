@@ -14,6 +14,6 @@ view = view_func(View)
 create = view_func(Create)
 
 repos.add_url_rule('/<git>/new', view_func=create, methods=['GET', 'POST'])
-repos.add_url_rule('/<git>/<rname>/', view_func=view, methods=['GET'])
-repos.add_url_rule('/<git>/<tname>/<rname>/', view_func=view, methods=['GET'])
+repos.add_url_rule('/<git>/<rname>', view_func=view, methods=['GET'])
+repos.add_url_rule('/<git>/<tname>/<rname>', view_func=view, methods=['GET'])
 
