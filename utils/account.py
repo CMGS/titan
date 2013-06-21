@@ -48,7 +48,7 @@ def get_pubkey_finger(key):
     if not key:
         return None
     key = base64.b64decode(key)
-    fp_plain = hashlib.md5(key).hexdigest()
+    fp_plain = hashlib.md5(key).hexdigest().upper()
     return fp_plain
 
 def get_key(key):

@@ -52,7 +52,7 @@ def team_member_required(need=True, admin=False):
             if not team:
                 raise abort(404)
             team_member = get_team_member(team.id, g.current_user.id)
-            is_admin = member.admin or team_member.admin
+            is_admin = member.admin or team_member.admin if team_member else False
             if not is_admin:
                 require = True if team.private else need
                 if require and not team_member:

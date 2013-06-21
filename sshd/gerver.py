@@ -52,7 +52,7 @@ class Gerver(_):
         command, path = self.parser_command(command)
         if not self.check_permits(command[0], path):
             self.event.set()
-            return False
+            return paramiko.AUTH_FAILED
         # 5 get true path
         command[-1] = self.get_store_path(command[-1])
         self.command = command
@@ -92,9 +92,9 @@ class Gerver(_):
             team_member = get_team_member(repo.tid, self.user.id)
             if not team_member:
                 return False
-            if team_member.admin or self.check_user_permits(command, repo):
+            if team_member.admin:
                 return True
-            return False
+            return self.check_user_permits(command, repo)
         return True
 
     def check_user_permits(self, command, repo):
