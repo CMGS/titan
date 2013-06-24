@@ -13,8 +13,8 @@ from utils.validators import check_reponame
 from utils.organization import member_required
 from utils.repos import repo_required
 
-from query.repos import create_repo
-
+from query.account import get_user
+from query.repos import create_repo, get_repo_commiters, update_repo
 from query.organization import get_teams_by_ogranization, get_team_member, \
         get_team_by_name
 
@@ -76,12 +76,37 @@ class Create(MethodView):
 class View(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, repo, **kwargs):
-        return self.render_template(member=member, repo=repo, **kwargs)
+        return self.render_template(member=member, repo=repo, organization=organization, **kwargs)
 
 class Setting(MethodView):
     decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, repo, **kwargs):
-        return self.render_template(member=member, repo=repo, **kwargs)
+        return self.render_template(
+                    member=member, repo=repo, organization=organization, \
+                    commiters = self.get_commiters(repo), \
+                    **kwargs
+                )
+
+    def post(self, organization, member, repo, **kwargs):
+        name = request.form.get('name')
+        if name != repo.name:
+            error = update_repo(organization, repo, name, kwargs.get('team', None))
+            if error:
+                return self.render_template(
+                        member=member, repo=repo, organization=organization, \
+                        commiters = self.get_commiters(repo), \
+                        error = error, \
+                        **kwargs
+                )
+
+        return redirect(url_for('repos.setting', \
+            git=organization.git, rname=repo.name, \
+            tname=kwargs['team'].name if kwargs.get('team') else None))
+
+    def get_commiters(self, repo):
+        commiters = get_repo_commiters(repo.id)
+        commiters = (get_user(commiter.uid) for commiter in commiters)
+        return commiters
 
 class AddCommiter(MethodView):
     decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]

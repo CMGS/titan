@@ -1,0 +1,54 @@
+{% extends "repos.view.html" %}
+{% block add_js %}
+<style>
+.form-setting {
+  max-width: 500px;
+  -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+          border-radius: 5px;
+}
+.form-setting .form-setting-heading,
+.form-setting .checkbox {
+  margin-bottom: 10px;
+}
+.form-setting input[type="text"] {
+  font-size: 16px;
+  height: auto;
+  margin-bottom: 15px;
+  padding: 7px 9px;
+}
+</style>
+{% endblock %}
+
+{% block subtitle %}Setting {{ repo.name }}{% endblock %}
+
+{% block subnav %}
+    {{ nav('setting') }}
+{% endblock %}
+
+{% block subcontent %}
+<p>
+    <h4>Setting</h4>
+    <form class="form-setting" method="POST">
+        {% if error %}
+        <div class="alert alert-error">
+          <button type="button" class="close" data-dismiss="alert">&times;</button>
+          {{ error }}
+        </div>
+        {% endif %}
+        <label class="text">
+            <p>modify repo name</p>
+            <input name="name" type="text" value="{{ repo.name }}" class="input-block-level" placeholder="Name">
+        </label>
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-primary" type="submit">Update</button>
+    </form>
+</p>
+<p>
+    <h4>Commiters</h4>
+    {% for commiter in commiters %}
+        <a href="#"><img height="24px" width="24px" src="{{ commiter.avatar(24) }}" /></a>
+    {% endfor %}
+</p>
+{% endblock %}
+

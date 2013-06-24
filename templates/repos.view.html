@@ -1,21 +1,38 @@
 {% extends "base.html" %}
 {% block subtitle %}{{ repo.name }}{% endblock %}
+
+{% macro get_url(view='repos.view') -%}
+    {% if repo.tid == 0 %}
+    {{ url_for(view, git=organization.git, rname=repo.name,) }}
+    {% else %}
+    {{ url_for(view, git=organization.git, rname=repo.name, tname=team.name) }}
+    {% endif %}
+{%- endmacro %}
+
+{% macro nav(current='dashboard') -%}
+<li class="{% if current == 'code' %} active {% endif %}">
+    <a href="{{ get_url() }}">Code</a>
+</li>
+{% if admin %}
+<li class="{% if current == 'setting' %} active {% endif %}">
+    <a href="{{ get_url('repos.setting') }}">Setting</a>
+</li>
+{% endif %}
+{%- endmacro %}
+
 {% block content %}
 <div class="navbar">
   <div class="navbar-inner">
     <ul class="nav">
         {% block subnav %}
-        <li class="active">
-            <a href="{{ request.url }}">Code</a>
-        </li>
-        {% if admin %}
-        <li><a href="#">Setting</a></li>
-        {% endif %}
+            {{ nav('code') }}
         {% endblock %}
     </ul>
   </div>
 </div>
+    {% block subcontent %}
     {{ repo.path }}
+    {% endblock %}
 </div>
 {% endblock %}
 

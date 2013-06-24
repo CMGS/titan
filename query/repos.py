@@ -25,6 +25,10 @@ def get_repo_by_path(oid, path):
 def get_repo_commiter(uid, rid):
     return Commiters.query.filter_by(uid=uid, rid=rid).limit(1).first()
 
+@cache('repos:commiters:{rid}', 8640000)
+def get_repo_commiters(rid):
+    return Commiters.query.filter_by(rid=rid).all()
+
 # clear
 
 def clear_repo_permits(user, repo):
@@ -33,10 +37,10 @@ def clear_repo_permits(user, repo):
     ]
     backend.delete_many(*keys)
 
-def clear_repo_cache(organization, repo, team=None):
+def clear_repo_cache(repo, organization, team=None, old_path=None):
     #TODO clear repo cache
     keys = [
-        'repos:{oid}:{path}'.format(oid=organization.id, path=repo.path),
+        'repos:{oid}:{path}'.format(oid=organization.id, path=old_path or repo.path),
     ]
     clear_organization_cache(organization)
     if team:
@@ -64,12 +68,18 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=0)
         commiter = Commiters(user, repo)
         db.session.add(commiter)
         jagare = get_jagare(repo.id, parent)
-        ret, error = jagare.init(os.path.join(str(organization.id), repo.path))
+        ret, error = jagare.init(
+                os.path.join(
+                        str(organization.id), \
+                        str(repo.tid) if repo.tid else '', \
+                        '%d.git' % repo.id,
+                    )
+                )
         if not ret:
             db.session.rollback()
             return None, error
         db.session.commit()
-        clear_repo_cache(organization, repo, team)
+        clear_repo_cache(repo, organization, team)
         clear_repo_permits(user, repo)
         return repo, None
     except sqlalchemy.exc.IntegrityError, e:
@@ -91,4 +101,22 @@ def create_commiter(user, repo):
             return None, code.REPOS_COMMITER_EXISTS
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
+
+# update
+
+def update_repo(organization, repo, name, team=None):
+    try:
+        old_path = repo.path
+        repo.name = name
+        repo.path = '%s.git' % name if not team else '%s/%s.git' % (team.name, name)
+        db.session.add(repo)
+        db.session.commit()
+        clear_repo_cache(repo, organization, old_path=old_path)
+        return None
+    except sqlalchemy.exc.IntegrityError, e:
+        db.session.rollback()
+        if 'Duplicate entry' in e.message:
+            return code.REPOS_PATH_EXISTS
+        logger.exception(e)
+        return code.UNHANDLE_EXCEPTION
 
