@@ -62,9 +62,9 @@ class Create(MethodView):
                         error = error, \
                     )
 
-        view_url = url_for('repos.view', git=organization.git, path=name)
+        view_url = url_for('repos.view', git=organization.git, rname=name)
         if teamname:
-            view_url = url_for('repos.view', git=organization.git, teamname=teamname, path=name)
+            view_url = url_for('repos.view', git=organization.git, tname=teamname, rname=name)
         return redirect(view_url)
 
     def get_joined_teams(self, organization):

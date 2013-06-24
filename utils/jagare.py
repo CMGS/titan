@@ -18,7 +18,7 @@ def get_jagare(rid, parent=0):
     if cache.get(node, None):
         return cache[node]
     jagare = Jagare(node)
-    cache[node] = cache
+    cache[node] = jagare
     return jagare
 
 class Jagare(object):

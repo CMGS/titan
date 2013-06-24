@@ -65,16 +65,10 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=0)
         if not check_repos_limit(organization):
             db.session.rollback()
             return None, code.ORGANIZATION_REPOS_LIMIT
-        commiter = Commiters(user, repo)
+        commiter = Commiters(user.id, repo.id)
         db.session.add(commiter)
         jagare = get_jagare(repo.id, parent)
-        ret, error = jagare.init(
-                os.path.join(
-                        str(organization.id), \
-                        str(repo.tid) if repo.tid else '', \
-                        '%d.git' % repo.id,
-                    )
-                )
+        ret, error = jagare.init(repo.get_real_path())
         if not ret:
             db.session.rollback()
             return None, error
@@ -88,6 +82,10 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=0)
             return None, code.REPOS_PATH_EXISTS
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
+    except Exception, e:
+        db.session.rollback()
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
 
 def create_commiter(user, repo):
     try:
@@ -99,6 +97,10 @@ def create_commiter(user, repo):
         db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.REPOS_COMMITER_EXISTS
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
+    except Exception, e:
+        db.session.rollback()
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
 

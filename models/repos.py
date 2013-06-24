@@ -1,6 +1,7 @@
 #!/usr/local/bin/python2.7
 #coding:utf-8
 
+import os
 from datetime import datetime
 from models import db
 
@@ -26,6 +27,13 @@ class Repos(db.Model):
         self.tid = tid
         self.summary = summary
         self.parent = parent
+
+    def get_real_path(self):
+        return  os.path.join(
+                        str(self.oid), \
+                        str(self.tid) if self.tid else '', \
+                        '%d.git' % self.id,
+                    )
 
     def set_args(self, **kwargs):
         for k, v in kwargs.iteritems():
