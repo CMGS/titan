@@ -8,6 +8,7 @@ import paramiko
 from maria import utils
 from maria.gerver import Gerver as _
 
+from utils.repos import check_permits
 from query.repos import get_repo_by_path
 from query.account import get_key_by_finger, get_user
 from query.organization import get_organization_by_git, \
@@ -50,17 +51,17 @@ class Gerver(_):
     def check_channel_exec_request(self, channel, command):
         logger.info('Command %s received' % command)
         command, path = self.parser_command(command)
-        if not self.check_permits(command[0], path):
+        if not self.check_user_permits(command[0], path):
             self.event.set()
             return paramiko.AUTH_FAILED
         # 5 get true path
-        command[-1] = self.get_store_path(command[-1])
+        command[-1] = self.get_store_path()
         self.command = command
         self.event.set()
         return True
 
-    def get_store_path(self, path):
-        return os.path.join(STORE_PATH, str(self.organization.id), path)
+    def get_store_path(self):
+        return os.path.join(STORE_PATH, self.repo.get_real_path())
 
     def parser_command(self, command):
         if not command:
@@ -70,34 +71,21 @@ class Gerver(_):
         command[-1] = command[-1].strip("'")
         return command, command[-1]
 
-    def check_command(self, command):
-        if not command or not command in ('git-receive-pack', 'git-upload-pack'):
-            return False
-        return True
-
-    def check_permits(self, command, path):
+    def check_user_permits(self, command, path):
         if not command or not command in ('git-receive-pack', 'git-upload-pack'):
             return False
         repo = get_repo_by_path(self.organization.id, path)
         if not repo:
             return False
+        self.repo = repo
         # 4 check permits, organization admin can visit every repos
         # users can visit their own repos
-        if not self.member.admin or not repo.uid != self.user.id:
-            if repo.tid == 0:
-                return self.check_user_permits(command, repo)
-            team = get_team(repo.tid)
-            if not team:
-                return False
-            team_member = get_team_member(repo.tid, self.user.id)
-            if not team_member:
-                return False
-            if team_member.admin:
-                return True
-            return self.check_user_permits(command, repo)
-        return True
-
-    def check_user_permits(self, command, repo):
-        # TODO 这里需要考虑仓库本身权限
+        team = get_team(repo.tid) if repo.tid != 0 else None
+        team_member = get_team_member(repo.tid, self.user.id) if repo.tid !=0 else None
+        read, write = check_permits(self.user, repo, self.member, team, team_member)
+        if not read and command in 'git-upload-pack':
+            return False
+        if not write and command in 'git-receive-pack':
+            return False
         return True
 
