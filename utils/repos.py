@@ -2,14 +2,14 @@
 #coding:utf-8
 
 import os
-from flask import g, abort
+from flask import g, abort, url_for, redirect
 
 from functools import wraps
 from query.organization import get_team_member, get_team_by_name
 from query.repos import get_repo_by_path, get_repo_commiter
 
 # USE login_required first
-def repo_required(need_write=False):
+def repo_required(admin=False, need_write=False):
     def _repo_required(f):
         @wraps(f)
         def _(organization, member, *args, **kwargs):
@@ -27,7 +27,13 @@ def repo_required(need_write=False):
                 team_member = get_team_member(repo.tid, g.current_user.id)
                 kwargs['team'] = team
                 kwargs['team_member'] = team_member
-            read, write = check_permits(g.current_user, repo, member, team, team_member)
+            role = check_admin(g.current_user, repo, member, team_member)
+            kwargs['admin'] = role
+            if admin and not role:
+                url = url_for('repos.view', organization=organization.git, rname=repo.name, \
+                        tname=teamname)
+                return redirect(url)
+            read, write = check_permits(g.current_user, repo, member, team, team_member, role)
             if not read:
                 raise abort(403)
             if need_write and not write:
@@ -36,16 +42,26 @@ def repo_required(need_write=False):
         return _
     return _repo_required
 
-def check_permits(user, repo, member, team=None, team_member=None):
-    if member.admin or repo.uid == user.id:
+def check_admin(user, repo, member, team_member):
+    if repo.uid == user.id:
+        return True
+    elif member.admin:
+        return True
+    elif team_member and team_member.admin:
+        return True
+    else:
+        return False
+
+def check_permits(user, repo, member, team=None, team_member=None, role=None):
+    if role is None and check_admin(user, repo, member, team_member):
+            return True, True
+    elif role:
         return True, True
     commiter = get_repo_commiter(user.id, repo.id)
     if commiter:
         return True, True
     if team:
-        if team_member and team_member.admin:
-            return True, True
-        elif team_member or not team.private:
+        if team_member or not team.private:
             return True, False
         elif not team_member and team.private:
             return False, False

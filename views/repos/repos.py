@@ -8,10 +8,10 @@ from flask import g, request, redirect, url_for
 
 from utils import code
 from utils.helper import MethodView
-from utils.repos import repo_required
 from utils.account import login_required
 from utils.validators import check_reponame
 from utils.organization import member_required
+from utils.repos import repo_required
 
 from query.repos import create_repo
 
@@ -77,4 +77,14 @@ class View(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, repo, **kwargs):
         return self.render_template(member=member, repo=repo, **kwargs)
+
+class Setting(MethodView):
+    decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]
+    def get(self, organization, member, repo, **kwargs):
+        return self.render_template(member=member, repo=repo, **kwargs)
+
+class AddCommiter(MethodView):
+    decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]
+    def post(self, organization, member, repo, **kwargs):
+        pass
 
