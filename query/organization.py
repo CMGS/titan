@@ -120,6 +120,10 @@ def create_organization(user, name, git, members=0, admin=0, verify=None):
             return None, code.ORGANIZATION_GITNAME_EXISTS
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
+    except Exception, e:
+        db.session.rollback()
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
 
 def create_members(organization, user, verify):
     try:
@@ -142,6 +146,10 @@ def create_members(organization, user, verify):
             return None, code.ORGANIZATION_MEMBER_EXISTS
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
+    except Exception, e:
+        db.session.rollback()
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
 
 def create_team(name, display, user, organization, private=0, members=0):
     try:
@@ -162,6 +170,10 @@ def create_team(name, display, user, organization, private=0, members=0):
             return None, code.ORGANIZATION_TEAM_EXISTS
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
+    except Exception, e:
+        db.session.rollback()
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
 
 def create_team_members(organization, team, user, admin=0):
     try:
@@ -176,6 +188,10 @@ def create_team_members(organization, team, user, admin=0):
         db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.ORGANIZATION_TEAM_MEMBER_EXISTS
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
+    except Exception, e:
+        db.session.rollback()
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
 
@@ -196,6 +212,10 @@ def create_verify(stub, email, name, git, admin=0):
             return None, code.VERIFY_ALREAD_EXISTS
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
+    except Exception, e:
+        db.session.rollback()
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
 
 # Update
 
@@ -213,13 +233,17 @@ def update_team(organization, team, **attr):
         db.session.add(team)
         db.session.commit()
         clear_team_cache(organization, team)
-        return team, None
+        return None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
         if 'Duplicate entry' in e.message:
-            return None, code.ORGANIZATION_TEAM_EXISTS
+            return code.ORGANIZATION_TEAM_EXISTS
         logger.exception(e)
-        return None, code.UNHANDLE_EXCEPTION
+        return code.UNHANDLE_EXCEPTION
+    except Exception, e:
+        db.session.rollback()
+        logger.exception(e)
+        return code.UNHANDLE_EXCEPTION
 
 def update_organization(organization, name, git, location, allow):
     try:
@@ -236,11 +260,15 @@ def update_organization(organization, name, git, location, allow):
         db.session.commit()
         # Ugly 如果修改了Git，需要清理的是老GitName的数据，而非新的
         clear_organization_cache(organization, old_git=old_git)
-        return organization, None
+        return None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
         if 'Duplicate entry' in e.message:
-            return None, code.ORGANIZATION_GITNAME_EXISTS
+            return code.ORGANIZATION_GITNAME_EXISTS
         logger.exception(e)
-        return None, code.UNHANDLE_EXCEPTION
+        return code.UNHANDLE_EXCEPTION
+    except Exception, e:
+        db.session.rollback()
+        logger.exception(e)
+        return code.UNHANDLE_EXCEPTION
 

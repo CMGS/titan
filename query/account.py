@@ -135,6 +135,10 @@ def create_key(user, usage, key, finger):
             return None, code.ACCOUNT_KEY_EXISTS
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
+    except Exception, e:
+        db.session.rollback()
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
 
 def create_forget(uid, stub):
     forget = get_unique_forget(uid)
@@ -151,6 +155,10 @@ def create_forget(uid, stub):
         db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.FORGET_ALREAD_EXISTS
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
+    except Exception, e:
+        db.session.rollback()
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
 
@@ -172,6 +180,10 @@ def create_user(name, password, email):
             return None, code.ACCOUNT_USERNAME_EXISTS
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
+    except Exception, e:
+        db.session.rollback()
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
 
 def create_alias(user, email):
     try:
@@ -184,6 +196,10 @@ def create_alias(user, email):
         db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.ACCOUNT_EMAIL_EXISTS
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
+    except Exception, e:
+        db.session.rollback()
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
 
@@ -204,9 +220,9 @@ def update_account(user, **kwargs):
         if forget:
             clear_forget(forget, delete=False)
         clear_user_cache(user)
-        return user, None
+        return None
     except Exception, e:
         db.session.rollback()
         logger.exception(e)
-        return None, code.UNHANDLE_EXCEPTION
+        return code.UNHANDLE_EXCEPTION
 

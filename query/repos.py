@@ -121,4 +121,8 @@ def update_repo(organization, repo, name, team=None):
             return code.REPOS_PATH_EXISTS
         logger.exception(e)
         return code.UNHANDLE_EXCEPTION
+    except Exception, e:
+        db.session.rollback()
+        logger.exception(e)
+        return code.UNHANDLE_EXCEPTION
 

@@ -39,7 +39,7 @@ class Setting(MethodView):
         attrs['city'] = city
         attrs['title'] = title
 
-        user, error = update_account(user, **attrs)
+        error = update_account(user, **attrs)
         if error:
             return self.render_template(error=error)
 

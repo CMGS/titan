@@ -60,7 +60,7 @@ class Reset(MethodView):
             return self.render_template(error=code.ACCOUNT_PASSWORD_INVAILD)
 
         user = get_user(forget.uid)
-        user, error = update_account(user, _forget=forget, password=password)
+        error = update_account(user, _forget=forget, password=password)
         if error:
             return self.render_template(error=error)
         return redirect(url_for('account.login'))

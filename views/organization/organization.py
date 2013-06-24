@@ -142,7 +142,7 @@ class Setting(MethodView):
                         error=code.ORGANIZATION_GITNAME_INVAILD
                    )
 
-        organization, error = update_organization(organization, name, gitname, location, allow)
+        error = update_organization(organization, name, gitname, location, allow)
         if error:
             return self.render_template(
                         organization=organization, \

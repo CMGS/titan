@@ -174,7 +174,7 @@ class SetTeam(MethodView):
             pic = self.get_pic(organization, team, member, team_member, upload_avatar)
             attr['pic'] = pic
 
-        team, error = update_team(organization, team, **attr)
+        error = update_team(organization, team, **attr)
         if error:
             return self.render_template(
                         organization=organization, \
