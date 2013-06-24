@@ -28,7 +28,7 @@
 
 {% block subcontent %}
 <p>
-    <h4>Setting</h4>
+    <h4>Set Name</h4>
     <form class="form-setting" method="POST">
         {% if error %}
         <div class="alert alert-error">
@@ -36,10 +36,7 @@
           {{ error }}
         </div>
         {% endif %}
-        <label class="text">
-            <p>modify repo name</p>
-            <input name="name" type="text" value="{{ repo.name }}" class="input-block-level" placeholder="Name">
-        </label>
+        <input name="name" type="text" value="{{ repo.name }}" class="input-block-level" placeholder="Name">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
         <button class="btn btn-primary" type="submit">Update</button>
     </form>
