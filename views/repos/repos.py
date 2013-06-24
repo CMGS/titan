@@ -88,3 +88,18 @@ class AddCommiter(MethodView):
     def post(self, organization, member, repo, **kwargs):
         pass
 
+class DeleteCommiter(MethodView):
+    decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]
+    def post(self, organization, member, repo, **kwargs):
+        pass
+
+class Transport(MethodView):
+    decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]
+    def post(self, organization, member, repo, **kwargs):
+        pass
+
+class Delete(MethodView):
+    decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]
+    def post(self, organization, member, repo, **kwargs):
+        pass
+
