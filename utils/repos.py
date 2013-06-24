@@ -30,8 +30,7 @@ def repo_required(admin=False, need_write=False):
             role = check_admin(g.current_user, repo, member, team_member)
             kwargs['admin'] = role
             if admin and not role:
-                url = url_for('repos.view', organization=organization.git, rname=repo.name, \
-                        tname=teamname)
+                url = url_for('repos.view', git=organization.git, rname=repo.name, tname=teamname)
                 return redirect(url)
             read, write = check_permits(g.current_user, repo, member, team, team_member, role)
             if not read:
