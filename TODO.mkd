@@ -23,6 +23,7 @@
 
 * 项目只允许在team或者organization下，fork可在个人目录下
 * 项目由项目所有者拥有删除权限
+* 项目的权限表
 * 项目可以被Organization Admin和项目Owner拥有Transfer权限
 * Git Path只存除开Organization之外的内容
 

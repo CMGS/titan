@@ -37,6 +37,7 @@ REPOS_PATH_INVALID = 'repo path invaild'
 REPOS_NAME_INVALID = 'repo name invaild'
 REPOS_PATH_EXISTS = 'repo path exists'
 REPOS_INIT_FAILED = 'repo init failed'
+REPOS_COMMITER_EXISTS = 'repo commiter exists'
 
 UNHANDLE_EXCEPTION = 'Server fault'
 

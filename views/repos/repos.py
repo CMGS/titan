@@ -74,7 +74,7 @@ class Create(MethodView):
             yield team
 
 class View(MethodView):
-    decorators = [repo_required, member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, repo):
-        return repo.path
+    decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
+    def get(self, organization, member, repo, **kwargs):
+        return self.render_template(member=member, repo=repo, **kwargs)
 

@@ -5,26 +5,50 @@ import os
 from flask import g, abort
 
 from functools import wraps
-from query.repos import get_repo_by_path
-from query.organization import get_team_member
+from query.organization import get_team_member, get_team_by_name
+from query.repos import get_repo_by_path, get_repo_commiter
 
 # USE login_required first
-def repo_required(f):
-    @wraps(f)
-    def _(organization, member, *args, **kwargs):
-        teamname = kwargs.pop('tname', '')
-        reponame = kwargs.pop('rname', '')
-        path = os.path.join(teamname, '%s.git' % reponame)
-        if not reponame:
-            raise abort(404)
-        repo = get_repo_by_path(organization.id, path)
-        if not repo:
-            raise abort(404)
-        #TODO repo permits!
-        #if repo.tid:
-        #    team_member = get_team_member(repo.tid, g.current_user.id)
-        #admin = member.admin or team_member.admin
-        admin = member.admin
-        return f(organization, member, repo, *args, **kwargs)
-    return _
+def repo_required(need_write=False):
+    def _repo_required(f):
+        @wraps(f)
+        def _(organization, member, *args, **kwargs):
+            teamname = kwargs.pop('tname', '')
+            reponame = kwargs.pop('rname', '')
+            path = os.path.join(teamname, '%s.git' % reponame)
+            if not reponame:
+                raise abort(404)
+            repo = get_repo_by_path(organization.id, path)
+            if not repo:
+                raise abort(404)
+            team = team_member = None
+            if teamname:
+                team = get_team_by_name(organization.id, teamname)
+                team_member = get_team_member(repo.tid, g.current_user.id)
+                kwargs['team'] = team
+                kwargs['team_member'] = team_member
+            read, write = check_permits(g.current_user, repo, member, team, team_member)
+            if not read:
+                raise abort(403)
+            if need_write and not write:
+                raise abort(403)
+            return f(organization, member, repo, *args, **kwargs)
+        return _
+    return _repo_required
+
+def check_permits(user, repo, member, team=None, team_member=None):
+    if member.admin or repo.uid == user.id:
+        return True, True
+    commiter = get_repo_commiter(user.id, repo.id)
+    if commiter:
+        return True, True
+    if team:
+        if team_member and team_member.admin:
+            return True, True
+        elif team_member or not team.private:
+            return True, False
+        elif not team_member and team.private:
+            return False, False
+    else:
+        return True, False
 

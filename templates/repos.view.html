@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block subtitle %}{{ repo.name }}{% endblock %}
+{% block content %}
+<div class="row-fluid">
+    <div class="span3">
+        <ul class="nav nav-tabs nav-stacked">
+            {% if member.admin or (team and team_member.admin) or repo.uid == g.current_user.id %}
+            <li><a href="#">Setting</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    <div class="span9">
+        {{ repo.path }}
+    </div>
+</div>
+{% endblock %}
+

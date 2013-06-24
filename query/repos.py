@@ -7,7 +7,7 @@ import sqlalchemy.exc
 from sheep.api.cache import cache, backend
 
 from models import db
-from models.repos import Repos
+from models.repos import Repos, Commiters
 from models.organization import Organization, Team
 
 from utils import code
@@ -21,7 +21,17 @@ logger = logging.getLogger(__name__)
 def get_repo_by_path(oid, path):
     return Repos.query.filter_by(path=path, oid=oid).limit(1).first()
 
+@cache('repos:commiter:{uid}:{rid}', 864000)
+def get_repo_commiter(uid, rid):
+    return Commiters.query.filter_by(uid=uid, rid=rid).limit(1).first()
+
 # clear
+
+def clear_repo_permits(user, repo):
+    keys = [
+        'repos:commiter:{uid}:{rid}'.format(uid=user.id, rid=repo.id)
+    ]
+    backend.delete_many(*keys)
 
 def clear_repo_cache(organization, repo, team=None):
     #TODO clear repo cache
@@ -51,6 +61,8 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=0)
         if not check_repos_limit(organization):
             db.session.rollback()
             return None, code.ORGANIZATION_REPOS_LIMIT
+        commiter = Commiters(user, repo)
+        db.session.add(commiter)
         jagare = get_jagare(repo.id, parent)
         ret, error = jagare.init(os.path.join(str(organization.id), repo.path))
         if not ret:
@@ -58,11 +70,25 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=0)
             return None, error
         db.session.commit()
         clear_repo_cache(organization, repo, team)
+        clear_repo_permits(user, repo)
         return repo, None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.REPOS_PATH_EXISTS
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
+
+def create_commiter(user, repo):
+    try:
+        commiter = Commiters(user.id, repo.id)
+        db.session.add(commiter)
+        db.session.commit()
+        clear_repo_permits(user, repo)
+    except sqlalchemy.exc.IntegrityError, e:
+        db.session.rollback()
+        if 'Duplicate entry' in e.message:
+            return None, code.REPOS_COMMITER_EXISTS
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
 

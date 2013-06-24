@@ -33,3 +33,14 @@ class Repos(db.Model):
         db.session.add(self)
         db.session.commit()
 
+class Commiters(db.Model):
+    __tablename__ = 'commiters'
+    __table_args__ = (db.UniqueConstraint('uid', 'rid', name='uix_uid_rid'), )
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    uid = db.Column(db.Integer, nullable=False)
+    rid = db.Column(db.Integer, nullable=False, index=True)
+
+    def __init__(self, uid, rid):
+        self.uid = uid
+        self.rid = rid
+
