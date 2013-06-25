@@ -149,7 +149,7 @@ class RemoveCommiter(MethodView):
                 tname=kwargs['team'].name if kwargs.get('team') else None))
         commiter = get_repo_commiter(user.id, repo.id)
         if user and commiter:
-            delete_commiter(commiter, repo)
+            delete_commiter(user, commiter, repo)
         return redirect(url_for('repos.commiters', \
             git=organization.git, rname=repo.name, \
             tname=kwargs['team'].name if kwargs.get('team') else None))

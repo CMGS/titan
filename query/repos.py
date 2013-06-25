@@ -130,13 +130,13 @@ def update_repo(organization, repo, name, team=None):
 
 # delete
 
-def delete_commiter(commiter, repo):
+def delete_commiter(user, commiter, repo):
     try:
         db.session.delete(commiter)
         repo.commiters = Repos.commiters - 1
         db.session.add(repo)
         db.session.commit()
-        clear_commiters_cache(commiter, repo)
+        clear_commiters_cache(user, repo)
         return None
     except Exception, e:
         db.session.rollback()
