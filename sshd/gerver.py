@@ -53,7 +53,7 @@ class Gerver(_):
         command, path = self.parser_command(command)
         if not self.check_user_permits(command[0], path):
             self.event.set()
-            return paramiko.AUTH_FAILED
+            return False
         # 5 get true path
         command[-1] = self.get_store_path()
         self.command = command
