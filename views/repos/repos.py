@@ -102,7 +102,7 @@ class Setting(MethodView):
             git=organization.git, rname=repo.name, \
             tname=kwargs['team'].name if kwargs.get('team') else None))
 
-class AddCommiter(MethodView):
+class Commiters(MethodView):
     decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, repo, **kwargs):
         return self.render_template(
@@ -118,6 +118,13 @@ class AddCommiter(MethodView):
                         member=member, repo=repo, organization=organization, \
                         commiters = self.get_commiters(repo), \
                         error=code.ACCOUNT_NO_SUCH_USER, \
+                        **kwargs
+                    )
+        if user.id == repo.uid:
+            return self.render_template(
+                        member=member, repo=repo, organization=organization, \
+                        commiters = self.get_commiters(repo), \
+                        error=code.REPOS_COMMITER_EXISTS, \
                         **kwargs
                     )
         is_member = get_organization_member(organization.id, user.id)
@@ -144,6 +151,10 @@ class RemoveCommiter(MethodView):
         name = request.form.get('name')
         user = get_user(name)
         if not user:
+            return redirect(url_for('repos.commiters', \
+                git=organization.git, rname=repo.name, \
+                tname=kwargs['team'].name if kwargs.get('team') else None))
+        if user.id == repo.uid:
             return redirect(url_for('repos.commiters', \
                 git=organization.git, rname=repo.name, \
                 tname=kwargs['team'].name if kwargs.get('team') else None))
