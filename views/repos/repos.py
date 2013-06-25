@@ -83,7 +83,6 @@ class Setting(MethodView):
     def get(self, organization, member, repo, **kwargs):
         return self.render_template(
                     member=member, repo=repo, organization=organization, \
-                    commiters = self.get_commiters(repo), \
                     **kwargs
                 )
 
@@ -94,7 +93,6 @@ class Setting(MethodView):
             if error:
                 return self.render_template(
                         member=member, repo=repo, organization=organization, \
-                        commiters = self.get_commiters(repo), \
                         error = error, \
                         **kwargs
                 )
@@ -103,17 +101,21 @@ class Setting(MethodView):
             git=organization.git, rname=repo.name, \
             tname=kwargs['team'].name if kwargs.get('team') else None))
 
+class AddCommiter(MethodView):
+    decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]
+    def get(self, organization, member, repo, **kwargs):
+        return self.render_template(
+                    member=member, repo=repo, organization=organization, \
+                    commiters = self.get_commiters(repo), \
+                    **kwargs
+                )
+    def post(self, organization, member, repo, **kwargs):
+        pass
+
     def get_commiters(self, repo):
         commiters = get_repo_commiters(repo.id)
         commiters = (get_user(commiter.uid) for commiter in commiters)
         return commiters
-
-class AddCommiter(MethodView):
-    decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, repo, **kwargs):
-        pass
-    def post(self, organization, member, repo, **kwargs):
-        pass
 
 class RemoveCommiter(MethodView):
     decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]

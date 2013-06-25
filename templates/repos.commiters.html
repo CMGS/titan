@@ -1,0 +1,27 @@
+{% extends "repos.setting.html" %}
+
+{% block subtitle %} Commiters {{ repo.name }}{% endblock %}
+
+{% block setting %}
+{% if error %}
+<div class="alert alert-error">
+  <button type="button" class="close" data-dismiss="alert">&times;</button>
+  {{ error }}
+</div>
+{% endif %}
+<h4>Commiters</h4>
+{% for commiter in commiters %}
+    <a href="#"><img height="24px" width="24px" src="{{ commiter.avatar(24) }}" /></a>
+{% endfor %}
+<hr>
+<form class="form-setting" method="POST">
+    <input name="name" type="text" class="input-block-level" placeholder="Name">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <button class="btn btn-primary" type="submit">Add</button>
+</form>
+<form class="form-setting" method="POST" action="{{ get_url('repos.remove') }}">
+    <input name="name" type="text" class="input-block-level" placeholder="Name">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <button class="btn btn-primary" type="submit">Delete</button>
+</form>
+{% endblock %}
