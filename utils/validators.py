@@ -101,6 +101,6 @@ def check_repos_limit(organization, incr=0):
 # TODO split to db
 BLACK_LIST = [
     'login', 'logout', 'forget', 'reset', 'register', 'setting', \
-    'keys', 'alias', 'verify', 'delete', \
+    'keys', 'alias', 'verify', 'delete', 'explore', \
     'create', 'invite', 'add', 'join', 'quit', 'new'
 ]
