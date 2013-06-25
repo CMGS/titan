@@ -27,25 +27,36 @@
 {% endblock %}
 
 {% block subcontent %}
-<p>
-    <h4>Set Name</h4>
-    <form class="form-setting" method="POST">
-        {% if error %}
-        <div class="alert alert-error">
-          <button type="button" class="close" data-dismiss="alert">&times;</button>
-          {{ error }}
-        </div>
-        {% endif %}
-        <input name="name" type="text" value="{{ repo.name }}" class="input-block-level" placeholder="Name">
-        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-        <button class="btn btn-primary" type="submit">Update</button>
-    </form>
-</p>
-<p>
-    <h4>Commiters</h4>
-    {% for commiter in commiters %}
-        <a href="#"><img height="24px" width="24px" src="{{ commiter.avatar(24) }}" /></a>
-    {% endfor %}
-</p>
+<div class="row-fluid">
+    <div class="span3">
+        <ul class="nav nav-tabs nav-stacked">
+            <li><a href="{{ get_url('repos.setting') }}">Setting</a></li>
+        </ul>
+    </div>
+    <div class="span9">
+        {% block setting %}
+        <p>
+            <h4>Commiters</h4>
+            {% for commiter in commiters %}
+                <a href="#"><img height="24px" width="24px" src="{{ commiter.avatar(24) }}" /></a>
+            {% endfor %}
+        </p>
+        <p>
+            <h4>Set Name</h4>
+            <form class="form-setting" method="POST">
+                {% if error %}
+                <div class="alert alert-error">
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                  {{ error }}
+                </div>
+                {% endif %}
+                <input name="name" type="text" value="{{ repo.name }}" class="input-block-level" placeholder="Name">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-primary" type="submit">Update</button>
+            </form>
+        </p>
+        {% endblock %}
+    </div>
+</div>
 {% endblock %}
 

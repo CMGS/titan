@@ -110,10 +110,12 @@ class Setting(MethodView):
 
 class AddCommiter(MethodView):
     decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]
+    def get(self, organization, member, repo, **kwargs):
+        pass
     def post(self, organization, member, repo, **kwargs):
         pass
 
-class DeleteCommiter(MethodView):
+class RemoveCommiter(MethodView):
     decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]
     def post(self, organization, member, repo, **kwargs):
         pass
