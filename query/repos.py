@@ -1,7 +1,6 @@
 #!/usr/local/bin/python2.7
 #coding:utf-8
 
-import os
 import logging
 import sqlalchemy.exc
 from sheep.api.cache import cache, backend
@@ -124,6 +123,21 @@ def update_repo(organization, repo, name, team=None):
             return code.REPOS_PATH_EXISTS
         logger.exception(e)
         return code.UNHANDLE_EXCEPTION
+    except Exception, e:
+        db.session.rollback()
+        logger.exception(e)
+        return code.UNHANDLE_EXCEPTION
+
+# delete
+
+def delete_commiter(commiter, repo):
+    try:
+        db.session.delete(commiter)
+        repo.commiters = Repos.commiters - 1
+        db.session.add(repo)
+        db.session.commit()
+        clear_commiters_cache(commiter, repo)
+        return None
     except Exception, e:
         db.session.rollback()
         logger.exception(e)

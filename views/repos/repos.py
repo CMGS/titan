@@ -15,7 +15,7 @@ from utils.repos import repo_required
 
 from query.account import get_user
 from query.repos import create_repo, create_commiter, get_repo_commiters, \
-        update_repo
+        update_repo, get_repo_commiter, delete_commiter
 from query.organization import get_teams_by_ogranization, get_team_member, \
         get_team_by_name, get_organization_member
 
@@ -141,7 +141,18 @@ class AddCommiter(MethodView):
 class RemoveCommiter(MethodView):
     decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]
     def post(self, organization, member, repo, **kwargs):
-        pass
+        name = request.form.get('name')
+        user = get_user(name)
+        if not user:
+            return redirect(url_for('repos.commiters', \
+                git=organization.git, rname=repo.name, \
+                tname=kwargs['team'].name if kwargs.get('team') else None))
+        commiter = get_repo_commiter(user.id, repo.id)
+        if user and commiter:
+            delete_commiter(commiter, repo)
+        return redirect(url_for('repos.commiters', \
+            git=organization.git, rname=repo.name, \
+            tname=kwargs['team'].name if kwargs.get('team') else None))
 
 class Transport(MethodView):
     decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]
