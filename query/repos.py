@@ -31,8 +31,9 @@ def get_repo_commiters(rid):
 
 # clear
 
-def clear_repo_permits(user, repo):
+def clear_commiters_cache(user, repo):
     keys = [
+        'repos:commiters:{rid}'.format(rid=repo.id), \
         'repos:commiter:{uid}:{rid}'.format(uid=user.id, rid=repo.id)
     ]
     backend.delete_many(*keys)
@@ -74,7 +75,7 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=0)
             return None, error
         db.session.commit()
         clear_repo_cache(repo, organization, team)
-        clear_repo_permits(user, repo)
+        clear_commiters_cache(user, repo)
         return repo, None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
@@ -92,7 +93,7 @@ def create_commiter(user, repo):
         commiter = Commiters(user.id, repo.id)
         db.session.add(commiter)
         db.session.commit()
-        clear_repo_permits(user, repo)
+        clear_commiters_cache(user, repo)
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
         if 'Duplicate entry' in e.message:

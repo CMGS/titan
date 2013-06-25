@@ -14,9 +14,10 @@ from utils.organization import member_required
 from utils.repos import repo_required
 
 from query.account import get_user
-from query.repos import create_repo, get_repo_commiters, update_repo
+from query.repos import create_repo, create_commiter, get_repo_commiters, \
+        update_repo
 from query.organization import get_teams_by_ogranization, get_team_member, \
-        get_team_by_name
+        get_team_by_name, get_organization_member
 
 logger = logging.getLogger(__name__)
 
@@ -110,7 +111,27 @@ class AddCommiter(MethodView):
                     **kwargs
                 )
     def post(self, organization, member, repo, **kwargs):
-        pass
+        name = request.form.get('name')
+        user = get_user(name)
+        if not user:
+            return self.render_template(
+                        member=member, repo=repo, organization=organization, \
+                        commiters = self.get_commiters(repo), \
+                        error=code.ACCOUNT_NO_SUCH_USER, \
+                        **kwargs
+                    )
+        is_member = get_organization_member(organization.id, user.id)
+        if not is_member:
+            return self.render_template(
+                        member=member, repo=repo, organization=organization, \
+                        commiters = self.get_commiters(repo), \
+                        error=code.ORGANIZATION_MEMBER_NOT_EXISTS, \
+                        **kwargs
+                    )
+        create_commiter(user, repo)
+        return redirect(url_for('repos.commiters', \
+            git=organization.git, rname=repo.name, \
+            tname=kwargs['team'].name if kwargs.get('team') else None))
 
     def get_commiters(self, repo):
         commiters = get_repo_commiters(repo.id)
