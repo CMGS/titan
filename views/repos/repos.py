@@ -15,7 +15,8 @@ from utils.repos import repo_required
 
 from query.account import get_user
 from query.repos import create_repo, create_commiter, get_repo_commiters, \
-        update_repo, get_repo_commiter, delete_commiter, transport_repo
+        update_repo, get_repo_commiter, delete_commiter, transport_repo, \
+        delete_repo
 from query.organization import get_teams_by_ogranization, get_team_member, \
         get_team_by_name, get_organization_member
 
@@ -211,6 +212,8 @@ class Transport(MethodView):
 
 class Delete(MethodView):
     decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]
-    def post(self, organization, member, repo, **kwargs):
-        pass
+    def get(self, organization, member, repo, **kwargs):
+        team = kwargs.get('team', None)
+        delete_repo(organization, repo, team)
+        return redirect(url_for('organization.view', git=organization.git))
 

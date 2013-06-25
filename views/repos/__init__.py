@@ -36,6 +36,6 @@ repos.add_url_rule('/<git>/<tname>/<rname>/remove', view_func=remove_commiter, m
 repos.add_url_rule('/<git>/<rname>/transport', view_func=transport, methods=['GET', 'POST'])
 repos.add_url_rule('/<git>/<tname>/<rname>/transport', view_func=transport, methods=['GET', 'POST'])
 
-repos.add_url_rule('/<git>/<rname>/delete', view_func=setting, methods=['POST'])
-repos.add_url_rule('/<git>/<tname>/<rname>/delete', view_func=setting, methods=['POST'])
+repos.add_url_rule('/<git>/<rname>/delete', view_func=delete, methods=['GET'])
+repos.add_url_rule('/<git>/<tname>/<rname>/delete', view_func=delete, methods=['GET'])
 

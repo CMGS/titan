@@ -30,7 +30,7 @@ def get_repo_commiters(rid):
 
 # clear
 
-def clear_commiters_cache(user, repo):
+def clear_commiter_cache(user, repo):
     keys = [
         'repos:commiters:{rid}'.format(rid=repo.id), \
         'repos:commiter:{uid}:{rid}'.format(uid=user.id, rid=repo.id)
@@ -74,7 +74,7 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=0)
             return None, error
         db.session.commit()
         clear_repo_cache(repo, organization, team)
-        clear_commiters_cache(user, repo)
+        clear_commiter_cache(user, repo)
         return repo, None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
@@ -94,7 +94,7 @@ def create_commiter(user, repo):
         db.session.add(commiter)
         db.session.add(repo)
         db.session.commit()
-        clear_commiters_cache(user, repo)
+        clear_commiter_cache(user, repo)
         return commiter, None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
@@ -154,7 +154,30 @@ def delete_commiter(user, commiter, repo):
         repo.commiters = Repos.commiters - 1
         db.session.add(repo)
         db.session.commit()
-        clear_commiters_cache(user, repo)
+        clear_commiter_cache(user, repo)
+        return None
+    except Exception, e:
+        db.session.rollback()
+        logger.exception(e)
+        return code.UNHANDLE_EXCEPTION
+
+def delete_repo(organization, repo, team=None):
+    try:
+        keys = []
+        db.session.delete(repo)
+        organization.repos = Organization.repos - 1
+        db.session.add(organization)
+        if team:
+            team.repos = Team.repos - 1
+            db.session.add(team)
+        commiters = get_repo_commiters(repo.id)
+        for commiter in commiters:
+            db.session.delete(commiter)
+            keys.append('repos:commiters:{rid}'.format(rid=repo.id))
+            keys.append('repos:commiter:{uid}:{rid}'.format(uid=commiter.uid, rid=repo.id))
+        db.session.commit()
+        clear_repo_cache(repo, organization, team)
+        backend.delete_many(*keys)
         return None
     except Exception, e:
         db.session.rollback()
