@@ -55,7 +55,7 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=0)
         tid = team.id if team else 0
         oid = organization.id
         uid = user.id
-        repo = Repos(name, path, oid, uid, tid, summary, parent)
+        repo = Repos(name, path, oid, uid, tid, summary, parent, commiters=1)
         db.session.add(repo)
         organization.repos = Organization.repos + 1
         db.session.add(organization)
@@ -91,7 +91,9 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=0)
 def create_commiter(user, repo):
     try:
         commiter = Commiters(user.id, repo.id)
+        repo.commiters = Repos.commiters + 1
         db.session.add(commiter)
+        db.session.add(repo)
         db.session.commit()
         clear_commiters_cache(user, repo)
     except sqlalchemy.exc.IntegrityError, e:
