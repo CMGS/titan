@@ -1,0 +1,17 @@
+{% extends "repos.setting.html" %}
+
+{% block subtitle %} Transport {{ repo.name }}{% endblock %}
+
+{% block setting %}
+{% if error %}
+<div class="alert alert-error">
+  <button type="button" class="close" data-dismiss="alert">&times;</button>
+  {{ error }}
+</div>
+{% endif %}
+<form class="form-setting" method="POST">
+    <input name="name" type="text" class="input-block-level" placeholder="Name">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <button class="btn btn-primary" type="submit">Transport</button>
+</form>
+{% endblock %}

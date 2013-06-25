@@ -95,6 +95,7 @@ def create_commiter(user, repo):
         db.session.add(repo)
         db.session.commit()
         clear_commiters_cache(user, repo)
+        return commiter, None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
         if 'Duplicate entry' in e.message:
@@ -123,6 +124,23 @@ def update_repo(organization, repo, name, team=None):
             return code.REPOS_PATH_EXISTS
         logger.exception(e)
         return code.UNHANDLE_EXCEPTION
+    except Exception, e:
+        db.session.rollback()
+        logger.exception(e)
+        return code.UNHANDLE_EXCEPTION
+
+def transport_repo(organization, user, repo, team=None):
+    try:
+        repo.uid = user.id
+        db.session.add(repo)
+        is_commiter = get_repo_commiter(user.id, repo.id)
+        if not is_commiter:
+            _, error = create_commiter(user, repo)
+            if error:
+                raise Exception(error)
+        db.session.commit()
+        clear_repo_cache(repo, organization, team)
+        return None
     except Exception, e:
         db.session.rollback()
         logger.exception(e)

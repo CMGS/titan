@@ -15,7 +15,7 @@ from utils.repos import repo_required
 
 from query.account import get_user
 from query.repos import create_repo, create_commiter, get_repo_commiters, \
-        update_repo, get_repo_commiter, delete_commiter
+        update_repo, get_repo_commiter, delete_commiter, transport_repo
 from query.organization import get_teams_by_ogranization, get_team_member, \
         get_team_by_name, get_organization_member
 
@@ -167,8 +167,47 @@ class RemoveCommiter(MethodView):
 
 class Transport(MethodView):
     decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]
+    def get(self, organization, member, repo, **kwargs):
+        return self.render_template(
+                    member=member, repo=repo, organization=organization, \
+                    **kwargs
+                )
+
     def post(self, organization, member, repo, **kwargs):
-        pass
+        name = request.form.get('name')
+        user = get_user(name)
+        if not user:
+            return self.render_template(
+                        member=member, repo=repo, organization=organization, \
+                        error=code.ACCOUNT_NO_SUCH_USER, \
+                        **kwargs
+                    )
+        if user.id == repo.uid:
+            return self.render_template(
+                        member=member, repo=repo, organization=organization, \
+                        error=code.REPOS_CANT_TRANSPORT_SELF, \
+                        **kwargs
+                    )
+        is_member = get_organization_member(organization.id, user.id)
+        if not is_member:
+            return self.render_template(
+                        member=member, repo=repo, organization=organization, \
+                        error=code.ORGANIZATION_MEMBER_NOT_EXISTS, \
+                        **kwargs
+                    )
+
+        team = kwargs.get('team', None)
+        tname = team.name if team else None
+        error = transport_repo(organization, user, repo, team)
+        if error:
+            return self.render_template(
+                        member=member, repo=repo, organization=organization, \
+                        error=error, \
+                        **kwargs
+                    )
+        return redirect(url_for('repos.transport', \
+            git=organization.git, rname=repo.name, \
+            tname=tname))
 
 class Delete(MethodView):
     decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]
