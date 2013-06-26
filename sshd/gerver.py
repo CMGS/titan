@@ -51,12 +51,16 @@ class Gerver(_):
     def check_channel_exec_request(self, channel, command):
         logger.info('Command %s received' % command)
         command, path = self.parser_command(command)
-        if not self.check_user_permits(command[0], path):
-            self.event.set()
-            return False
-        # 5 get true path
-        command[-1] = self.get_store_path()
-        self.command = command
+        if not self.check_command(command[0]):
+            channel.sendall_stderr('Error: Wrong command.\n')
+        elif not self.check_repo_exisit(path):
+            channel.sendall_stderr('Error: Repository not found.\n')
+        elif not self.check_user_permits(command[0]):
+            channel.sendall_stderr('Error: Permission denied.\n')
+        else:
+            # 5 get true path
+            command[-1] = self.get_store_path()
+            self.command = command
         self.event.set()
         return True
 
@@ -71,21 +75,27 @@ class Gerver(_):
         command[-1] = command[-1].strip("'")
         return command, command[-1]
 
-    def check_user_permits(self, command, path):
+    def check_command(self, command):
         if not command or not command in ('git-receive-pack', 'git-upload-pack'):
             return False
+        return True
+
+    def check_repo_exisit(self, path):
         repo = get_repo_by_path(self.organization.id, path)
         if not repo:
             return False
         self.repo = repo
+        return True
+
+    def check_user_permits(self, command):
         # 4 check permits, organization admin can visit every repos
         # users can visit their own repos
-        team = get_team(repo.tid) if repo.tid != 0 else None
-        team_member = get_team_member(repo.tid, self.user.id) if repo.tid !=0 else None
-        read, write = check_permits(self.user, repo, self.member, team, team_member)
-        if not read and command in 'git-upload-pack':
+        team = get_team(self.repo.tid) if self.repo.tid != 0 else None
+        team_member = get_team_member(self.repo.tid, self.user.id) if self.repo.tid !=0 else None
+        read, write = check_permits(self.user, self.repo, self.member, team, team_member)
+        if not read and command == 'git-upload-pack':
             return False
-        if not write and command in 'git-receive-pack':
+        if not write and command == 'git-receive-pack':
             return False
         return True
 
