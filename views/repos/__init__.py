@@ -26,8 +26,8 @@ repos.add_url_rule('/<git>/new', view_func=create, methods=['GET', 'POST'])
 repos.add_url_rule('/<git>/<rname>', view_func=view, methods=['GET'])
 repos.add_url_rule('/<git>/<tname>/<rname>', view_func=view, methods=['GET'])
 
-repos.add_url_rule('/<git>/<rname>/setting', view_func=setting, methods=['GET', 'POST'])
-repos.add_url_rule('/<git>/<tname>/<rname>/setting', view_func=setting, methods=['GET', 'POST'])
+repos.add_url_rule('/<git>/<rname>/settings', view_func=setting, methods=['GET', 'POST'])
+repos.add_url_rule('/<git>/<tname>/<rname>/settings', view_func=setting, methods=['GET', 'POST'])
 
 repos.add_url_rule('/<git>/<rname>/commiters', view_func=commiters, methods=['GET', 'POST'])
 repos.add_url_rule('/<git>/<tname>/<rname>/commiters', view_func=commiters, methods=['GET', 'POST'])
