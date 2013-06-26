@@ -16,6 +16,14 @@ from query.organization import clear_organization_cache, clear_team_cache
 
 logger = logging.getLogger(__name__)
 
+@cache('repos:explore:{oid}', 8640000)
+def get_organization_repos(oid):
+    return Repos.query.filter_by(oid=oid).all()
+
+@cache('repos:explore:team:{oid}:{tid}', 8640000)
+def get_team_repos(oid, tid):
+    return Repos.query.filter_by(oid=oid, tid=tid).all()
+
 @cache('repos:{oid}:{path}', 864000)
 def get_repo_by_path(oid, path):
     return Repos.query.filter_by(path=path, oid=oid).limit(1).first()
@@ -38,13 +46,20 @@ def clear_commiter_cache(user, repo):
     backend.delete_many(*keys)
 
 def clear_repo_cache(repo, organization, team=None, old_path=None):
-    #TODO clear repo cache
     keys = [
         'repos:{oid}:{path}'.format(oid=organization.id, path=old_path or repo.path),
     ]
     clear_organization_cache(organization)
     if team:
         clear_team_cache(organization, team)
+    backend.delete_many(*keys)
+
+def clear_explore_cache(organization, team=None):
+    keys = [
+        'repos:explore:{oid}'.format(oid=organization.id),
+    ]
+    if team:
+        keys.append('repos:explore:team:{oid}:{tid}'.format(oid=organization.id, tid=team.id))
     backend.delete_many(*keys)
 
 # create
@@ -74,6 +89,7 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=0)
             return None, error
         db.session.commit()
         clear_repo_cache(repo, organization, team)
+        clear_explore_cache(organization, team)
         clear_commiter_cache(user, repo)
         return repo, None
     except sqlalchemy.exc.IntegrityError, e:
@@ -177,6 +193,7 @@ def delete_repo(organization, repo, team=None):
             keys.append('repos:commiter:{uid}:{rid}'.format(uid=commiter.uid, rid=repo.id))
         db.session.commit()
         clear_repo_cache(repo, organization, team)
+        clear_explore_cache(organization, team)
         backend.delete_many(*keys)
         return None
     except Exception, e:

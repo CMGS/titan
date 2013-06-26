@@ -1,0 +1,18 @@
+{% if not team %}
+{% extends "organization.view.html" %}
+{% else %}
+{% extends "team.view.html" %}
+{% endif %}
+{% block subtitle %}Explore {{ organization.name }} {% if team %} {{ team.name }} {% endif %}{% endblock %}
+{% block subcontent %}
+<h3>Repos Explore</h3>
+<table class="table table-striped">
+    <tbody>
+        {% for repo in repos %}
+        <tr>
+            <td><a href="{{ url_for('repos.view', git=organization.git, rname=repo.name, tname=repo.team.name)}}">{{ repo.name }}</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

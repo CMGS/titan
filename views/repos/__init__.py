@@ -3,6 +3,7 @@
 
 from flask import Blueprint
 from utils.helper import make_view
+from views.repos.explore import Explore
 from views.repos.repos import Create, View, Transport, Delete, \
         Setting, Commiters, RemoveCommiter
 
@@ -14,10 +15,11 @@ repos = Blueprint(MODULE_NAME, __name__)
 view = view_func(View)
 create = view_func(Create)
 setting = view_func(Setting)
-commiters = view_func(Commiters, name='commiters', tmpl='commiters')
+commiters = view_func(Commiters, tmpl='commiters')
 remove_commiter = view_func(RemoveCommiter, name='remove', tmpl='commiters')
 transport = view_func(Transport)
 delete = view_func(Delete)
+explore = view_func(Explore)
 
 repos.add_url_rule('/<git>/new', view_func=create, methods=['GET', 'POST'])
 
@@ -38,4 +40,7 @@ repos.add_url_rule('/<git>/<tname>/<rname>/transport', view_func=transport, meth
 
 repos.add_url_rule('/<git>/<rname>/delete', view_func=delete, methods=['GET'])
 repos.add_url_rule('/<git>/<tname>/<rname>/delete', view_func=delete, methods=['GET'])
+
+repos.add_url_rule('/<git>/explore', view_func=explore, methods=['GET'])
+repos.add_url_rule('/<git>/<tname>/explore', view_func=explore, methods=['GET'])
 

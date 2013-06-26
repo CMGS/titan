@@ -4,6 +4,8 @@
 <div class="row-fluid">
     <div class="span3">
         <ul class="nav nav-tabs nav-stacked">
+            <li><a href="{{ url_for('organization.view', git=organization.git) }}">View Organization</a></li>
+            <li><a href="{{ url_for('repos.explore', git=organization.git) }}">Expore</a></li>
             {% if organization.allow or member.admin %}
             <li><a href="{{ url_for('organization.createteam', git=organization.git) }}">Create Team</a></li>
             {% endif %}
