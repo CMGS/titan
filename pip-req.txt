@@ -9,7 +9,6 @@ distribute==0.6.31
 flask-csrf==0.9.2
 invoke==0.2.0
 itsdangerous==0.21
--e git+git@github.com:CMGS/maria.git@ef36b18cabbaf33067ac68c71144be8ff4bc94c5#egg=maria
 paramiko==1.10.1
 pexpect-u==2.5.1
 py==1.4.12
