@@ -13,6 +13,7 @@
         <ul class="nav nav-tabs nav-stacked">
             <li><a href="{{ url_for('organization.view', git=organization.git) }}">Back To Organization</a></li>
             <li><a href="{{ url_for('repos.explore', git=organization.git, tname=team.name) }}">Expore</a></li>
+            <li><a href="{{ url_for('repos.create', git=organization.git) }}">Create Repo</a></li>
             {% if member.admin or team_member.admin %}
             <li><a href="{{ url_for('organization.setteam', git=organization.git, tname=team.name) }}">Team Setting</a></li>
             <li><a href="{{ url_for('organization.addmember', git=organization.git, tname=team.name) }}">Add Member</a></li>
