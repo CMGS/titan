@@ -31,7 +31,10 @@
   </div>
 </div>
 {% block subcontent %}
-{{ repo.path }}
+<div class="input-prepend" width="500px">
+    <span class="add-on"><strong>SSH</strong> clone URL</span>
+    <input class="span3 uneditable-input" id="prependedInput" type="text" value="{{ organization.git}}@{{ request.environ['SERVER_NAME'] }}:{{ repo.path }}">
+</div>
 {% endblock %}
 {% endblock %}
 
