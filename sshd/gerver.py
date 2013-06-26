@@ -8,6 +8,7 @@ import paramiko
 from maria import utils
 from maria.gerver import Gerver as _
 
+from config import STORE_PATH
 from utils.repos import check_permits
 from query.repos import get_repo_by_path
 from query.account import get_key_by_finger, get_user
@@ -15,9 +16,6 @@ from query.organization import get_organization_by_git, \
         get_organization_member, get_team, get_team_member
 
 logger = logging.getLogger(__name__)
-
-#TODO 因为现在还在本地测试，所以直接用文件路径
-STORE_PATH = '/Users/CMGS/Documents/Workplace/experiment/Jagare/permdir/'
 
 class Gerver(_):
     def check_auth_publickey(self, username, key):

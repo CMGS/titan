@@ -59,6 +59,9 @@ JAGARE_NODES = [
     'http://127.0.0.1:9000',
 ]
 
+#TODO 因为现在还在本地测试，所以直接用文件路径
+STORE_PATH = '/Users/CMGS/Documents/Workplace/experiment/Jagare/permdir/'
+
 try:
     from local_config import *
 except:
