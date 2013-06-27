@@ -44,6 +44,8 @@
 
 ## Others
 
+* fork
+* ls-tree
 * hooks
 * 接入Repos
 * Titan自身功能不带slash
@@ -51,6 +53,7 @@
 
 ## Done
 
++ Watch a repo
 + 访问仓库权限
 + Maria 接入
 + 一种方案限制注册和创建仓库超过上限
