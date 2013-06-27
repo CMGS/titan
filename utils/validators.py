@@ -102,6 +102,6 @@ def check_repos_limit(organization, incr=0):
 BLACK_LIST = [
     'login', 'logout', 'forget', 'reset', 'register', 'setting', \
     'keys', 'alias', 'verify', 'delete', 'explore', 'settings', \
-    'create', 'invite', 'add', 'join', 'quit', 'new', \
-    'git',
+    'create', 'invite', 'add', 'join', 'quit', 'new', 'watchers', \
+    'watch', 'unwatch', 'list', 'remove', 'git',
 ]

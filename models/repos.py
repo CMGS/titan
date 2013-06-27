@@ -15,18 +15,20 @@ class Repos(db.Model):
     uid = db.Column(db.Integer, nullable=False, index=True)
     summary = db.Column(db.String(200))
     commiters = db.Column(db.Integer, nullable=False, default=0)
+    watchers = db.Column(db.Integer, nullable=False, default=0)
     path = db.Column(db.String(150), nullable=False)
     parent = db.Column(db.Integer, nullable=False, default=0)
     forks = db.Column(db.Integer, nullable=False, default=0)
     create = db.Column(db.DateTime, default=datetime.now)
 
-    def __init__(self, name, path, oid, uid, tid=0, summary='', parent=0, commiters=0):
+    def __init__(self, name, path, oid, uid, tid=0, summary='', parent=0, commiters=0, watchers=0):
         self.name = name
         self.path = path
         self.oid = oid
         self.uid = uid
         self.tid = tid
         self.commiters = commiters
+        self.watchers = watchers
         self.summary = summary
         self.parent = parent
 
@@ -45,6 +47,17 @@ class Repos(db.Model):
 
 class Commiters(db.Model):
     __tablename__ = 'commiters'
+    __table_args__ = (db.UniqueConstraint('uid', 'rid', name='uix_uid_rid'), )
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    uid = db.Column(db.Integer, nullable=False)
+    rid = db.Column(db.Integer, nullable=False, index=True)
+
+    def __init__(self, uid, rid):
+        self.uid = uid
+        self.rid = rid
+
+class Watchers(db.Model):
+    __tablename__ = 'Watchers'
     __table_args__ = (db.UniqueConstraint('uid', 'rid', name='uix_uid_rid'), )
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     uid = db.Column(db.Integer, nullable=False)

@@ -31,9 +31,31 @@
   </div>
 </div>
 {% block subcontent %}
-<div class="input-prepend" width="500px">
-    <span class="add-on"><strong>SSH</strong> clone URL</span>
-    <input class="span3 uneditable-input" id="prependedInput" type="text" value="{{ organization.git}}@{{ request.environ['SERVER_NAME'] }}:{{ repo.path }}">
+<div class="row-fluid">
+    <div class="span4">
+        <div class="input-prepend">
+            <span class="add-on"><strong>SSH</strong> clone URL</span>
+            <input class="span3 uneditable-input" id="prependedInput" type="text" value="{{ organization.git}}@{{ request.environ['SERVER_NAME'] }}:{{ repo.path }}">
+        </div>
+    </div>
+    <div class="span4 pull-right">
+        <div class="pull-right input-prepend">
+            <ul class="inline">
+                <li>
+                    {% if watcher %}
+                    <a class="btn" id="appendedInput" href="{{ get_url('repos.unwatch') }}">Unwatch</a>
+                    {% else %}
+                    <a class="btn" id="appendedInput" href="{{ get_url('repos.watch') }}">Watch</a>
+                    {% endif %}
+                    <span class="add-on">{{ repo.watchers }}</span>
+                </li>
+                <li>
+                    <a class="btn" id="appendedInput" href="#">Forks</a>
+                    <span class="add-on">{{ repo.forks }}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
 </div>
 {% endblock %}
 {% endblock %}

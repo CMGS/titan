@@ -6,8 +6,8 @@ import sqlalchemy.exc
 from sheep.api.cache import cache, backend
 
 from models import db
-from models.repos import Repos, Commiters
 from models.organization import Organization, Team
+from models.repos import Repos, Commiters, Watchers
 
 from utils import code
 from utils.jagare import get_jagare
@@ -36,6 +36,14 @@ def get_repo_commiter(uid, rid):
 def get_repo_commiters(rid):
     return Commiters.query.filter_by(rid=rid).all()
 
+@cache('repos:watcher:{uid}:{rid}', 864000)
+def get_repo_watcher(uid, rid):
+    return Watchers.query.filter_by(uid=uid, rid=rid).limit(1).first()
+
+@cache('repos:watchers:{rid}', 8640000)
+def get_repo_watchers(rid):
+    return Watchers.query.filter_by(rid=rid).all()
+
 # clear
 
 def clear_commiter_cache(user, repo):
@@ -45,13 +53,21 @@ def clear_commiter_cache(user, repo):
     ]
     backend.delete_many(*keys)
 
-def clear_repo_cache(repo, organization, team=None, old_path=None):
+def clear_watcher_cache(user, repo):
+    keys = [
+        'repos:watchers:{rid}'.format(rid=repo.id), \
+        'repos:watcher:{uid}:{rid}'.format(uid=user.id, rid=repo.id)
+    ]
+    backend.delete_many(*keys)
+
+def clear_repo_cache(repo, organization, team=None, old_path=None, need=True):
     keys = [
         'repos:{oid}:{path}'.format(oid=organization.id, path=old_path or repo.path),
     ]
-    clear_organization_cache(organization)
-    if team:
-        clear_team_cache(organization, team)
+    if need:
+        clear_organization_cache(organization)
+        if team:
+            clear_team_cache(organization, team)
     backend.delete_many(*keys)
 
 def clear_explore_cache(organization, team=None):
@@ -69,7 +85,7 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=0)
         tid = team.id if team else 0
         oid = organization.id
         uid = user.id
-        repo = Repos(name, path, oid, uid, tid, summary, parent, commiters=1)
+        repo = Repos(name, path, oid, uid, tid, summary, parent, commiters=1, watchers=1)
         db.session.add(repo)
         organization.repos = Organization.repos + 1
         db.session.add(organization)
@@ -82,6 +98,8 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=0)
             return None, code.ORGANIZATION_REPOS_LIMIT
         commiter = Commiters(user.id, repo.id)
         db.session.add(commiter)
+        watcher = Watchers(user.id, repo.id)
+        db.session.add(watcher)
         jagare = get_jagare(repo.id, parent)
         ret, error = jagare.init(repo.get_real_path())
         if not ret:
@@ -103,19 +121,45 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=0)
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
 
-def create_commiter(user, repo):
+def create_commiter(user, repo, organization):
     try:
         commiter = Commiters(user.id, repo.id)
         repo.commiters = Repos.commiters + 1
+        if not get_repo_watcher(user.id, repo.id):
+            watcher = Watchers(user.id, repo.id)
+            repo.watchers = Repos.watchers + 1
+            db.session.add(watcher)
         db.session.add(commiter)
         db.session.add(repo)
         db.session.commit()
         clear_commiter_cache(user, repo)
+        clear_repo_cache(repo, organization, need=False)
         return commiter, None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
         if 'Duplicate entry' in e.message:
             return None, code.REPOS_COMMITER_EXISTS
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
+    except Exception, e:
+        db.session.rollback()
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
+
+def create_watcher(user, repo, organization):
+    try:
+        watcher = Watchers(user.id, repo.id)
+        repo.watchers = Repos.watchers + 1
+        db.session.add(watcher)
+        db.session.add(repo)
+        db.session.commit()
+        clear_watcher_cache(user, repo)
+        clear_repo_cache(repo, organization, need=False)
+        return watcher, None
+    except sqlalchemy.exc.IntegrityError, e:
+        db.session.rollback()
+        if 'Duplicate entry' in e.message:
+            return None, code.REPOS_WATCHER_EXISTS
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
     except Exception, e:
@@ -151,7 +195,7 @@ def transport_repo(organization, user, repo, team=None):
         db.session.add(repo)
         is_commiter = get_repo_commiter(user.id, repo.id)
         if not is_commiter:
-            _, error = create_commiter(user, repo)
+            _, error = create_commiter(user, repo, organization)
             if error:
                 raise Exception(error)
         db.session.commit()
@@ -164,13 +208,28 @@ def transport_repo(organization, user, repo, team=None):
 
 # delete
 
-def delete_commiter(user, commiter, repo):
+def delete_watcher(user, watcher, repo, organization):
+    try:
+        db.session.delete(watcher)
+        repo.watchers = Repos.watchers - 1
+        db.session.add(repo)
+        db.session.commit()
+        clear_watcher_cache(user, repo)
+        clear_repo_cache(repo, organization, need=False)
+        return None
+    except Exception, e:
+        db.session.rollback()
+        logger.exception(e)
+        return code.UNHANDLE_EXCEPTION
+
+def delete_commiter(user, commiter, repo, organization):
     try:
         db.session.delete(commiter)
         repo.commiters = Repos.commiters - 1
         db.session.add(repo)
         db.session.commit()
         clear_commiter_cache(user, repo)
+        clear_repo_cache(repo, organization, need=False)
         return None
     except Exception, e:
         db.session.rollback()
