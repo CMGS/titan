@@ -10,7 +10,7 @@
     <tbody>
         {% for repo in repos %}
         <tr>
-            <td><a href="{{ url_for('repos.view', git=organization.git, rname=repo.name, tname=repo.team.name)}}">{{ repo.path.rstrip('.git') }}</a></td>
+            <td><a href="{{ url_for('repos.view', git=organization.git, rname=repo.name, tname=repo.team.name)}}">{{ repo.path.split('.git', 1)[0] }}</a></td>
         </tr>
         {% endfor %}
     </tbody>

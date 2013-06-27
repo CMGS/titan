@@ -82,15 +82,17 @@ class View(MethodView):
         jagare = get_jagare(repo.id, repo.parent)
         version = kwargs.get('version', 'master')
         path = kwargs.get('path', '')
-        tree = jagare.ls_tree(repo.get_real_path(), path=path, version=version)
-        if not tree:
-            raise abort(404)
         team = kwargs.get('team', None)
         tname = team.name if team else None
-        tree = self.render_tree(
-                    tree, version, organization.git, \
-                    tname, repo.name
-                )
+        tree = None
+        if not jagare.is_empty(repo.get_real_path()):
+            tree = jagare.ls_tree(repo.get_real_path(), path=path, version=version)
+            if not tree:
+                raise abort(404)
+            tree = self.render_tree(
+                        tree, version, organization.git, \
+                        tname, repo.name
+                    )
         return self.render_template(
                     member=member, repo=repo, \
                     organization=organization, \

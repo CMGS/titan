@@ -44,8 +44,10 @@
 
 ## Others
 
-* fork
+* 仓库状态
+* blob
 * ls-tree
+* fork
 * hooks
 * 接入Repos
 * Titan自身功能不带slash

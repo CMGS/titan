@@ -48,6 +48,16 @@ class Jagare(object):
         except Exception:
             return None
 
+    def is_empty(self, repo_path):
+        try:
+            r = requests.get('%s/%s' % (self.node, repo_path))
+            result = self.get_result(r)
+            if not result or result['error']:
+                return False
+            return result['data']['is_empty']
+        except Exception:
+            return False
+
     def get_result(self, r):
         try:
             if not r.ok:
