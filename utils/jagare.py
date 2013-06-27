@@ -35,6 +35,19 @@ class Jagare(object):
         except Exception:
             return False, code.UNHANDLE_EXCEPTION
 
+    def ls_tree(self, repo_path, path='', version='master'):
+        try:
+            params = '%s/%s/ls-tree/%s' % (self.node, repo_path, version)
+            if path:
+                params = '%s?path=%s' % (params, path)
+            r = requests.get(params)
+            result = self.get_result(r)
+            if not result or result['error']:
+                return None
+            return result
+        except Exception:
+            return None
+
     def get_result(self, r):
         try:
             if not r.ok:

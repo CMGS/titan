@@ -56,6 +56,24 @@
             </ul>
         </div>
     </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <td>name</td>
+                <td>age</td>
+                <td>message</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in tree %}
+            <tr>
+                <td><a href="{{ t.url }}">{{ t.name }}</a></td>
+                <td>0</td>
+                <td>Not implement yet</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}
 {% endblock %}

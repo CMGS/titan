@@ -4,12 +4,13 @@
 import os
 import logging
 
-from flask import g, request, redirect, url_for
+from flask import g, request, redirect, url_for, abort
 
 from utils import code
-from utils.helper import MethodView
+from utils.jagare import get_jagare
 from utils.repos import repo_required
 from utils.account import login_required
+from utils.helper import MethodView, Obj
 from utils.validators import check_reponame
 from utils.organization import member_required
 
@@ -78,11 +79,39 @@ class View(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, repo, **kwargs):
         watcher = get_repo_watcher(g.current_user.id, repo.id)
+        jagare = get_jagare(repo.id, repo.parent)
+        version = kwargs.get('version', 'master')
+        path = kwargs.get('path', '')
+        tree = jagare.ls_tree(repo.get_real_path(), path=path, version=version)
+        if not tree:
+            raise abort(404)
+        team = kwargs.get('team', None)
+        tname = team.name if team else None
+        tree = self.render_tree(
+                    tree, version, organization.git, \
+                    tname, repo.name
+                )
         return self.render_template(
                     member=member, repo=repo, \
                     organization=organization, \
-                    watcher=watcher, **kwargs
+                    watcher=watcher, \
+                    tree=tree, \
+                    **kwargs
                 )
+
+    def render_tree(self, tree, version, git, tname, rname):
+        for d in tree['data']:
+            data = Obj()
+            if d['type'] == 'tree':
+                data.url = url_for('repos.view', git=git, tname=tname, rname=rname, version=version, path=d['path'])
+            elif d['type'] == 'blob':
+                #TODO blob reader
+                data.url = '#'
+            else:
+                continue
+            data.name = d['name']
+            data.sha = d['sha']
+            yield data
 
 class Setting(MethodView):
     decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]

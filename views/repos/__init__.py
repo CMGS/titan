@@ -27,9 +27,6 @@ unwatch = view_func(RemoveWatchers, name='unwatch')
 
 repos.add_url_rule('/<git>/new', view_func=create, methods=['GET', 'POST'])
 
-repos.add_url_rule('/<git>/<rname>', view_func=view, methods=['GET'])
-repos.add_url_rule('/<git>/<tname>/<rname>', view_func=view, methods=['GET'])
-
 repos.add_url_rule('/<git>/<rname>/settings', view_func=setting, methods=['GET', 'POST'])
 repos.add_url_rule('/<git>/<tname>/<rname>/settings', view_func=setting, methods=['GET', 'POST'])
 
@@ -53,3 +50,13 @@ repos.add_url_rule('/<git>/<tname>/<rname>/watch', view_func=watch, methods=['GE
 
 repos.add_url_rule('/<git>/<rname>/unwatch', view_func=unwatch, methods=['GET'])
 repos.add_url_rule('/<git>/<tname>/<rname>/unwatch', view_func=unwatch, methods=['GET'])
+
+repos.add_url_rule('/<git>/<rname>', view_func=view, methods=['GET'])
+repos.add_url_rule('/<git>/<tname>/<rname>', view_func=view, methods=['GET'])
+
+repos.add_url_rule('/<git>/<rname>/tree/', view_func=view, methods=['GET'])
+repos.add_url_rule('/<git>/<tname>/<rname>/tree/', view_func=view, methods=['GET'])
+
+repos.add_url_rule('/<git>/<rname>/tree/<version>/<path:path>', view_func=view, methods=['GET'])
+repos.add_url_rule('/<git>/<tname>/<rname>/tree/<version>/<path:path>', view_func=view, methods=['GET'])
+
