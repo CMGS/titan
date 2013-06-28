@@ -78,17 +78,16 @@ class Create(MethodView):
 class View(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, repo, **kwargs):
-        watcher = get_repo_watcher(g.current_user.id, repo.id)
-        jagare = get_jagare(repo.id, repo.parent)
         version = kwargs.get('version', 'master')
         path = kwargs.get('path', '')
         team = kwargs.get('team', None)
+
+        watcher = get_repo_watcher(g.current_user.id, repo.id)
+        jagare = get_jagare(repo.id, repo.parent)
         tname = team.name if team else None
-        tree = None
-        if not jagare.is_empty(repo.get_real_path()):
-            tree = jagare.ls_tree(repo.get_real_path(), path=path, version=version)
-            if not tree:
-                raise abort(404)
+
+        error, tree = jagare.ls_tree(repo.get_real_path(), path=path, version=version)
+        if not error:
             tree = self.render_tree(
                         tree, version, organization.git, \
                         tname, repo.name
@@ -97,12 +96,12 @@ class View(MethodView):
                     member=member, repo=repo, \
                     organization=organization, \
                     watcher=watcher, \
-                    tree=tree, \
+                    tree=tree, error=error, \
                     **kwargs
                 )
 
     def render_tree(self, tree, version, git, tname, rname):
-        for d in tree['data']:
+        for d in tree:
             data = Obj()
             if d['type'] == 'tree':
                 data.url = url_for('repos.view', git=git, tname=tname, rname=rname, version=version, path=d['path'])

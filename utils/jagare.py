@@ -42,9 +42,12 @@ class Jagare(object):
                 params = '%s?path=%s' % (params, path)
             r = requests.get(params)
             result = self.get_result(r)
-            if not result or result['error']:
+            if not result:
                 return None
-            return result
+            #TODO not implement yet
+            if result['error'] == '1':
+                return True, result['message']
+            return False, result['data']
         except Exception:
             return None
 
@@ -60,8 +63,6 @@ class Jagare(object):
 
     def get_result(self, r):
         try:
-            if not r.ok:
-                return None
             result = json.loads(r.text)
         except Exception:
             return None

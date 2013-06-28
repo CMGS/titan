@@ -57,6 +57,9 @@ repos.add_url_rule('/<git>/<tname>/<rname>', view_func=view, methods=['GET'])
 repos.add_url_rule('/<git>/<rname>/tree/', view_func=view, methods=['GET'])
 repos.add_url_rule('/<git>/<tname>/<rname>/tree/', view_func=view, methods=['GET'])
 
+repos.add_url_rule('/<git>/<rname>/tree/<version>/', view_func=view, methods=['GET'])
+repos.add_url_rule('/<git>/<tname>/<rname>/tree/<version>/', view_func=view, methods=['GET'])
+
 repos.add_url_rule('/<git>/<rname>/tree/<version>/<path:path>', view_func=view, methods=['GET'])
 repos.add_url_rule('/<git>/<tname>/<rname>/tree/<version>/<path:path>', view_func=view, methods=['GET'])
 

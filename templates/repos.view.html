@@ -57,7 +57,7 @@
         </div>
     </div>
 </div>
-{% if tree %}
+{% if not error %}
 <table class="table">
     <thead>
         <tr>
@@ -78,7 +78,7 @@
 </table>
 {% else %}
 <p>
-    You should push your code first.
+    {{ tree }}
 </p>
 {% endif %}
 {% endblock %}
