@@ -41,6 +41,8 @@ REPOS_COMMITER_EXISTS = 'repo commiter exists'
 REPOS_WATCHER_EXISTS = 'repo watcher exists'
 REPOS_USE_TRANSPORT = 'use transport'
 REPOS_CANT_TRANSPORT_SELF = 'repos cant transport to itself'
+REPOS_PATH_NOT_FOUND = 'path not found'
+REPOS_LS_TREE_FAILED = 'ls tree failed'
 
 UNHANDLE_EXCEPTION = 'Server fault'
 

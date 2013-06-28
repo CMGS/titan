@@ -3,7 +3,7 @@
 
 {% macro get_url(view='repos.view') -%}
     {% if repo.tid == 0 %}
-    {{ url_for(view, git=organization.git, rname=repo.name,) }}
+    {{ url_for(view, git=organization.git, rname=repo.name) }}
     {% else %}
     {{ url_for(view, git=organization.git, rname=repo.name, tname=team.name) }}
     {% endif %}
@@ -58,6 +58,16 @@
     </div>
 </div>
 {% if not error %}
+<ul class="breadcrumb">
+    <li><a href="{{ get_url('repos.view') }}">{{ repo.name }}</a><span class="divider">/</span></li>
+    {% for p, u  in path %}
+    {% if u %}
+    <li><a href="{{ u }}">{{ p }}</a><span class="divider">/</span></li>
+    {% else %}
+    <li class="active">{{ p }}<span class="divider">/</span></li>
+    {% endif %}
+    {% endfor %}
+</ul>
 <table class="table">
     <thead>
         <tr>

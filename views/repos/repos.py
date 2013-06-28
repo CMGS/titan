@@ -4,7 +4,7 @@
 import os
 import logging
 
-from flask import g, request, redirect, url_for, abort
+from flask import g, request, redirect, url_for
 
 from utils import code
 from utils.jagare import get_jagare
@@ -92,6 +92,11 @@ class View(MethodView):
                         tree, version, organization.git, \
                         tname, repo.name
                     )
+            path = self.render_path(
+                        path, version, organization.git, \
+                        tname, repo.name
+                    )
+            kwargs['path'] = path
         return self.render_template(
                     member=member, repo=repo, \
                     organization=organization, \
@@ -99,6 +104,17 @@ class View(MethodView):
                     tree=tree, error=error, \
                     **kwargs
                 )
+
+    def render_path(self, path, version, git, tname, rname):
+        if not path:
+            raise StopIteration()
+        pre = ''
+        paths = path.split('/')
+        for i in paths[:-1]:
+            p = i if not pre else '/'.join([pre, i])
+            pre = p
+            yield (i, url_for('repos.view', git=git, tname=tname, rname=rname, version=version, path=p))
+        yield (paths[-1], '')
 
     def render_tree(self, tree, version, git, tname, rname):
         for d in tree:

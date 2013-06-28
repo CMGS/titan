@@ -43,13 +43,15 @@ class Jagare(object):
             r = requests.get(params)
             result = self.get_result(r)
             if not result:
-                return None
+                return True, code.REPOS_LS_TREE_FAILED
             #TODO not implement yet
-            if result['error'] == '1':
+            if result['error']:
                 return True, result['message']
+            if not result['data']:
+                return True, code.REPOS_PATH_NOT_FOUND
             return False, result['data']
         except Exception:
-            return None
+            return True, code.UNHANDLE_EXCEPTION
 
     def is_empty(self, repo_path):
         try:
