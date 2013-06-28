@@ -57,7 +57,7 @@ class Commiters(db.Model):
         self.rid = rid
 
 class Watchers(db.Model):
-    __tablename__ = 'Watchers'
+    __tablename__ = 'watchers'
     __table_args__ = (db.UniqueConstraint('uid', 'rid', name='uix_uid_rid'), )
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     uid = db.Column(db.Integer, nullable=False)
