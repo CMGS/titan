@@ -3,7 +3,8 @@
 
 import logging
 
-from flask import g, url_for, abort
+from flask import g, url_for, abort, request, \
+        stream_with_context, Response
 
 from utils.jagare import get_jagare
 from utils.repos import repo_required
@@ -72,9 +73,8 @@ class View(MethodView):
 
 class Blob(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, repo, **kwargs):
+    def get(self, organization, member, repo, path, **kwargs):
         version = kwargs.get('version', 'master')
-        path = kwargs.get('path', '')
         team = kwargs.get('team', None)
 
         watcher = get_repo_watcher(g.current_user.id, repo.id)
@@ -87,17 +87,27 @@ class Blob(MethodView):
         if not error:
             error, content = self.get_file(repo_path, tree, jagare)
             if not error:
-                path = self.render_path(
-                            path, version, organization.git, \
-                            tname, repo.name
-                        )
-                kwargs['path'] = path
-        return self.render_template(
-                    member=member, repo=repo, \
-                    organization=organization, \
-                    watcher=watcher, \
-                    content=content, error=error, **kwargs
-                )
+                kwargs['path'] = self.render_path(
+                                    path, version, organization.git, \
+                                    tname, repo.name
+                                 )
+        if not self.need_download(path, version, organization.git, tname, repo.name):
+            return self.render_template(
+                        member=member, repo=repo, \
+                        organization=organization, \
+                        watcher=watcher, \
+                        content=content, error=error, **kwargs
+                    )
+        res = Response(stream_with_context(content))
+        res.headers['X-Accel-Buffering'] = 'no'
+        res.headers['Cache-Control'] = 'no-cache'
+        res.headers['Content-Type'] = 'application/octet-stream'
+        return res
+
+    def need_download(self, path, version, git, tname, rname):
+        if '/raw/' in request.url:
+            return True
+        return False
 
     def get_file(self, repo_path, tree, jagare):
         file_obj = tree[0]

@@ -44,9 +44,9 @@
 
 ## Others
 
+* raw
+* 文件类型和大小，限制2进制文件输出
 * 仓库状态
-* blob
-* ls-tree
 * fork
 * hooks
 * 接入Repos
@@ -55,6 +55,8 @@
 
 ## Done
 
++ blob
++ ls-tree
 + Watch a repo
 + 访问仓库权限
 + Maria 接入
