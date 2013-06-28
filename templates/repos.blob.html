@@ -2,6 +2,12 @@
 
 {% block show_content %}
 {% if not error %}
+<div class="row-fluid">
+    <div class="pull-right">
+        <a class="btn" href="{{ get_url('repos.raw', kwargs={'path': file_path, 'version': version}) }}"><strong>Raw</strong></a>
+    </div>
+</div>
+<br />
 <pre class=".pre-scrollable">
 {{ content }}
 </pre>

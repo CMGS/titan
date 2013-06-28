@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block subtitle %}{{ repo.name }}{% endblock %}
 
-{% macro get_url(view='repos.view') -%}
+{% macro get_url(view='repos.view', kwargs={}) -%}
     {% if repo.tid == 0 %}
-    {{ url_for(view, git=organization.git, rname=repo.name) }}
+    {{ url_for(view, git=organization.git, rname=repo.name, **kwargs) }}
     {% else %}
-    {{ url_for(view, git=organization.git, rname=repo.name, tname=team.name) }}
+    {{ url_for(view, git=organization.git, rname=repo.name, tname=team.name, **kwargs) }}
     {% endif %}
 {%- endmacro %}
 

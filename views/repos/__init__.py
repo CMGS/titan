@@ -27,6 +27,7 @@ unwatch = view_func(RemoveWatchers, name='unwatch')
 
 view = view_func(View)
 blob = view_func(Blob)
+raw = view_func(Blob, name='raw')
 
 repos.add_url_rule('/<git>/new', view_func=create, methods=['GET', 'POST'])
 
@@ -69,6 +70,6 @@ repos.add_url_rule('/<git>/<tname>/<rname>/tree/<version>/<path:path>', view_fun
 repos.add_url_rule('/<git>/<rname>/blob/<version>/<path:path>', view_func=blob, methods=['GET'])
 repos.add_url_rule('/<git>/<tname>/<rname>/blob/<version>/<path:path>', view_func=blob, methods=['GET'])
 
-repos.add_url_rule('/<git>/<rname>/raw/<version>/<path:path>', view_func=blob, methods=['GET'])
-repos.add_url_rule('/<git>/<tname>/<rname>/raw/<version>/<path:path>', view_func=blob, methods=['GET'])
+repos.add_url_rule('/<git>/<rname>/raw/<version>/<path:path>', view_func=raw, methods=['GET'])
+repos.add_url_rule('/<git>/<tname>/<rname>/raw/<version>/<path:path>', view_func=raw, methods=['GET'])
 

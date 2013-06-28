@@ -95,7 +95,7 @@ class Blob(MethodView):
             return self.render_template(
                         member=member, repo=repo, \
                         organization=organization, \
-                        watcher=watcher, \
+                        watcher=watcher, file_path=path, \
                         content=content, error=error, **kwargs
                     )
         res = Response(stream_with_context(content))
