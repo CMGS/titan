@@ -68,6 +68,7 @@
     {% endif %}
     {% endfor %}
 </ul>
+{% block show_content %}
 <table class="table">
     <thead>
         <tr>
@@ -86,9 +87,10 @@
         {% endfor %}
     </tbody>
 </table>
+{% endblock %}
 {% else %}
 <p>
-    {{ tree }}
+    {{ error }}
 </p>
 {% endif %}
 {% endblock %}

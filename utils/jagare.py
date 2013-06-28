@@ -43,15 +43,23 @@ class Jagare(object):
             r = requests.get(params)
             result = self.get_result(r)
             if not result:
-                return True, code.REPOS_LS_TREE_FAILED
-            #TODO not implement yet
+                return code.REPOS_LS_TREE_FAILED, None
             if result['error']:
-                return True, result['message']
+                return result['message'], None
             if not result['data']:
-                return True, code.REPOS_PATH_NOT_FOUND
-            return False, result['data']
+                return code.REPOS_PATH_NOT_FOUND, None
+            return None, result['data']
         except Exception:
-            return True, code.UNHANDLE_EXCEPTION
+            return code.UNHANDLE_EXCEPTION, None
+
+    def cat(self, repo_path, sha):
+        try:
+            r = requests.get('%s/%s/cat/%s' % (self.node, repo_path, sha))
+            if not r.ok:
+                return code.REPOS_CAT_FILE_FAILED, None
+            return None, r.text
+        except Exception:
+            return code.UNHANDLE_EXCEPTION, None
 
     def is_empty(self, repo_path):
         try:

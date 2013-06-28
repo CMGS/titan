@@ -1,0 +1,14 @@
+{% extends "repos.view.html" %}
+
+{% block show_content %}
+{% if not error %}
+<pre class=".pre-scrollable">
+{{ content }}
+</pre>
+{% else %}
+<p>
+    {{ error }}
+</p>
+{% endif %}
+{% endblock %}
+

@@ -7,16 +7,15 @@ import logging
 from flask import g, request, redirect, url_for
 
 from utils import code
-from utils.jagare import get_jagare
+from utils.helper import MethodView
 from utils.repos import repo_required
 from utils.account import login_required
-from utils.helper import MethodView, Obj
 from utils.validators import check_reponame
 from utils.organization import member_required
 
 from query.account import get_user
 from query.repos import create_repo, update_repo,transport_repo, \
-        delete_repo, get_repo_watcher
+        delete_repo
 from query.organization import get_teams_by_ogranization, get_team_member, \
         get_team_by_name, get_organization_member
 
@@ -74,61 +73,6 @@ class Create(MethodView):
             if not get_team_member(team.id, g.current_user.id):
                 continue
             yield team
-
-class View(MethodView):
-    decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, repo, **kwargs):
-        version = kwargs.get('version', 'master')
-        path = kwargs.get('path', '')
-        team = kwargs.get('team', None)
-
-        watcher = get_repo_watcher(g.current_user.id, repo.id)
-        jagare = get_jagare(repo.id, repo.parent)
-        tname = team.name if team else None
-
-        error, tree = jagare.ls_tree(repo.get_real_path(), path=path, version=version)
-        if not error:
-            tree = self.render_tree(
-                        tree, version, organization.git, \
-                        tname, repo.name
-                    )
-            path = self.render_path(
-                        path, version, organization.git, \
-                        tname, repo.name
-                    )
-            kwargs['path'] = path
-        return self.render_template(
-                    member=member, repo=repo, \
-                    organization=organization, \
-                    watcher=watcher, \
-                    tree=tree, error=error, \
-                    **kwargs
-                )
-
-    def render_path(self, path, version, git, tname, rname):
-        if not path:
-            raise StopIteration()
-        pre = ''
-        paths = path.split('/')
-        for i in paths[:-1]:
-            p = i if not pre else '/'.join([pre, i])
-            pre = p
-            yield (i, url_for('repos.view', git=git, tname=tname, rname=rname, version=version, path=p))
-        yield (paths[-1], '')
-
-    def render_tree(self, tree, version, git, tname, rname):
-        for d in tree:
-            data = Obj()
-            if d['type'] == 'tree':
-                data.url = url_for('repos.view', git=git, tname=tname, rname=rname, version=version, path=d['path'])
-            elif d['type'] == 'blob':
-                #TODO blob reader
-                data.url = '#'
-            else:
-                continue
-            data.name = d['name']
-            data.sha = d['sha']
-            yield data
 
 class Setting(MethodView):
     decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]
