@@ -7,7 +7,7 @@ from views.repos.explore import Explore
 from views.repos.watchers import Watchers, RemoveWatchers
 from views.repos.commiters import Commiters, RemoveCommiter
 from views.repos.repos import Create, Transport, Delete, Setting
-from views.repos.view import View, Blob
+from views.repos.view import View, Blob, Raw
 
 MODULE_NAME = 'repos'
 view_func = make_view(MODULE_NAME)
@@ -25,9 +25,9 @@ remove_commiter = view_func(RemoveCommiter, name='remove')
 watch = view_func(Watchers, name='watch')
 unwatch = view_func(RemoveWatchers, name='unwatch')
 
+raw = view_func(Raw)
 view = view_func(View)
 blob = view_func(Blob)
-raw = view_func(Blob, name='raw')
 
 repos.add_url_rule('/<git>/new', view_func=create, methods=['GET', 'POST'])
 

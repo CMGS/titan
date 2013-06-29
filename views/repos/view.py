@@ -3,7 +3,8 @@
 
 import logging
 
-from flask import g, url_for, abort
+from flask import g, url_for, abort, \
+        Response, stream_with_context
 
 from utils.jagare import get_jagare
 from utils.repos import repo_required
@@ -82,7 +83,7 @@ class Blob(MethodView):
         tname = team.name if team else None
 
         repo_path = repo.get_real_path()
-        error, content = jagare.cat_file(repo_path, path, version=version)
+        error, res = jagare.cat_file(repo_path, path, version=version)
         if error:
             raise abort(error)
         kwargs['path'] = render_path(
@@ -93,6 +94,21 @@ class Blob(MethodView):
                     member=member, repo=repo, \
                     organization=organization, \
                     watcher=watcher, file_path=path, \
-                    content=content, error=error, **kwargs
+                    content=res.content, error=error, **kwargs
                 )
+
+class Raw(MethodView):
+    decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
+    def get(self, organization, member, repo, path, **kwargs):
+        version = kwargs.get('version', 'master')
+        jagare = get_jagare(repo.id, repo.parent)
+        repo_path = repo.get_real_path()
+        error, res = jagare.cat_file(repo_path, path, version=version)
+        if error:
+            raise abort(error)
+        resp = Response(stream_with_context(res))
+        resp.headers['X-Accel-Buffering'] = 'no'
+        resp.headers['Cache-Control'] = 'no-cache'
+        resp.headers['Content-Type'] = res.headers.get('content-type', 'application/octet-stream')
+        return resp
 
