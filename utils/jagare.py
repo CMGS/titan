@@ -37,10 +37,9 @@ class Jagare(object):
 
     def ls_tree(self, repo_path, path='', version='master'):
         try:
-            params = '%s/%s/ls-tree/%s' % (self.node, repo_path, version)
-            if path:
-                params = '%s?path=%s' % (params, path)
-            r = requests.get(params)
+            url = '%s/%s/ls-tree/%s' % (self.node, repo_path, version)
+            params = {'path':path} if path else None
+            r = requests.get(url, params=params)
             result = self.get_result(r)
             if not result:
                 return code.REPOS_LS_TREE_FAILED, None
@@ -52,12 +51,15 @@ class Jagare(object):
         except Exception:
             return code.UNHANDLE_EXCEPTION, None
 
-    def cat(self, repo_path, sha):
+    def cat_file(self, repo_path, path, version='master'):
         try:
-            r = requests.get('%s/%s/cat/%s' % (self.node, repo_path, sha))
+            r = requests.get(
+                    '%s/%s/cat/p/%s' % (self.node, repo_path, version), \
+                    params = {'path':path}, \
+                )
             if not r.ok:
-                return code.REPOS_CAT_FILE_FAILED, None
-            return None, r.text
+                return r.status_code, None
+            return None, r.content
         except Exception:
             return code.UNHANDLE_EXCEPTION, None
 

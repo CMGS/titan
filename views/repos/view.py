@@ -3,8 +3,7 @@
 
 import logging
 
-from flask import g, url_for, abort, request, \
-        stream_with_context, Response
+from flask import g, url_for, abort
 
 from utils.jagare import get_jagare
 from utils.repos import repo_required
@@ -15,6 +14,17 @@ from utils.organization import member_required
 from query.repos import get_repo_watcher
 
 logger = logging.getLogger(__name__)
+
+def render_path(path, version, git, tname, rname):
+    if not path:
+        raise StopIteration()
+    pre = ''
+    paths = path.split('/')
+    for i in paths[:-1]:
+        p = i if not pre else '/'.join([pre, i])
+        pre = p
+        yield (i, url_for('repos.view', git=git, tname=tname, rname=rname, version=version, path=p))
+    yield (paths[-1], '')
 
 class View(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
@@ -33,7 +43,7 @@ class View(MethodView):
                         tree, version, organization.git, \
                         tname, repo.name
                     )
-            path = self.render_path(
+            path = render_path(
                         path, version, organization.git, \
                         tname, repo.name
                     )
@@ -46,16 +56,6 @@ class View(MethodView):
                     **kwargs
                 )
 
-    def render_path(self, path, version, git, tname, rname):
-        if not path:
-            raise StopIteration()
-        pre = ''
-        paths = path.split('/')
-        for i in paths[:-1]:
-            p = i if not pre else '/'.join([pre, i])
-            pre = p
-            yield (i, url_for('repos.view', git=git, tname=tname, rname=rname, version=version, path=p))
-        yield (paths[-1], '')
 
     def render_tree(self, tree, version, git, tname, rname):
         for d in tree:
@@ -82,47 +82,17 @@ class Blob(MethodView):
         tname = team.name if team else None
 
         repo_path = repo.get_real_path()
-        content = None
-        error, tree = jagare.ls_tree(repo_path, path=path, version=version)
-        if not error:
-            error, content = self.get_file(repo_path, tree, jagare)
-            if not error:
-                kwargs['path'] = self.render_path(
-                                    path, version, organization.git, \
-                                    tname, repo.name
-                                 )
-        if not self.need_download(path, version, organization.git, tname, repo.name):
-            return self.render_template(
-                        member=member, repo=repo, \
-                        organization=organization, \
-                        watcher=watcher, file_path=path, \
-                        content=content, error=error, **kwargs
-                    )
-        res = Response(stream_with_context(content))
-        res.headers['X-Accel-Buffering'] = 'no'
-        res.headers['Cache-Control'] = 'no-cache'
-        res.headers['Content-Type'] = 'application/octet-stream'
-        return res
-
-    def need_download(self, path, version, git, tname, rname):
-        if '/raw/' in request.url:
-            return True
-        return False
-
-    def get_file(self, repo_path, tree, jagare):
-        file_obj = tree[0]
-        if file_obj['type'] != 'blob':
-            raise abort(404)
-        return jagare.cat(repo_path, file_obj['sha'])
-
-    def render_path(self, path, version, git, tname, rname):
-        if not path:
-            raise StopIteration()
-        pre = ''
-        paths = path.split('/')
-        for i in paths[:-1]:
-            p = i if not pre else '/'.join([pre, i])
-            pre = p
-            yield (i, url_for('repos.view', git=git, tname=tname, rname=rname, version=version, path=p))
-        yield (paths[-1], '')
+        error, content = jagare.cat_file(repo_path, path, version=version)
+        if error:
+            raise abort(error)
+        kwargs['path'] = render_path(
+                            path, version, organization.git, \
+                            tname, repo.name
+                        )
+        return self.render_template(
+                    member=member, repo=repo, \
+                    organization=organization, \
+                    watcher=watcher, file_path=path, \
+                    content=content, error=error, **kwargs
+                )
 
