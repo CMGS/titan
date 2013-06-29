@@ -1,6 +1,7 @@
 #!/usr/local/bin/python2.7
 #coding:utf-8
 
+import base64
 import logging
 
 from flask import g, url_for, abort, \
@@ -90,11 +91,24 @@ class Blob(MethodView):
                             path, version, organization.git, \
                             tname, repo.name
                         )
+
+        content = res.content
+        content_type = res.headers.get('content-type', 'application/octet-stream')
+        if 'image' in content_type:
+            content_type = 'image'
+            content = base64.b64encode(content)
+        elif 'text' in content_type:
+            content_type = 'text'
+        else:
+            content_type = 'binary'
+
         return self.render_template(
                     member=member, repo=repo, \
                     organization=organization, \
                     watcher=watcher, file_path=path, \
-                    content=res.content, error=error, **kwargs
+                    content=content, \
+                    content_type=content_type, \
+                    **kwargs
                 )
 
 class Raw(MethodView):

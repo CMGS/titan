@@ -1,20 +1,24 @@
 {% extends "repos.view.html" %}
 
 {% block show_content %}
-{% if not error %}
 <div class="row-fluid">
     <div class="pull-right">
         <a class="btn" href="{{ get_url('repos.raw', kwargs={'path': file_path, 'version': version}) }}"><strong>Raw</strong></a>
     </div>
 </div>
 <br />
+{% if content_type == 'binary' %}
+<pre>
+    Binary file
+</pre>
+{% elif content_type == 'image' %}
+<pre>
+    <img src="data:image/png;base64,{{ content }}"/>
+</pre>
+{% else %}
 <pre class=".pre-scrollable">
 {{ content }}
 </pre>
-{% else %}
-<p>
-    {{ error }}
-</p>
 {% endif %}
 {% endblock %}
 
