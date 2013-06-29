@@ -1,5 +1,8 @@
 {% extends "repos.view.html" %}
 
+{% block add_js %}
+<script src="{{ '/static/js/prettify.js' | s_files }}"></script>
+{% endblock %}
 {% block show_content %}
 <div class="row-fluid">
     <div class="pull-right">
@@ -16,7 +19,7 @@
     <img src="data:image/png;base64,{{ content }}"/>
 </pre>
 {% else %}
-<pre class=".pre-scrollable">
+<pre class="prettyprint">
 {{ content }}
 </pre>
 {% endif %}

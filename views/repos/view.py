@@ -99,6 +99,8 @@ class Blob(MethodView):
             content = base64.b64encode(content)
         elif 'text' in content_type:
             content_type = 'text'
+            if not isinstance(content, unicode):
+                content = content.decode('utf8')
         else:
             content_type = 'binary'
 
