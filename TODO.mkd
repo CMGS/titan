@@ -44,8 +44,6 @@
 
 ## Others
 
-* raw
-* 文件类型和大小，限制2进制文件输出
 * 仓库状态
 * fork
 * hooks
@@ -55,6 +53,8 @@
 
 ## Done
 
++ raw
++ 文件类型和大小，限制2进制文件输出
 + blob
 + ls-tree
 + Watch a repo
