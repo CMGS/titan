@@ -71,6 +71,7 @@ class View(MethodView):
                 continue
             data.name = d['name']
             data.sha = d['sha']
+            data.type = d['type']
             yield data
 
 class Blob(MethodView):
