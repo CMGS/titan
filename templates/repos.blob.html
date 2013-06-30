@@ -10,9 +10,22 @@
   })
 }(window.jQuery);
 </script>
+<style>
+.center {margin: 5px 0 0 25px}
+</style>
 {% endblock %}
 {% block show_content %}
 <div class="row-fluid">
+    <div class="span4">
+        <ul class="inline center">
+            <li>
+                <span class="label">{{ content_type }}</span>
+            </li>
+            <li>
+                <span class="label label-info">{{ content_length }}k</span>
+            </li>
+        </ul>
+    </div>
     <div class="pull-right">
         <a class="btn" href="{{ get_url('repos.raw', kwargs={'path': file_path, 'version': version}) }}"><strong>Raw</strong></a>
     </div>

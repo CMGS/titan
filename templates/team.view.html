@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block nav %}{{ navbar.nav(organization=organization) }}{% endblock %}
 {% block subtitle %}{{ organization.name }} {{ team.name }}{% endblock %}
 {% block content %}
 <div class="row-fluid">
@@ -11,7 +12,6 @@
         </ul>
         {% endif %}
         <ul class="nav nav-tabs nav-stacked">
-            <li><a href="{{ url_for('organization.view', git=organization.git) }}">Back To Organization</a></li>
             <li><a href="{{ url_for('repos.explore', git=organization.git, tname=team.name) }}">Explore</a></li>
             <li><a href="{{ url_for('repos.create', git=organization.git) }}">Create Repo</a></li>
             {% if member.admin or team_member.admin %}

@@ -94,11 +94,12 @@ class Blob(MethodView):
 
         content = res.content
         content_type = res.headers.get('content-type', 'application/octet-stream')
+        content_length = float(res.headers.get('content-length', 0.0)) / 1024
         if 'image' in content_type:
             content_type = 'image'
             content = base64.b64encode(content)
         elif 'text' in content_type:
-            content_type = 'text'
+            content_type = 'file'
             if not isinstance(content, unicode):
                 content = content.decode('utf8')
         else:
@@ -109,6 +110,7 @@ class Blob(MethodView):
                     organization=organization, \
                     watcher=watcher, file_path=path, \
                     content=content, \
+                    content_length = content_length, \
                     content_type=content_type, \
                     **kwargs
                 )

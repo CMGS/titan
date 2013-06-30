@@ -1,5 +1,10 @@
-{% macro nav(current='dashboard') -%}
+{% macro nav(current=None, organization=None) -%}
 <li class="{% if current == 'dashboard' %} active {% endif %}">
   <a href="/">Dashboard</a>
 </li>
+{% if organization %}
+<li class="{% if current == 'organization' %} active {% endif %}">
+    <a href="{{ url_for('organization.view', git=organization.git) }}">{{ organization.name }}</a>
+</li>
+{% endif %}
 {%- endmacro %}

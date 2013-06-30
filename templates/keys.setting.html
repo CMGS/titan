@@ -21,8 +21,9 @@
       {{ error }}
     </div>
     {% endif %}
-    <input name="usage" type="text" class="input-block-level" placeholder="Usage">
-    <textarea name="key" rows="10" cols="20"></textarea>
+    <input class="input-large" name="usage" type="text" class="input-block-level" placeholder="Usage">
+    <br />
+    <textarea class="input-xxlarge" name="key" rows="10" cols="20"></textarea>
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     <br />
     <button class="btn btn-large btn-primary" type="submit">Submit</button>
