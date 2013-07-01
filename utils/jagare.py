@@ -70,6 +70,25 @@ class Jagare(object):
             logger.exception(e)
             return 404, None
 
+    def get_branches(self, repo_path):
+        try:
+            r = requests.get(
+                    '%s/%s/list/branches' % (self.node, repo_path)
+                )
+            result = self.get_result(r)
+            if not r.ok:
+                return None
+            return result['data']
+        except Exception, e:
+            logger.exception(e)
+            return None
+
+    def get_branches_names(self, repo_path):
+        branches = self.get_branches(repo_path)
+        if not branches:
+            return []
+        return [d['name'] for d in branches]
+
     def set_default_branch(self, repo_path, branch='master'):
         try:
             r = requests.put(

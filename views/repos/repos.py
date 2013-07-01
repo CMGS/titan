@@ -7,6 +7,7 @@ import logging
 from flask import g, request, redirect, url_for
 
 from utils import code
+from utils.jagare import get_jagare
 from utils.helper import MethodView
 from utils.repos import repo_required
 from utils.account import login_required
@@ -77,8 +78,11 @@ class Create(MethodView):
 class Setting(MethodView):
     decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, repo, **kwargs):
+        jagare = get_jagare(repo.id, repo.parent)
+        branches = jagare.get_branches_names(repo.get_real_path())
         return self.render_template(
-                    member=member, repo=repo, organization=organization, \
+                    member=member, repo=repo, branches=branches, \
+                    organization=organization, \
                     **kwargs
                 )
 
