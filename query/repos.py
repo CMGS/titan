@@ -22,7 +22,7 @@ def get_organization_repos(oid):
 
 @cache('repos:explore:team:{oid}:{tid}', 8640000)
 def get_team_repos(oid, tid):
-    return Repos.query.filter_by(oid=oid, tid=tid).all()
+    return Repos.query.filter((Repos.oid==oid) & (Repos.tid==tid)).all()
 
 @cache('repos:{oid}:{path}', 864000)
 def get_repo_by_path(oid, path):

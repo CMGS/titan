@@ -36,7 +36,8 @@ class Explore(MethodView):
     def get_repos(self, organization, team=None):
         if team:
             ret = get_team_repos(organization.id, team.id)
-        ret = get_organization_repos(organization.id)
+        else:
+            ret = get_organization_repos(organization.id)
         for r in ret:
             t = Obj()
             t.name = None
