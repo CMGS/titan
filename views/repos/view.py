@@ -14,6 +14,7 @@ from utils.account import login_required
 from utils.organization import member_required
 
 from query.repos import get_repo_watcher
+from query.account import get_user, get_alias_by_email
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +47,7 @@ class View(MethodView):
 
         error, tree = jagare.ls_tree(repo.get_real_path(), path=path, version=version)
         if not error:
+            tree, meta = tree['content'], tree['meta']
             tree = self.render_tree(
                         tree, version, organization.git, \
                         tname, repo.name
@@ -54,6 +56,7 @@ class View(MethodView):
                         path, version, organization.git, \
                         tname, repo.name
                     )
+            kwargs['commit'] = self.get_commit_user(meta)
             kwargs['path'] = path
         return self.render_template(
                     member=member, repo=repo, \
@@ -64,6 +67,22 @@ class View(MethodView):
                     **kwargs
                 )
 
+    def get_commit_user(self, meta):
+        user = Obj()
+        commit = Obj()
+        user.name = meta['committer']['name']
+        user.email = meta['committer']['email']
+        user.avatar = None
+        commit.message = meta['message']
+        commit.user = user
+        commit.sha = meta['sha']
+        commit.date = meta['committer']['date']
+        alias = get_alias_by_email(user.email)
+        if alias:
+            user = get_user(alias.uid)
+            commit.user.name = user.name
+            commit.user.avatar = user.avatar(18)
+        return commit
 
     def render_tree(self, tree, version, git, tname, rname):
         for d in tree:

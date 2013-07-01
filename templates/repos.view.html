@@ -85,6 +85,16 @@
     <li class="active">{{ p }}<span class="divider">/</span></li>
     {% endif %}
     {% endfor %}
+    {% if commit %}
+    <li class="pull-right">
+        <span class="label">{{ commit.user.name }}</span>
+        <span class="label label-info">{{ commit.message }}</span>
+        <span class="label label-success">last commit: {{ commit.sha[:10] }}</span>
+        {% if commit.user.avatar %}
+        <a href="#"><img height="24px" width="24px" src="{{ commit.user.avatar }}" /></a>
+        {% endif %}
+    </li>
+{% endif %}
 </ul>
 {% block show_content %}
 <table class="table">
