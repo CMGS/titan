@@ -28,6 +28,11 @@ def render_path(path, version, git, tname, rname):
         yield (i, url_for('repos.view', git=git, tname=tname, rname=rname, version=version, path=p))
     yield (paths[-1], '')
 
+def get_branches(repo, jagare=None):
+    if not jagare:
+        jagare = get_jagare(repo.id, repo.parent)
+    return jagare.get_branches_names(repo.get_real_path())
+
 class View(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, repo, **kwargs):
@@ -38,9 +43,6 @@ class View(MethodView):
         watcher = get_repo_watcher(g.current_user.id, repo.id)
         jagare = get_jagare(repo.id, repo.parent)
         tname = team.name if team else None
-
-        jagare = get_jagare(repo.id, repo.parent)
-        branches = jagare.get_branches_names(repo.get_real_path())
 
         error, tree = jagare.ls_tree(repo.get_real_path(), path=path, version=version)
         if not error:
@@ -57,7 +59,7 @@ class View(MethodView):
                     member=member, repo=repo, \
                     organization=organization, \
                     watcher=watcher, \
-                    branches=branches, \
+                    branches=get_branches(repo, jagare), \
                     tree=tree, error=error, \
                     **kwargs
                 )
@@ -114,8 +116,9 @@ class Blob(MethodView):
                     member=member, repo=repo, \
                     organization=organization, \
                     watcher=watcher, file_path=path, \
+                    branches=get_branches(repo, jagare), \
                     content=content, \
-                    content_length = content_length, \
+                    content_length=content_length, \
                     content_type=content_type, \
                     **kwargs
                 )

@@ -34,11 +34,14 @@ class Repos(db.Model):
         self.parent = parent
 
     def get_real_path(self):
-        return  os.path.join(
-                        str(self.oid), \
-                        str(self.tid) if self.tid else '', \
-                        '%d.git' % self.id,
-                    )
+        if not getattr(self, '_real_path', None):
+            real_path = os.path.join(
+                            str(self.oid), \
+                            str(self.tid) if self.tid else '', \
+                            '%d.git' % self.id,
+                        )
+            setattr(self, '_real_path', real_path)
+        return getattr(self, '_real_path')
 
     def set_args(self, **kwargs):
         for k, v in kwargs.iteritems():
