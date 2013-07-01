@@ -31,7 +31,7 @@ def render_path(path, version, git, tname, rname):
 class View(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, repo, **kwargs):
-        version = kwargs.get('version', 'master')
+        version = kwargs.get('version', repo.default)
         path = kwargs.get('path', '')
         team = kwargs.get('team', None)
 
@@ -77,7 +77,7 @@ class View(MethodView):
 class Blob(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, repo, path, **kwargs):
-        version = kwargs.get('version', 'master')
+        version = kwargs.get('version', repo.default)
         team = kwargs.get('team', None)
 
         watcher = get_repo_watcher(g.current_user.id, repo.id)
@@ -119,7 +119,7 @@ class Blob(MethodView):
 class Raw(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, repo, path, **kwargs):
-        version = kwargs.get('version', 'master')
+        version = kwargs.get('version', repo.default)
         jagare = get_jagare(repo.id, repo.parent)
         repo_path = repo.get_real_path()
         error, res = jagare.cat_file(repo_path, path, version=version)

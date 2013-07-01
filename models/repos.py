@@ -14,6 +14,7 @@ class Repos(db.Model):
     tid = db.Column(db.Integer, nullable=False, index=True, default=0)
     uid = db.Column(db.Integer, nullable=False, index=True)
     summary = db.Column(db.String(200))
+    default = db.Column(db.String(255), nullable=False, default='master')
     commiters = db.Column(db.Integer, nullable=False, default=0)
     watchers = db.Column(db.Integer, nullable=False, default=0)
     path = db.Column(db.String(150), nullable=False)
