@@ -84,8 +84,15 @@ class Setting(MethodView):
 
     def post(self, organization, member, repo, **kwargs):
         name = request.form.get('name')
+        default = request.form.get('default')
+        params = {}
         if name != repo.name:
-            error = update_repo(organization, repo, name, kwargs.get('team', None))
+            params['name'] = name
+        if default != repo.default:
+            params['default'] = default
+        if params:
+            params['team'] = kwargs.get('team', None)
+            error = update_repo(organization, repo, params)
             if error:
                 return self.render_template(
                         member=member, repo=repo, organization=organization, \

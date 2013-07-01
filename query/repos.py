@@ -169,14 +169,26 @@ def create_watcher(user, repo, organization):
 
 # update
 
-def update_repo(organization, repo, name, team=None):
+def update_repo(organization, repo, params):
     try:
-        old_path = repo.path
-        repo.name = name
-        repo.path = '%s.git' % name if not team else '%s/%s.git' % (team.name, name)
-        db.session.add(repo)
-        db.session.commit()
-        clear_repo_cache(repo, organization, old_path=old_path)
+        team = params.pop('team')
+        name = params.get('name', None)
+        default = params.get('default', None)
+        old_path = None
+        if default:
+            jagare = get_jagare(repo.id, repo.parent)
+            error, message = jagare.set_default_branch(repo.get_real_path(), default)
+            if error:
+                return message
+            repo.default = default
+        if name:
+            old_path = repo.path
+            repo.name = name
+            repo.path = '%s.git' % name if not team else '%s/%s.git' % (team.name, name)
+        if params:
+            db.session.add(repo)
+            db.session.commit()
+            clear_repo_cache(repo, organization, old_path=old_path)
         return None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
