@@ -39,6 +39,9 @@ class View(MethodView):
         jagare = get_jagare(repo.id, repo.parent)
         tname = team.name if team else None
 
+        jagare = get_jagare(repo.id, repo.parent)
+        branches = jagare.get_branches_names(repo.get_real_path())
+
         error, tree = jagare.ls_tree(repo.get_real_path(), path=path, version=version)
         if not error:
             tree = self.render_tree(
@@ -54,6 +57,7 @@ class View(MethodView):
                     member=member, repo=repo, \
                     organization=organization, \
                     watcher=watcher, \
+                    branches=branches, \
                     tree=tree, error=error, \
                     **kwargs
                 )
