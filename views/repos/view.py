@@ -36,10 +36,10 @@ def get_branches(repo, jagare=None):
 
 class View(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, repo, **kwargs):
+    def get(self, organization, member, repo, path=None, **kwargs):
         version = kwargs.get('version', repo.default)
-        path = kwargs.get('path', '')
         team = kwargs.get('team', None)
+        file_path = path
 
         watcher = get_repo_watcher(g.current_user.id, repo.id)
         jagare = get_jagare(repo.id, repo.parent)
@@ -61,7 +61,7 @@ class View(MethodView):
         return self.render_template(
                     member=member, repo=repo, \
                     organization=organization, \
-                    watcher=watcher, \
+                    watcher=watcher, file_path=file_path, \
                     branches=get_branches(repo, jagare), \
                     tree=tree, error=error, \
                     **kwargs

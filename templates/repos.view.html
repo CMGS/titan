@@ -39,7 +39,11 @@
                     {% if not file_path %}
                     <li><a href="{{ get_url('repos.view', {'version': b}) }}">{{ b }}</a></li>
                     {% else %}
-                    <li><a href="{{ get_url('repos.blob', {'path': file_path, 'version': b}) }}">{{ b }}</a></li>
+                        {% if not tree %}
+                        <li><a href="{{ get_url('repos.blob', {'path': file_path, 'version': b}) }}">{{ b }}</a></li>
+                        {% else %}
+                        <li><a href="{{ get_url('repos.view', {'path': file_path, 'version': b}) }}">{{ b }}</a></li>
+                        {% endif %}
                     {% endif %}
                 {% endfor %}
             </ul>
@@ -77,7 +81,7 @@
 </div>
 {% if not error %}
 <ul class="breadcrumb">
-    <li><a href="{{ get_url('repos.view') }}">{{ repo.name }}</a><span class="divider">/</span></li>
+    <li><a href="{{ get_url('repos.view', kwargs={'version': version or None}) }}">{{ repo.name }}</a><span class="divider">/</span></li>
     {% for p, u  in path %}
     {% if u %}
     <li><a href="{{ u }}">{{ p }}</a><span class="divider">/</span></li>
