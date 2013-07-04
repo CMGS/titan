@@ -8,10 +8,10 @@ from flask import g, url_for, abort, \
         Response, stream_with_context
 
 from utils.jagare import get_jagare
-from utils.repos import repo_required
 from utils.helper import MethodView, Obj
 from utils.account import login_required
 from utils.organization import member_required
+from utils.repos import repo_required, format_time
 
 from query.repos import get_repo_watcher
 from query.account import get_user, get_alias_by_email
@@ -97,6 +97,9 @@ class View(MethodView):
             data.name = d['name']
             data.sha = d['sha']
             data.type = d['type']
+            data.ago = format_time(d['commit']['committer']['ts'])
+            data.message = d['commit']['message'][:150]
+            data.commit = d['commit']['sha']
             yield data
 
 class Blob(MethodView):

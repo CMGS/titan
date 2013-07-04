@@ -2,11 +2,15 @@
 #coding:utf-8
 
 import os
+import time
+import logging
 from flask import g, abort, url_for, redirect
 
 from functools import wraps
 from query.organization import get_team_member, get_team_by_name
 from query.repos import get_repo_by_path, get_repo_commiter
+
+logger = logging.getLogger(__name__)
 
 # USE login_required first
 def repo_required(admin=False, need_write=False):
@@ -66,4 +70,25 @@ def check_permits(user, repo, member, team=None, team_member=None, role=None):
             return False, False
     else:
         return True, False
+
+def format_time(ts):
+    try:
+        ts = float(ts)
+        now = time.time()
+        dur = now - ts
+        if dur < 60:
+            return '%d seconds ago' % dur
+        elif dur < 60 * 60:
+            return '%d minutes ago' % (dur / 60)
+        elif dur < 60 * 60 * 24:
+            return '%d hours ago' % (dur / 3600)
+        elif dur < 86400 * 30:
+            return '%d days ago' % (dur / 86400)
+        elif dur < 31536000:
+            return '%d months ago' % (dur / 2592000)
+        else:
+            return '%d years ago' % (dur / 31536000)
+    except Exception, e:
+        logger.exception(e)
+        return '0'
 

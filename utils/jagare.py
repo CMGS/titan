@@ -42,7 +42,8 @@ class Jagare(object):
     def ls_tree(self, repo_path, path='', version='master'):
         try:
             url = '%s/%s/ls-tree/%s' % (self.node, repo_path, version)
-            params = {'path':path} if path else None
+            params = {'with_commit': 1}
+            params['path'] = path if path else None
             r = requests.get(url, params=params)
             result = self.get_result(r)
             if not result:
@@ -59,7 +60,7 @@ class Jagare(object):
     def cat_file(self, repo_path, path, version='master'):
         try:
             r = requests.get(
-                    '%s/%s/cat/p/%s' % (self.node, repo_path, version), \
+                    '%s/%s/cat/path/%s' % (self.node, repo_path, version), \
                     params = {'path':path}, \
                     stream = True,
                 )

@@ -109,8 +109,8 @@
                 {% endif %}
                 <a href="{{ t.url }}">{{ t.name }}</a>
             </td>
-            <td>0</td>
-            <td>Not implement yet</td>
+            <td>{{ t.ago }}</td>
+            <td>{{ t.message }}</td>
         </tr>
         {% endfor %}
     </tbody>
