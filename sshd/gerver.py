@@ -2,13 +2,20 @@
 #coding:utf-8
 
 import os
+
+import select
 import logging
 import paramiko
+import subprocess
 
 from maria import utils
 from maria.gerver import Gerver as _
+from maria.config import config as _config
 
-from config import STORE_PATH
+from config import MARIA_STORE_PATH, \
+        TIMELINE_EXPRIE, TIMELINE_KEY
+
+from utils.redistore import rdb
 from utils.repos import check_permits
 from query.repos import get_repo_by_path
 from query.account import get_key_by_finger, get_user
@@ -63,7 +70,7 @@ class Gerver(_):
         return True
 
     def get_store_path(self):
-        return os.path.join(STORE_PATH, self.repo.get_real_path())
+        return os.path.join(MARIA_STORE_PATH, self.repo.get_real_path())
 
     def parser_command(self, command):
         if not command:
@@ -96,4 +103,44 @@ class Gerver(_):
         if not write and command == 'git-receive-pack':
             return False
         return True
+
+    def main_loop(self, channel):
+        if not self.command:
+            return
+        p = subprocess.Popen(self.command, \
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
+
+        ofd = p.stdout.fileno()
+        efd = p.stderr.fileno()
+
+        while True:
+            r_ready, w_ready, x_ready = select.select(
+                    [channel, ofd, efd], [], [], _config.select_timeout)
+
+            if channel in r_ready:
+                data = channel.recv(16384)
+                if not data and (channel.closed or channel.eof_received):
+                    break
+                p.stdin.write(data)
+
+            if ofd in r_ready:
+                data = os.read(ofd, 16384)
+                if not data:
+                    break
+                channel.sendall(data)
+
+            if efd in r_ready:
+                data = os.read(efd, 16384)
+                channel.sendall(data)
+                break
+
+        output, err = p.communicate()
+        if output:
+            channel.sendall(output)
+        if err:
+            channel.sendall_stderr(err)
+        channel.send_exit_status(p.returncode)
+        channel.shutdown(2)
+        channel.close()
+        logger.info('Command execute finished')
 

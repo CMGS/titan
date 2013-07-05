@@ -2,4 +2,4 @@
 #coding:utf-8
 
 from sheep.api.redis import client
-redistore = client()
+rdb = client()

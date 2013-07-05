@@ -44,6 +44,9 @@
 
 ## Others
 
+* push 完 -> time.time(), repo, user -> zadd message
+* 增加成员 -> time.time(), repo, user -> zadd message
+* 获取状态的时候做trim
 * 仓库状态
 * fork
 * hooks
