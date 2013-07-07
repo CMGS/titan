@@ -12,10 +12,9 @@ from maria import utils
 from maria.gerver import Gerver as _
 from maria.config import config as _config
 
-from config import MARIA_STORE_PATH, \
-        TIMELINE_EXPRIE, TIMELINE_KEY
+from config import MARIA_STORE_PATH
 
-from utils.redistore import rdb
+from utils.timeline import Timeline
 from utils.repos import check_permits
 from query.repos import get_repo_by_path
 from query.account import get_key_by_finger, get_user
@@ -104,6 +103,12 @@ class Gerver(_):
             return False
         return True
 
+    def after_push(self, output):
+        if 'git-receive-pack' not in self.command:
+            return
+        start=output.strip().split('\n',3)[1].split(' ',2)[1]
+        Timeline.after_push_async(self.repo, start)
+
     def main_loop(self, channel):
         if not self.command:
             return
@@ -137,6 +142,7 @@ class Gerver(_):
         output, err = p.communicate()
         if output:
             channel.sendall(output)
+            self.after_push(output)
         if err:
             channel.sendall_stderr(err)
         channel.send_exit_status(p.returncode)

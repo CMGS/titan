@@ -61,8 +61,6 @@ JAGARE_NODES = [
 
 #TODO 因为现在还在本地测试，所以直接用文件路径
 MARIA_STORE_PATH = '/Users/CMGS/Documents/Workplace/experiment/Jagare/permdir/'
-TIMELINE_KEY = 'maria:action:{oid}:{real_path}'
-TIMELINE_EXPRIE = 60 * 60 * 24
 
 try:
     from local_config import *

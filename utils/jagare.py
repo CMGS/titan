@@ -90,6 +90,21 @@ class Jagare(object):
             return []
         return [d['name'] for d in branches]
 
+    def get_log(self, repo_path, start=None, end=None):
+        try:
+            params = {'reference': start, 'from_ref': end}
+            r = requests.get(
+                    '%s/%s/log' % (self.node, repo_path), \
+                    params = params
+                )
+            result = self.get_result(r)
+            if not r.ok:
+                return None
+            return result['data']
+        except Exception, e:
+            logger.exception(e)
+            return None
+
     def set_default_branch(self, repo_path, branch='master'):
         try:
             r = requests.put(
