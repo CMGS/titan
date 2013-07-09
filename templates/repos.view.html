@@ -19,6 +19,9 @@
     <a href="{{ get_url('repos.setting') }}">Setting</a>
 </li>
 {% endif %}
+<li class="{% if current == 'activity' %} active {% endif %}">
+    <a href="{{ get_url('repos.activities') }}">Activity</a>
+</li>
 {%- endmacro %}
 
 {% block content %}
@@ -29,7 +32,7 @@
             {{ repo_nav('code') }}
         {% endblock %}
     </ul>
-    {% if not error %}
+    {% if not error and branches %}
     <ul class="nav pull-right">
         <li class="divider-vertical"></li>
         <li class="dropdown">

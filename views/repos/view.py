@@ -11,6 +11,7 @@ from utils.jagare import get_jagare
 from utils.helper import MethodView, Obj
 from utils.account import login_required
 from utils.organization import member_required
+from utils.timeline import get_repo_activities
 from utils.repos import repo_required, format_time
 
 from query.repos import get_repo_watcher
@@ -160,3 +161,13 @@ class Raw(MethodView):
         resp.headers['Content-Type'] = res.headers.get('content-type', 'application/octet-stream')
         return resp
 
+class Activities(MethodView):
+    decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
+    def get(self, organization, member, repo, **kwargs):
+        activities = get_repo_activities(repo)
+        return self.render_template(
+                    member=member, repo=repo, \
+                    organization=organization, \
+                    activities = activities.get_activities(), \
+                    **kwargs
+                )

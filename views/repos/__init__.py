@@ -7,7 +7,7 @@ from views.repos.explore import Explore
 from views.repos.watchers import Watchers, RemoveWatchers
 from views.repos.commiters import Commiters, RemoveCommiter
 from views.repos.repos import Create, Transport, Delete, Setting
-from views.repos.view import View, Blob, Raw
+from views.repos.view import View, Blob, Raw, Activities
 
 MODULE_NAME = 'repos'
 view_func = make_view(MODULE_NAME)
@@ -19,6 +19,7 @@ setting = view_func(Setting)
 transport = view_func(Transport)
 delete = view_func(Delete)
 explore = view_func(Explore)
+activities = view_func(Activities)
 
 commiters = view_func(Commiters)
 remove_commiter = view_func(RemoveCommiter, name='remove')
@@ -51,6 +52,9 @@ repos.add_url_rule('/<git>/<tname>/explore', view_func=explore, methods=['GET'])
 
 repos.add_url_rule('/<git>/<rname>/watch', view_func=watch, methods=['GET'])
 repos.add_url_rule('/<git>/<tname>/<rname>/watch', view_func=watch, methods=['GET'])
+
+repos.add_url_rule('/<git>/<rname>/activity', view_func=activities, methods=['GET'])
+repos.add_url_rule('/<git>/<tname>/<rname>/activity', view_func=activities, methods=['GET'])
 
 repos.add_url_rule('/<git>/<rname>/unwatch', view_func=unwatch, methods=['GET'])
 repos.add_url_rule('/<git>/<tname>/<rname>/unwatch', view_func=unwatch, methods=['GET'])

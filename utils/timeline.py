@@ -11,51 +11,51 @@ from query.organization import get_organization, get_team
 TIMELINE_EXPRIE = 60 * 60 * 24 * 30
 MAX_ACTIVITES_NUM = 1009
 
-HEAD_COMMIT_KEY = 'activites:git:{oid}:{rid}:{start}:head'
-LAST_COMMIT_KEY = 'activites:git:{oid}:{rid}:{start}:last'
+HEAD_COMMIT_KEY = 'activities:git:{oid}:{rid}:{start}:head'
+LAST_COMMIT_KEY = 'activities:git:{oid}:{rid}:{start}:last'
 
 # Create Pull Request/Push/Merge/Add or Edit a File
-REPO_ACTIVITES_KEY = 'activites:git:{oid}:{rid}'
+REPO_ACTIVITES_KEY = 'activities:git:{oid}:{rid}'
 # Repos Activities
-USER_ACTIVITES_KEY = 'activites:user:{oid}:{uid}'
+USER_ACTIVITES_KEY = 'activities:user:{oid}:{uid}'
 # Join/Quit + Repos Activities
-TEAM_ACTIVITES_KEY = 'activites:team:{oid}:{tid}'
+TEAM_ACTIVITES_KEY = 'activities:team:{oid}:{tid}'
 # Public Team Activities
-ORGANIZATION_ACTIVITES_KEY = 'activites:organization:{oid}'
+ORGANIZATION_ACTIVITES_KEY = 'activities:organization:{oid}'
 
 class Activities(object):
-    def __init__(self, activites_key):
-        self.activites_key = activites_key
+    def __init__(self, activities_key):
+        self.activities_key = activities_key
 
     @classmethod
-    def get(cls, activites_key):
-        return cls(activites_key)
+    def get(cls, activities_key):
+        return cls(activities_key)
 
-    def add(self, activites):
-        rdb.zadd(self.activites_key, *activites)
-        rdb.zremrangebyrank(self.activites_key, 0, -1 * (MAX_ACTIVITES_NUM + 1))
+    def add(self, activities):
+        rdb.zadd(self.activities_key, *activities)
+        rdb.zremrangebyrank(self.activities_key, 0, -1 * (MAX_ACTIVITES_NUM + 1))
 
     def get_activities(self, start=0, stop=MAX_ACTIVITES_NUM):
-        data = rdb.zrevrange(self.activites_key, start, stop)
+        data = rdb.zrevrange(self.activities_key, start, stop)
         return data
 
     def get_actions_by_timestamp(self, max='+inf', min='-inf'):
-        data = rdb.zrevrangebyscore(self.activites, max, min)
+        data = rdb.zrevrangebyscore(self.activities_key, max, min)
         return data
 
 def get_repo_activities(repo):
-    return Activities.get(activites_key = REPO_ACTIVITES_KEY.format(oid=repo.oid, rid=repo.id))
+    return Activities.get(activities_key = REPO_ACTIVITES_KEY.format(oid=repo.oid, rid=repo.id))
 
 def get_organization_activities(organization):
-    return Activities.get(activites_key = ORGANIZATION_ACTIVITES_KEY.format(oid=organization.id))
+    return Activities.get(activities_key = ORGANIZATION_ACTIVITES_KEY.format(oid=organization.id))
 
 def get_team_activities(organization, team):
-    return Activities.get(activites_key = TEAM_ACTIVITES_KEY.format(oid=organization.id, tid=team.id))
+    return Activities.get(activities_key = TEAM_ACTIVITES_KEY.format(oid=organization.id, tid=team.id))
 
 def get_user_activities(organization, uid):
-    return Activities.get(activites_key = USER_ACTIVITES_KEY.format(oid=organization.id, uid=uid))
+    return Activities.get(activities_key = USER_ACTIVITES_KEY.format(oid=organization.id, uid=uid))
 
-def get_activites(organization=None, team=None, repo=None, **kwargs):
+def get_activities(organization=None, team=None, repo=None, **kwargs):
     if repo:
         organization = get_organization(repo.oid)
         team = get_team(repo.tid) if repo.tid else team
@@ -100,9 +100,9 @@ def after_push(repo, start='refs/heads/master', asynchronous=False):
     if commits:
         rdb.set(head_key, logs[0]['sha'])
         rdb.set(last_key, logs[-1]['sha'])
-        for activites in get_activites(repo=repo, start=start):
+        for activities in get_activities(repo=repo, start=start):
             if not asynchronous:
-                activites.add(commits)
+                activities.add(commits)
                 continue
-            gevent.spawn(activites.add, commits)
+            gevent.spawn(activities.add, commits)
 

@@ -103,5 +103,5 @@ BLACK_LIST = [
     'login', 'logout', 'forget', 'reset', 'register', 'setting', \
     'keys', 'alias', 'verify', 'delete', 'explore', 'settings', \
     'create', 'invite', 'add', 'join', 'quit', 'new', 'watchers', \
-    'watch', 'unwatch', 'blob', 'list', 'remove', 'git',
+    'watch', 'unwatch', 'blob', 'list', 'remove', 'git', 'activities', \
 ]
