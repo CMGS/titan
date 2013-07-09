@@ -38,27 +38,24 @@ class Activities(object):
         last_key = LAST_COMMIT_KEY.format(oid=repo.oid, rid=repo.id, start=start)
 
         head = rdb.get(head_key)
-        head, head_time = head.split(':') if head else None, None
+        head_time = None
+        if head:
+            head, head_time = head.split(':')
         last = rdb.get(last_key)
-        last, last_time = last.split(':') if last else None, None
+        last_time = None
+        if last:
+            last, last_time = last.split(':')
 
         # Get new commits from last commit
         jagare = get_jagare(repo.id, repo.parent)
-        logs = jagare.get_log(repo.get_real_path(), start, head)
-        if not logs:
-            logs = jagare.get_log(repo.get_real_path(), start, last)
-            if logs:
-                delete_activites = [a for a in rdb.zrangebyscore(activites_key, last_time, head_time, start=1, num=MAX_ACTIVITES_NUM) if a.startswith('push:')]
-                rdb.zrem(delete_activites)
-            else:
-                delete_activites = [a for a in rdb.zrangebyscore(activites_key, last_time, head_time) if a.startswith('push:')]
-                rdb.zrem(delete_activites)
-                logs = jagare.get_log(repo.get_real_path(), start, None)
+        logs = jagare.get_log(repo.get_real_path(), start, head) or \
+                jagare.get_log(repo.get_real_path(), start, last) or \
+                jagare.get_log(repo.get_real_path(), start, None)
 
         count = 0
         commits = []
         for log in logs:
-            action_time = log['committer_time']
+            action_time = float(log['committer_time'])
             if count > MAX_ACTIVITES_NUM or action_time < deadline:
                 break
             email = log['author_email']
