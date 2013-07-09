@@ -38,13 +38,7 @@ class Activities(object):
         last_key = LAST_COMMIT_KEY.format(oid=repo.oid, rid=repo.id, start=start)
 
         head = rdb.get(head_key)
-        head_time = None
-        if head:
-            head, head_time = head.split(':')
         last = rdb.get(last_key)
-        last_time = None
-        if last:
-            last, last_time = last.split(':')
 
         # Get new commits from last commit
         jagare = get_jagare(repo.id, repo.parent)
@@ -66,15 +60,19 @@ class Activities(object):
                     )
             commits.append(action)
             commits.append(action_time)
-        if commits:
-            rdb.zadd(activites_key, *commits)
-            rdb.zremrangebyscore(activites_key, 0, deadline)
-            rdb.zremrangebyrank(activites_key, 0, -1 * (MAX_ACTIVITES_NUM + 1))
 
-            rdb.set(head_key, '%s:%d' % (logs[0]['sha'], logs[0]['committer_time']))
-            rdb.set(last_key, '%s:%d' % (logs[-1]['sha'], logs[-1]['committer_time']))
+        if commits:
+            Activities.add(activites_key, commits)
+            rdb.zremrangebyscore(activites_key, 0, deadline)
+            rdb.set(head_key, logs[0]['sha'])
+            rdb.set(last_key, logs[-1]['sha'])
 
     @classmethod
     def after_add_commiter(repo, user):
         pass
+
+    @staticmethod
+    def add(activites_key, activites):
+        rdb.zadd(activites_key, *activites)
+        rdb.zremrangebyrank(activites_key, 0, -1 * (MAX_ACTIVITES_NUM + 1))
 
