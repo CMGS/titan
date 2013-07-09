@@ -104,7 +104,7 @@ class Gerver(_):
         return True
 
     def after_execute(self, output, err):
-        if 'git-receive-pack' in self.command:
+        if 'git-receive-pack' in self.command and output:
             start=output.strip().split('\n',3)[1].split(' ',2)[1]
             Activities.after_push_async(self.repo, start)
 
