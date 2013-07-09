@@ -2,6 +2,7 @@
 #coding:utf-8
 
 import gevent
+from utils.helper import Obj
 from utils.redistore import rdb
 from utils.jagare import get_jagare
 
@@ -35,9 +36,15 @@ class Activities(object):
         rdb.zadd(self.activities_key, *activities)
         rdb.zremrangebyrank(self.activities_key, 0, -1 * (MAX_ACTIVITES_NUM + 1))
 
-    def get_activities(self, start=0, stop=MAX_ACTIVITES_NUM):
-        data = rdb.zrevrange(self.activities_key, start, stop)
-        return data
+    def get_activities(self, start=0, stop=MAX_ACTIVITES_NUM, withscores=False):
+        data = rdb.zrevrange(self.activities_key, start, stop, withscores=withscores)
+        for action in data:
+            d = Obj()
+            if withscores:
+                d.timestamp = action[1]
+            action = action[0]
+            d.type, d.raw = action.split(':', 1)
+            yield d
 
     def get_actions_by_timestamp(self, max='+inf', min='-inf'):
         data = rdb.zrevrangebyscore(self.activities_key, max, min)

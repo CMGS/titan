@@ -4,4 +4,19 @@
     {{ repo_nav('activity') }}
 {% endblock %}
 {% block subcontent %}
+<ul class="unstyled">
+{% for d in data %}
+<li style="padding-bottom:5px">
+    {% if d.user %}
+        <a href="#"><img height="24px" width="24px" src="{{ d.user.avatar(18) }}" /></a>
+        <span class="label">{{ d.user.name}}</span>
+    {% else %}
+        <span class="label">{{ d.email }}</span>
+    {% endif %}
+    <span class="label label-info">{{ d.type }}</span>
+    <span class="label label-important">{{ d.commit }}</span>
+    <span class="label label-success">{{ d.message.strip() }}</span>
+</li>
+{% endfor %}
+</ul>
 {% endblock %}

@@ -15,7 +15,7 @@ from utils.timeline import get_repo_activities
 from utils.repos import repo_required, format_time
 
 from query.repos import get_repo_watcher
-from query.account import get_user, get_alias_by_email
+from query.account import get_user, get_alias_by_email, get_user_from_alias
 
 logger = logging.getLogger(__name__)
 
@@ -165,9 +165,17 @@ class Activities(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, repo, **kwargs):
         activities = get_repo_activities(repo)
+        data = activities.get_activities(withscores=True)
         return self.render_template(
                     member=member, repo=repo, \
                     organization=organization, \
-                    activities = activities.get_activities(), \
+                    data = self.render_activities(data), \
                     **kwargs
                 )
+
+    def render_activities(self, data):
+        for d in data:
+            d.email, d.commit, d.message = d.raw.split('|', 3)
+            d.user = get_user_from_alias(d.email)
+            yield d
+
