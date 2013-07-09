@@ -1,27 +1,24 @@
 #!/usr/local/bin/python2.7
 #coding:utf-8
 
-import time
 import gevent
 from utils.redistore import rdb
 from utils.jagare import get_jagare
 
-from query.account import get_alias_by_email, \
-        get_user
-
 TIMELINE_EXPRIE = 60 * 60 * 24 * 30
+MAX_ACTIVITES_NUM = 1009
 
-MAX_ACTIVITES_NUM = 50
-
-REPO_ACTIVITES_KEY = 'activites:git:{oid}:{rid}'
 HEAD_COMMIT_KEY = 'activites:git:{oid}:{rid}:{start}:head'
 LAST_COMMIT_KEY = 'activites:git:{oid}:{rid}:{start}:last'
 
-def get_user_from_alias(email):
-    alias = get_alias_by_email(email)
-    if not alias:
-        return None
-    return get_user(alias.uid)
+# Create Pull Request/Push/Merge/Add or Edit a File
+REPO_ACTIVITES_KEY = 'activites:git:{oid}:{rid}'
+# Repos Activities
+USER_ACTIVITES_KEY = 'activites:user:{oid}:{uid}'
+# Join/Quit + Repos Activities
+TEAM_ACTIVITES_KEY = 'activites:team:{oid}:{tid}'
+# Public Team Activities
+ORGANIZATION_ACTIVITES_KEY = 'activites:organization:{oid}'
 
 class Activities(object):
     @staticmethod
@@ -30,9 +27,6 @@ class Activities(object):
 
     @staticmethod
     def after_push(repo, start='refs/heads/master'):
-        start_time = time.time()
-        deadline = start_time - TIMELINE_EXPRIE
-
         activites_key = REPO_ACTIVITES_KEY.format(oid=repo.oid, rid=repo.id)
         head_key = HEAD_COMMIT_KEY.format(oid=repo.oid, rid=repo.id, start=start)
         last_key = LAST_COMMIT_KEY.format(oid=repo.oid, rid=repo.id, start=start)
@@ -46,11 +40,10 @@ class Activities(object):
                 jagare.get_log(repo.get_real_path(), start, last) or \
                 jagare.get_log(repo.get_real_path(), start, None)
 
-        count = 0
         commits = []
         for log in logs:
             action_time = float(log['committer_time'])
-            if count > MAX_ACTIVITES_NUM or action_time < deadline:
+            if len(commits) > MAX_ACTIVITES_NUM:
                 break
             email = log['author_email']
             message = log['message']
@@ -63,13 +56,8 @@ class Activities(object):
 
         if commits:
             Activities.add(activites_key, commits)
-            rdb.zremrangebyscore(activites_key, 0, deadline)
             rdb.set(head_key, logs[0]['sha'])
             rdb.set(last_key, logs[-1]['sha'])
-
-    @classmethod
-    def after_add_commiter(repo, user):
-        pass
 
     @staticmethod
     def add(activites_key, activites):

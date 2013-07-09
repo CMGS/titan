@@ -74,6 +74,12 @@ def get_alias_by_id(aid):
 def get_alias_by_email(email):
     return Alias.query.filter_by(email=email).limit(1).first()
 
+def get_user_from_alias(email):
+    alias = get_alias_by_email(email)
+    if not alias:
+        return None
+    return get_user(alias.uid)
+
 def get_user_by(**kw):
     return User.query.filter_by(**kw)
 
