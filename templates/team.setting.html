@@ -33,7 +33,7 @@
         <input disabled type="text" class="input-block-level" value="{{ team.name }}" placeholder="Name">
         <input name="display" type="text" class="input-block-level" value="{{ team.display }}" placeholder="Display Name">
         <label class="checkbox">
-            <input name="private" type="checkbox" {% if team.private %} checked {% endif %}>私密小组
+            <input disabled name="private" type="checkbox" {% if team.private %} checked {% endif %}>私密小组
         </label>
         <img src="{{ team.pic | u_files }}?t={{ salt }}" width="100px" height="100px" />
         <input name="file" type="FILE" class="input-file" accept="image/*" />

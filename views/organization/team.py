@@ -155,9 +155,8 @@ class SetTeam(MethodView):
     def post(self, organization, member, team, team_member):
         upload_avatar = request.files['file']
         display = request.form.get('display', None)
-        private = 1 if 'private' in request.form else 0
         pic = None
-        attr = {'private':private}
+        attr = {}
 
         if display:
             status = check_team_name(display)
