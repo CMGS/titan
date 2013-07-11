@@ -262,6 +262,11 @@ def delete_repo(organization, repo, team=None):
             db.session.delete(commiter)
             keys.append('repos:commiters:{rid}'.format(rid=repo.id))
             keys.append('repos:commiter:{uid}:{rid}'.format(uid=commiter.uid, rid=repo.id))
+        watchers = get_repo_watchers(repo.id)
+        keys.append('repos:watchers:{rid}'.format(rid=repo.id))
+        for watcher in watchers:
+            db.session.delete(watcher)
+            keys.append('repos:watcher:{uid}:{rid}'.format(uid=watcher.uid, rid=repo.id))
         db.session.commit()
         clear_repo_cache(repo, organization, team)
         clear_explore_cache(organization, team)
