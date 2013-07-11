@@ -13,11 +13,12 @@ from utils.timeline import render_activities_page
 from utils.organization import send_verify_mail, member_required
 from utils.validators import check_organization_name, check_git, \
         check_members_limit, check_email
+from query.repos import get_repo
 from query.account import get_user_by_email, get_user, \
     get_user_from_alias
 from query.organization import get_organization_member, create_organization, \
         create_verify, update_organization, get_teams_by_ogranization, \
-        get_team_members, get_team_member
+        get_team_members, get_team_member, get_team
 
 logger = logging.getLogger(__name__)
 
@@ -110,15 +111,26 @@ class View(MethodView):
         data, list_page = render_activities_page(page, t='organization', organization=organization)
         return self.render_template(
                     organization=organization, \
-                    member=member, data=self.render_activities(data), \
+                    member=member, data=self.render_activities(organization, data), \
                     list_page=list_page
                 )
 
-    def render_activities(self, data):
+    def render_activities(self, organization, data):
         cache = {}
+        repo = None
+        repo_url = None
         for d in data:
-            d.email, d.commit, d.message = d.raw.split('|', 3)
+            d.email, d.commit, d.message, d.repo = d.raw.split('|', 4)
             d.user = cache.get(d.email, None)
+            if not repo:
+                repo = get_repo(d.repo)
+                if repo.tid > 0:
+                    team = get_team(repo.tid)
+                    repo_url = url_for('repos.view', git=organization.git, rname=repo.name, tname=team.name)
+                else:
+                    repo_url = url_for('repos.view', git=organization.git, rname=repo.name)
+            d.repo = repo
+            d.repo_url = repo_url
             if not d.user:
                 d.user = get_user_from_alias(d.email)
                 cache[d.email] = d.user

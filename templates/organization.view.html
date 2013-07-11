@@ -42,6 +42,7 @@
             <span class="label label-important">{{ d.type }}</span>
             {% endif %}
             <span class="label label-success">{{ d.message }}</span>
+            <span>in <a href="{{ d.repo_url }}">{{ d.repo.name }}</a></span>
         </li>
         {% endfor %}
         </ul>

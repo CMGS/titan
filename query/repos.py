@@ -16,6 +16,10 @@ from query.organization import clear_organization_cache, clear_team_cache
 
 logger = logging.getLogger(__name__)
 
+@cache('repos:{rid}', 8640000)
+def get_repo(rid):
+    return Repos.query.get(rid)
+
 @cache('repos:explore:{oid}', 8640000)
 def get_organization_repos(oid):
     return Repos.query.filter_by(oid=oid).all()
@@ -62,6 +66,7 @@ def clear_watcher_cache(user, repo):
 
 def clear_repo_cache(repo, organization, team=None, old_path=None, need=True):
     keys = [
+        'repos:{rid}'.format(rid=repo.id), \
         'repos:{oid}:{path}'.format(oid=organization.id, path=old_path or repo.path),
     ]
     if need:

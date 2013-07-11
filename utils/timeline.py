@@ -129,8 +129,9 @@ def after_push(repo, start='refs/heads/master', asynchronous=False):
         t = 'push'
         if 'Merge pull request' in message:
             t = 'merge'
-        action = u'{t}:{email}|{sha}|{message}'.format(
-                    t=t, email=email, sha=sha, message=message
+        action = u'{t}:{email}|{sha}|{message}|{rid}'.format(
+                    t=t, email=email, sha=sha, message=message, \
+                    rid=repo.id
                 )
         commits.append(action)
         commits.append(action_time)
