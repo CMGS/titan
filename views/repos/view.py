@@ -174,8 +174,12 @@ class Activities(MethodView):
                 )
 
     def render_activities(self, data):
+        cache = {}
         for d in data:
             d.email, d.commit, d.message = d.raw.split('|', 3)
-            d.user = get_user_from_alias(d.email)
+            d.user = cache.get(d.email, None)
+            if not d.user:
+                d.user = get_user_from_alias(d.email)
+                cache[d.email] = d.user
             yield d
 
