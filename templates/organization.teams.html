@@ -2,11 +2,6 @@
 {% block subtitle %}{{ organization.name }} Teams{% endblock %}
 {% block subcontent %}
 <h3>Explore Teams</h3>
-<blockquote>
-    <p>ssh ident: {{ organization.git }}</p>
-    <p>repos: {{ organization.repos }} members: {{ organization.members }} teams: {{ organization.teams }}</p>
-    <p>location: {{ organization.location }} create: {{ organization.create }}</p>
-</blockquote>
 <table class="table table-striped">
 {% for team in teams %}
     <tr>

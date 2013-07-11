@@ -117,11 +117,11 @@ class View(MethodView):
 
     def render_activities(self, organization, data):
         cache = {}
-        repo = None
-        repo_url = None
         for d in data:
             d.email, d.commit, d.message, d.repo = d.raw.split('|', 4)
             d.user = cache.get(d.email, None)
+            repo = cache.get(d.repo, None)
+            repo_url = cache.get('%s_url' % d.repo)
             if not repo:
                 repo = get_repo(d.repo)
                 if repo.tid > 0:
@@ -129,6 +129,8 @@ class View(MethodView):
                     repo_url = url_for('repos.view', git=organization.git, rname=repo.name, tname=team.name)
                 else:
                     repo_url = url_for('repos.view', git=organization.git, rname=repo.name)
+                cache[d.repo] = repo
+                cache['%s_url' % d.repo] = repo_url
             d.repo = repo
             d.repo_url = repo_url
             if not d.user:
