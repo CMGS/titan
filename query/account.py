@@ -3,6 +3,7 @@
 
 import config
 import logging
+import numbers
 import sqlalchemy.exc
 from utils import code
 from datetime import datetime
@@ -19,14 +20,9 @@ logger = logging.getLogger(__name__)
 
 @cache('account:{uid}', 86400)
 def get_user(uid):
-    try:
-        uid = int(uid)
-    except ValueError:
-        if not check_username(uid):
-            return None
+    if not isinstance(uid, numbers.Integral) and check_username(uid):
         return get_user_by_name(name=uid)
-    else:
-        return User.query.get(uid)
+    return User.query.get(uid)
 
 @cache('account:{name}', 86400)
 def get_user_by_name(name):
