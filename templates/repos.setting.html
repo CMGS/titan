@@ -47,7 +47,7 @@
         <form class="form-setting" method="POST">
             <input name="name" type="text" value="{{ repo.name }}" class="input-block-level" placeholder="Name">
             <select name="default">
-                {% for b in branches %}
+                {% for b in branches_switch %}
                 <option value="{{ b }}" {% if b == repo.default %}selected{% endif %}>{{ b }}</option>
                 {% endfor %}
             </select>
