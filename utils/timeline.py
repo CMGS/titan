@@ -10,7 +10,8 @@ from query.repos import get_repo_watchers
 from query.organization import get_organization, get_team
 
 TIMELINE_EXPRIE = 60 * 60 * 24 * 30
-MAX_ACTIVITES_NUM = 1009
+MAX_ACTIVITIES_NUM = 1009
+ACTIVITIES_PER_PAGE = 20
 
 REFS_KEYS = 'repo:refs:{rid}'
 HEAD_COMMIT_KEY = 'repo:commits:{rid}:{start}:head'
@@ -35,9 +36,9 @@ class Activities(object):
 
     def add(self, activities):
         rdb.zadd(self.activities_key, *activities)
-        rdb.zremrangebyrank(self.activities_key, 0, -1 * (MAX_ACTIVITES_NUM + 1))
+        rdb.zremrangebyrank(self.activities_key, 0, -1 * (MAX_ACTIVITIES_NUM + 1))
 
-    def get_activities(self, start=0, stop=MAX_ACTIVITES_NUM, withscores=False):
+    def get_activities(self, start=0, stop=MAX_ACTIVITIES_NUM, withscores=False):
         data = rdb.zrevrange(self.activities_key, start, stop, withscores=withscores)
         for action in data:
             d = Obj()
@@ -57,6 +58,9 @@ class Activities(object):
 
     def dispose(self):
         rdb.delete(self.activities_key)
+
+    def count(self):
+        return rdb.zcard(self.activities_key)
 
 def get_repo_activities(repo):
     return Activities.get(activities_key = REPO_ACTIVITES_KEY.format(oid=repo.oid, rid=repo.id))

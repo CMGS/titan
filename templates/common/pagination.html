@@ -1,0 +1,57 @@
+{% macro render_pagination_nav(p, iter_pages, url) %}
+{% for page in iter_pages %}
+    {% if page != p %}
+    <li>
+    {% else %}
+    <li class="active">
+    {% endif %}
+    <a href="{{ url }}?p={{ page }}">{{ page }}</a></li>
+{% endfor %}
+{% endmacro %}
+
+{% macro render_pagination(list_page, url) %}
+{% if list_page.count > 0 %}
+<div class="pagination">
+    <ul>
+    {% if list_page.has_prev %}
+        <li>
+    {% else %}
+        <li class="disabled">
+    {% endif %}
+            <a href="{{ url }}?p={{ list_page.page - 1 }}">&laquo;</a>
+        <li>
+
+    {% if list_page.pages < 10 %}
+        {{ render_pagination_nav(list_page.page, list_page.iter_pages, url) }}
+    {% elif list_page.page < 6 %}
+        {{ render_pagination_nav(list_page.page, range(1, 10), url) }}
+        <li class="disabled"><a href="#">...</a><li>
+    {% elif list_page.page + 4 >= list_page.pages and list_page.pages < 15 %}
+        {{ render_pagination_nav(list_page.page, list_page.iter_pages, url) }}
+    {% elif list_page.page + 4 >= list_page.pages and list_page.pages >= 15 %}
+        <li><a href="{{ url }}?p=1">1</a></li>
+        <li><a href="{{ url }}?p=2">2</a></li>
+        <li class="disabled"><a href="#">...</a><li>
+        {{ render_pagination_nav(list_page.page, range(list_page.pages - 8, list_page.pages + 1), url) }}
+    {% elif list_page.page + 4 < 15 %}
+        {{ render_pagination_nav(list_page.page, range(1, list_page.page + 5), url) }}
+        <li class="disabled"><a href="#">...</a><li>
+    {% else %}
+        <li><a href="{{ url }}?p=1">1</a></li>
+        <li><a href="{{ url }}?p=2">2</a></li>
+        <li class="disabled"><a href="#">...</a><li>
+        {{ render_pagination_nav(list_page.page, range(list_page.page - 4, list_page.page + 5), url) }}
+        <li class="disabled"><a href="#">...</a><li>
+    {% endif %}
+
+    {% if list_page.has_next %}
+        <li>
+    {% else %}
+        <li class="disabled">
+    {% endif %}
+            <a href="{{ url }}?p={{ list_page.page + 1 }}">&raquo;</a>
+        </li>
+    </ul>
+</div>
+{% endif %}
+{% endmacro %}

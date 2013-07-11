@@ -5,13 +5,14 @@ import base64
 import logging
 
 from flask import g, url_for, abort, \
-        Response, stream_with_context
+        Response, stream_with_context, request
 
 from utils.jagare import get_jagare
 from utils.helper import MethodView, Obj
 from utils.account import login_required
 from utils.organization import member_required
-from utils.timeline import get_repo_activities
+from utils.timeline import get_repo_activities, \
+        ACTIVITIES_PER_PAGE
 from utils.repos import repo_required, format_time
 
 from query.repos import get_repo_watcher
@@ -164,14 +165,35 @@ class Raw(MethodView):
 class Activities(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, repo, **kwargs):
+        page = request.args.get('p', 1)
+        try:
+            page = int(page)
+        except ValueError:
+            raise abort(403)
         activities = get_repo_activities(repo)
-        data = activities.get_activities(withscores=True)
+        data = activities.get_activities(
+                    start=(page-1)*ACTIVITIES_PER_PAGE, \
+                    stop=page*ACTIVITIES_PER_PAGE-1, \
+                    withscores=True,
+                )
+        list_page = self.get_list_page(activities, page)
         return self.render_template(
                     member=member, repo=repo, \
+                    list_page=list_page, \
                     organization=organization, \
                     data = self.render_activities(data), \
                     **kwargs
                 )
+
+    def get_list_page(self, activities, page=1):
+        list_page = Obj()
+        list_page.count = activities.count()
+        list_page.has_prev = True if page > 1 else False
+        list_page.has_next = True if page * ACTIVITIES_PER_PAGE < list_page.count else False
+        list_page.page = page
+        list_page.pages = (list_page.count / ACTIVITIES_PER_PAGE) + 1
+        list_page.iter_pages = xrange(1, list_page.pages + 1)
+        return list_page
 
     def render_activities(self, data):
         cache = {}

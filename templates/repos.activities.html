@@ -1,4 +1,5 @@
 {% extends "repos.view.html" %}
+{% import "/common/pagination.html" as pagination %}
 {% block subtitle %} Activities {{ repo.name }}{% endblock %}
 {% block subnav %}
     {{ repo_nav('activity') }}
@@ -19,4 +20,5 @@
 </li>
 {% endfor %}
 </ul>
+{{ pagination.render_pagination(list_page, '') }}
 {% endblock %}
