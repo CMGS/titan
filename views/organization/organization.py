@@ -3,16 +3,18 @@
 
 import logging
 
-from flask import g, request, redirect, url_for
+from flask import g, request, redirect, url_for, abort
 
 from utils import code
 from utils.token import create_token
 from utils.helper import MethodView
 from utils.account import login_required
+from utils.timeline import render_activities_page
 from utils.organization import send_verify_mail, member_required
 from utils.validators import check_organization_name, check_git, \
         check_members_limit, check_email
-from query.account import get_user_by_email, get_user
+from query.account import get_user_by_email, get_user, \
+    get_user_from_alias
 from query.organization import get_organization_member, create_organization, \
         create_verify, update_organization, get_teams_by_ogranization, \
         get_team_members, get_team_member
@@ -98,6 +100,31 @@ class Invite(MethodView):
         return False
 
 class View(MethodView):
+    decorators = [member_required(admin=False), login_required('account.login')]
+    def get(self, organization, member):
+        page = request.args.get('p', 1)
+        try:
+            page = int(page)
+        except ValueError:
+            raise abort(403)
+        data, list_page = render_activities_page(page, t='organization', organization=organization)
+        return self.render_template(
+                    organization=organization, \
+                    member=member, data=self.render_activities(data), \
+                    list_page=list_page
+                )
+
+    def render_activities(self, data):
+        cache = {}
+        for d in data:
+            d.email, d.commit, d.message = d.raw.split('|', 3)
+            d.user = cache.get(d.email, None)
+            if not d.user:
+                d.user = get_user_from_alias(d.email)
+                cache[d.email] = d.user
+            yield d
+
+class Teams(MethodView):
     decorators = [member_required(admin=False), login_required('account.login')]
     def get(self, organization, member):
         return self.render_template(

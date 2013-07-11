@@ -7,7 +7,6 @@ from utils.redistore import rdb
 from utils.jagare import get_jagare
 
 from query.repos import get_repo_watchers
-from query.account import get_user_from_alias
 from query.organization import get_organization, get_team
 
 TIMELINE_EXPRIE = 60 * 60 * 24 * 30
@@ -48,6 +47,7 @@ class Activities(object):
                 action = action[0]
             d.orgin = action
             d.type, d.raw = action.split(':', 1)
+            d.raw = d.raw.decode('utf8')
             yield d
 
     def get_actions_by_timestamp(self, max='+inf', min='-inf'):
@@ -121,12 +121,12 @@ def after_push(repo, start='refs/heads/master', asynchronous=False):
     commits = []
     for log in logs:
         action_time = float(log['committer_time'])
-        if len(commits) > MAX_ACTIVITES_NUM:
+        if len(commits) > MAX_ACTIVITIES_NUM:
             break
         email = log['author_email']
         message = log['message'].strip()
         sha = log['sha'][:10]
-        action = 'push:{email}|{sha}|{message}'.format(
+        action = u'push:{email}|{sha}|{message}'.format(
                     email=email, sha=sha, message=message
                 )
         commits.append(action)
@@ -147,24 +147,18 @@ def render_activities_page(page, t='repo', **kwargs):
     if t == 'repo':
         repo = kwargs['repo']
         activities = get_repo_activities(repo)
+    elif t == 'organization':
+        organization = kwargs['organization']
+        activities = get_organization_activities(organization)
+    else:
+        raise Exception('Not Implement %s Yet' % t)
     data = activities.get_activities(
                 start=(page-1)*ACTIVITIES_PER_PAGE, \
                 stop=page*ACTIVITIES_PER_PAGE-1, \
                 withscores=True,
             )
-    data = _render_activities(data)
     list_page = _get_list_page(activities, page)
     return data, list_page
-
-def _render_activities(data):
-    cache = {}
-    for d in data:
-        d.email, d.commit, d.message = d.raw.split('|', 3)
-        d.user = cache.get(d.email, None)
-        if not d.user:
-            d.user = get_user_from_alias(d.email)
-            cache[d.email] = d.user
-        yield d
 
 def _get_list_page(activities, page=1):
     list_page = Obj()

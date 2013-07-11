@@ -104,4 +104,5 @@ BLACK_LIST = [
     'keys', 'alias', 'verify', 'delete', 'explore', 'settings', \
     'create', 'invite', 'add', 'join', 'quit', 'new', 'watchers', \
     'watch', 'unwatch', 'blob', 'list', 'remove', 'git', 'activities', \
+    'teams', 'team', \
 ]

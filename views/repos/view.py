@@ -15,7 +15,8 @@ from utils.timeline import render_activities_page
 from utils.repos import repo_required, format_time
 
 from query.repos import get_repo_watcher
-from query.account import get_user, get_alias_by_email
+from query.account import get_user, get_alias_by_email, \
+    get_user_from_alias
 
 logger = logging.getLogger(__name__)
 
@@ -171,10 +172,20 @@ class Activities(MethodView):
             raise abort(403)
         data, list_page = render_activities_page(page, t='repo', repo=repo)
         return self.render_template(
-                    data = data, \
+                    data=self.render_activities(data), \
                     list_page=list_page, \
                     member=member, repo=repo, \
                     organization=organization, \
                     **kwargs
                 )
+
+    def render_activities(self, data):
+        cache = {}
+        for d in data:
+            d.email, d.commit, d.message = d.raw.split('|', 3)
+            d.user = cache.get(d.email, None)
+            if not d.user:
+                d.user = get_user_from_alias(d.email)
+                cache[d.email] = d.user
+            yield d
 

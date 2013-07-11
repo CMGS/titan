@@ -5,7 +5,8 @@ from flask import Blueprint
 from utils.helper import make_view
 from views.organization.team import CreateTeam, JoinTeam, \
         QuitTeam, ViewTeam, SetTeam, AddMember
-from views.organization.organization import Create, Invite, View, Setting
+from views.organization.organization import Create, Invite, View, \
+        Setting, Teams
 
 MODULE_NAME = 'organization'
 view_func = make_view(MODULE_NAME)
@@ -13,6 +14,7 @@ view_func = make_view(MODULE_NAME)
 organization = Blueprint(MODULE_NAME, __name__)
 
 view = view_func(View)
+teams = view_func(Teams)
 invite = view_func(Invite)
 setting = view_func(Setting)
 create = view_func(Create)
@@ -26,6 +28,7 @@ create_team = view_func(CreateTeam, module='team', tmpl='create')
 
 organization.add_url_rule('/create', view_func=create, methods=['GET', 'POST'])
 organization.add_url_rule('/<git>/', view_func=view, methods=['GET', ])
+organization.add_url_rule('/<git>/teams', view_func=teams, methods=['GET', ])
 organization.add_url_rule('/<git>/invite', view_func=invite, methods=['GET', 'POST'])
 organization.add_url_rule('/<git>/create', view_func=create_team, methods=['GET', 'POST'])
 organization.add_url_rule('/<git>/setting', view_func=setting, methods=['GET', 'POST'])

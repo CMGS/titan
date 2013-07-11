@@ -1,10 +1,12 @@
 {% extends "base.html" %}
+{% import "/common/pagination.html" as pagination %}
 {% block nav %}{{ navbar.nav('organization', organization=organization) }}{% endblock %}
 {% block subtitle %}{{ organization.name }}{% endblock %}
 {% block content %}
 <div class="row-fluid">
     <div class="span3">
         <ul class="nav nav-tabs nav-stacked">
+            <li><a href="{{ url_for('organization.teams', git=organization.git) }}">Teams</a></li>
             <li><a href="{{ url_for('repos.explore', git=organization.git) }}">Explore</a></li>
             {% if organization.allow or member.admin %}
             <li><a href="{{ url_for('organization.createteam', git=organization.git) }}">Create Team</a></li>
@@ -24,28 +26,22 @@
             <p>repos: {{ organization.repos }} members: {{ organization.members }} teams: {{ organization.teams }}</p>
             <p>location: {{ organization.location }} create: {{ organization.create }}</p>
         </blockquote>
-        <table class="table table-striped">
-        {% for team in teams %}
-            <tr>
-                <td>
-                    <p><img height="140px" width="140px" src="{{ team.pic | u_files }}" class="img-polaroid"></p>
-                    <blockquote>
-                        <p>{{ team.display }} members: {{ team.members }} repos: {{ team.repos }}</p>
-                        <p>
-                            {% for m in team.__members %}
-                                <a href="#"><img height="24px" width="24px" src="{{ m.avatar(24) }}" /></a>
-                            {% endfor %}
-                        </p>
-                    </blockquote>
-                    {% if team.private and not team.__joined and not member.admin %}
-                    <p> private </p>
-                    {% else %}
-                    <p><a href="{{ url_for('organization.viewteam', git=organization.git, tname=team.name) }}">view team</a></p>
-                    {% endif %}
-                </td>
-            </tr>
+        <ul class="unstyled">
+        {% for d in data %}
+        <li style="padding-bottom:5px">
+            {% if d.user %}
+                <a href="#"><img height="24px" width="24px" src="{{ d.user.avatar(18) }}" /></a>
+                <span class="label">{{ d.user.name}}</span>
+            {% else %}
+                <span class="label">{{ d.email }}</span>
+            {% endif %}
+            <span class="label label-info">{{ d.type }}</span>
+            <span class="label label-important">{{ d.commit }}</span>
+            <span class="label label-success">{{ d.message }}</span>
+        </li>
         {% endfor %}
-        </table>
+        </ul>
+        {{ pagination.render_pagination(list_page, '') }}
         {% endblock %}
     </div>
 </div>
