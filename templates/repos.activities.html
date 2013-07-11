@@ -14,7 +14,12 @@
     {% else %}
         <span class="label">{{ d.email }}</span>
     {% endif %}
+    {% if d.type == 'push' %}
     <span class="label label-info">{{ d.type }}</span>
+    <span class="label label-important">{{ d.commit }}</span>
+    {% elif d.type == 'merge' %}
+    <span class="label label-important">{{ d.type }}</span>
+    {% endif %}
     <span class="label label-important">{{ d.commit }}</span>
     <span class="label label-success">{{ d.message }}</span>
 </li>
