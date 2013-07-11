@@ -12,11 +12,12 @@ from query.organization import get_organization, get_team
 TIMELINE_EXPRIE = 60 * 60 * 24 * 30
 MAX_ACTIVITES_NUM = 1009
 
-HEAD_COMMIT_KEY = 'activities:git:{oid}:{rid}:{start}:head'
-LAST_COMMIT_KEY = 'activities:git:{oid}:{rid}:{start}:last'
+REFS_KEYS = 'repo:refs:{rid}'
+HEAD_COMMIT_KEY = 'repo:commits:{rid}:{start}:head'
+LAST_COMMIT_KEY = 'repo:commits:{rid}:{start}:last'
 
 # Create Pull Request/Push/Merge/Add or Edit a File
-REPO_ACTIVITES_KEY = 'activities:git:{oid}:{rid}'
+REPO_ACTIVITES_KEY = 'activities:repo:{oid}:{rid}'
 # Repos Activities
 USER_ACTIVITES_KEY = 'activities:user:{oid}:{uid}'
 # Join/Quit + Repos Activities
@@ -42,13 +43,20 @@ class Activities(object):
             d = Obj()
             if withscores:
                 d.timestamp = action[1]
-            action = action[0]
+                action = action[0]
+            d.orgin = action
             d.type, d.raw = action.split(':', 1)
             yield d
 
     def get_actions_by_timestamp(self, max='+inf', min='-inf'):
         data = rdb.zrevrangebyscore(self.activities_key, max, min)
         return data
+
+    def delete(self, activities):
+        rdb.zrem(self.activities_key, *activities)
+
+    def dispose(self):
+        rdb.delete(self.activities_key)
 
 def get_repo_activities(repo):
     return Activities.get(activities_key = REPO_ACTIVITES_KEY.format(oid=repo.oid, rid=repo.id))
@@ -77,9 +85,24 @@ def get_activities(organization=None, team=None, repo=None, **kwargs):
     if organization and (not team or not team.private):
         yield get_organization_activities(organization)
 
+def after_delete(repo, asynchronous=False):
+    refs_keys = REFS_KEYS.format(rid=repo.id)
+    for key in rdb.smembers(refs_keys):
+        rdb.delete(key)
+    rdb.delete(refs_keys)
+    repo_activites = get_repo_activities(repo)
+    data = [d.orgin for d in repo_activites.get_activities()]
+    for activities in get_activities(repo=repo):
+        if not asynchronous:
+            activities.delete(data)
+        gevent.spawn(activities.delete, data)
+    # redis py will delete empty sorted set
+    # repo_activites.dispose()
+
 def after_push(repo, start='refs/heads/master', asynchronous=False):
-    head_key = HEAD_COMMIT_KEY.format(oid=repo.oid, rid=repo.id, start=start)
-    last_key = LAST_COMMIT_KEY.format(oid=repo.oid, rid=repo.id, start=start)
+    refs_keys = REFS_KEYS.format(rid=repo.id)
+    head_key = HEAD_COMMIT_KEY.format(rid=repo.id, start=start)
+    last_key = LAST_COMMIT_KEY.format(rid=repo.id, start=start)
 
     head = rdb.get(head_key)
     last = rdb.get(last_key)
@@ -96,7 +119,7 @@ def after_push(repo, start='refs/heads/master', asynchronous=False):
         if len(commits) > MAX_ACTIVITES_NUM:
             break
         email = log['author_email']
-        message = log['message']
+        message = log['message'].strip()
         sha = log['sha'][:10]
         action = 'push:{email}|{sha}|{message}'.format(
                     email=email, sha=sha, message=message
@@ -107,7 +130,9 @@ def after_push(repo, start='refs/heads/master', asynchronous=False):
     if commits:
         rdb.set(head_key, logs[0]['sha'])
         rdb.set(last_key, logs[-1]['sha'])
-        for activities in get_activities(repo=repo, start=start):
+        rdb.sadd(refs_keys, head_key)
+        rdb.sadd(refs_keys, last_key)
+        for activities in get_activities(repo=repo):
             if not asynchronous:
                 activities.add(commits)
                 continue
