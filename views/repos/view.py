@@ -11,12 +11,11 @@ from utils.jagare import get_jagare
 from utils.helper import MethodView, Obj
 from utils.account import login_required
 from utils.organization import member_required
-from utils.timeline import get_repo_activities, \
-        ACTIVITIES_PER_PAGE
+from utils.timeline import render_activities_page
 from utils.repos import repo_required, format_time
 
 from query.repos import get_repo_watcher
-from query.account import get_user, get_alias_by_email, get_user_from_alias
+from query.account import get_user, get_alias_by_email
 
 logger = logging.getLogger(__name__)
 
@@ -170,38 +169,12 @@ class Activities(MethodView):
             page = int(page)
         except ValueError:
             raise abort(403)
-        activities = get_repo_activities(repo)
-        data = activities.get_activities(
-                    start=(page-1)*ACTIVITIES_PER_PAGE, \
-                    stop=page*ACTIVITIES_PER_PAGE-1, \
-                    withscores=True,
-                )
-        list_page = self.get_list_page(activities, page)
+        data, list_page = render_activities_page(page, t='repo', repo=repo)
         return self.render_template(
-                    member=member, repo=repo, \
+                    data = data, \
                     list_page=list_page, \
+                    member=member, repo=repo, \
                     organization=organization, \
-                    data = self.render_activities(data), \
                     **kwargs
                 )
-
-    def get_list_page(self, activities, page=1):
-        list_page = Obj()
-        list_page.count = activities.count()
-        list_page.has_prev = True if page > 1 else False
-        list_page.has_next = True if page * ACTIVITIES_PER_PAGE < list_page.count else False
-        list_page.page = page
-        list_page.pages = (list_page.count / ACTIVITIES_PER_PAGE) + 1
-        list_page.iter_pages = xrange(1, list_page.pages + 1)
-        return list_page
-
-    def render_activities(self, data):
-        cache = {}
-        for d in data:
-            d.email, d.commit, d.message = d.raw.split('|', 3)
-            d.user = cache.get(d.email, None)
-            if not d.user:
-                d.user = get_user_from_alias(d.email)
-                cache[d.email] = d.user
-            yield d
 
