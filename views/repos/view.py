@@ -182,20 +182,20 @@ class Activities(MethodView):
 
     def render_activities(self, data, organization, repo, kwargs):
         cache = {}
-        for d in data:
-            if d.data['type'] == 'push':
-                d.data['branch'] = format_branch(d.data['branch'])
-                d.data['branch_url'] = get_url('repos.view', organization, repo, kw=kwargs, version=d.data['branch'])
-                d.data['committer'] = get_user(d.data['committer_id'])
-                for i in xrange(0, len(d.data['data'])):
-                    log = d.data['data'][i]
+        for action, original, timestamp in data:
+            if action['type'] == 'push':
+                action['branch'] = format_branch(action['branch'])
+                action['branch_url'] = get_url('repos.view', organization, repo, kw=kwargs, version=action['branch'])
+                action['committer'] = get_user(action['committer_id'])
+                for i in xrange(0, len(action['data'])):
+                    log = action['data'][i]
                     author = cache.get(log['author_email'], None)
                     if not author:
                         author = get_user_from_alias(log['author_email'])
                         cache[log['author_email']] = author
                     log['author'] = author
                     log['author_time'] = format_time(log['author_time'])
-                yield d.data
+                yield action
             else:
                 #TODO for merge data
                 continue

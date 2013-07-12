@@ -119,37 +119,37 @@ class View(MethodView):
 
     def render_activities(self, data, organization):
         cache = {}
-        for d in data:
-            if d.data['type'] == 'push':
-                repo = cache.get(d.data['repo_id'], None)
-                repo_url = cache.get('%d_url' % d.data['repo_id'])
-                branch_url = cache.get('%d_branch_url' % d.data['repo_id'])
-                d.data['branch'] = format_branch(d.data['branch'])
+        for action, original, _ in data:
+            if action['type'] == 'push':
+                repo = cache.get(action['repo_id'], None)
+                repo_url = cache.get('%d_url' % action['repo_id'])
+                branch_url = cache.get('%d_branch_url' % action['repo_id'])
+                action['branch'] = format_branch(action['branch'])
                 if not repo:
-                    repo = get_repo(d.data['repo_id'])
+                    repo = get_repo(action['repo_id'])
                     if repo.tid > 0:
                         team = get_team(repo.tid)
                         repo_url = get_url('repos.view', organization, repo, kw={'team': team,})
-                        branch_url = get_url('repos.view', organization, repo, kw={'team': team,}, version=d.data['branch'])
+                        branch_url = get_url('repos.view', organization, repo, kw={'team': team,}, version=action['branch'])
                     else:
                         repo_url = get_url('repos.view', organization, repo)
-                        branch_url = get_url('repos.view', organization, repo, version=d.data['branch'])
-                cache[d.data['repo_id']] = repo
-                cache['%s_url' % d.data['repo_id']] = repo_url
-                cache['%d_branch_url' % d.data['repo_id']] = branch_url
-                d.data['repo'] = repo
-                d.data['repo_url'] = repo_url
-                d.data['branch_url'] = branch_url
-                d.data['committer'] = get_user(d.data['committer_id'])
-                for i in xrange(0, len(d.data['data'])):
-                    log = d.data['data'][i]
+                        branch_url = get_url('repos.view', organization, repo, version=action['branch'])
+                cache[action['repo_id']] = repo
+                cache['%s_url' % action['repo_id']] = repo_url
+                cache['%d_branch_url' % action['repo_id']] = branch_url
+                action['repo'] = repo
+                action['repo_url'] = repo_url
+                action['branch_url'] = branch_url
+                action['committer'] = get_user(action['committer_id'])
+                for i in xrange(0, len(action['data'])):
+                    log = action['data'][i]
                     author = cache.get(log['author_email'], None)
                     if not author:
                         author = get_user_from_alias(log['author_email'])
                         cache[log['author_email']] = author
                     log['author'] = author
                     log['author_time'] = format_time(log['author_time'])
-                yield d.data
+                yield action
             else:
                 #TODO for other data
                 continue

@@ -44,16 +44,15 @@ class Activities(object):
     def get_activities(self, start=0, stop=MAX_ACTIVITIES_NUM, withscores=False):
         data = rdb.zrevrange(self.activities_key, start, stop, withscores=withscores)
         for action in data:
-            d = Obj()
             if withscores:
-                d.timestamp = action[1]
-                d.original = action[0]
+                timestamp = action[1]
+                original = action[0]
                 action = msgpack.loads(action[0])
             else:
-                d.original = action
+                timestamp = -1
+                original = action
                 action = msgpack.loads(action)
-            d.data = action
-            yield d
+            yield action, original, timestamp
 
     def get_actions_by_timestamp(self, max='+inf', min='-inf'):
         data = rdb.zrevrangebyscore(self.activities_key, max, min)
@@ -101,7 +100,7 @@ def after_delete_repo(repo, asynchronous=False):
         rdb.delete(key)
     rdb.delete(refs_keys)
     repo_activites = get_repo_activities(repo)
-    data = [d.original for d in repo_activites.get_activities()]
+    data = [original for action, original, _ in repo_activites.get_activities()]
     for activities in get_activities(repo=repo):
         if not asynchronous:
             activities.delete(*data)
