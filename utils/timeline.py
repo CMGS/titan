@@ -99,8 +99,8 @@ def after_delete_repo(repo, asynchronous=False):
     for key in rdb.smembers(refs_keys):
         rdb.delete(key)
     rdb.delete(refs_keys)
-    repo_activites = get_repo_activities(repo)
-    data = [original for action, original, _ in repo_activites.get_activities()]
+    repo_activities = get_repo_activities(repo)
+    data = [original for action, original, _ in repo_activities.get_activities()]
     for activities in get_activities(repo=repo):
         if not asynchronous:
             activities.delete(*data)
@@ -108,7 +108,30 @@ def after_delete_repo(repo, asynchronous=False):
         t = threading.Thread(target=activities.delete, args=data)
         t.start()
     # redis py will delete empty sorted set
-    # repo_activites.dispose()
+    # repo_activities.dispose()
+
+def after_add_watcher(user, organization, repo, asynchronous=False):
+    repo_activities = get_repo_activities(repo)
+    user_activities = get_user_activities(organization, user.id)
+    data = []
+    for action, original, timestamp in repo_activities.get_activities(withscores=True):
+        data.append(original)
+        data.append(timestamp)
+    if not asynchronous:
+        user_activities.add(*data)
+        return
+    t = threading.Thread(target=user_activities.add, args=data)
+    t.start()
+
+def after_delete_watcher(user, organization, repo, asynchronous=False):
+    repo_activities = get_repo_activities(repo)
+    data = [original for action, original, _ in repo_activities.get_activities()]
+    user_activities = get_user_activities(organization, user.id)
+    if not asynchronous:
+        user_activities.delete(*data)
+        return
+    t = threading.Thread(target=user_activities.delete, args=data)
+    t.start()
 
 def after_push_repo(user, repo, start='refs/heads/master', asynchronous=False):
     refs_keys = REFS_KEYS.format(rid=repo.id)

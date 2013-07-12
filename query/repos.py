@@ -12,6 +12,7 @@ from models.repos import Repos, Commiters, Watchers
 from utils import code
 from utils.jagare import get_jagare
 from utils.validators import check_repos_limit
+
 from query.organization import clear_organization_cache, clear_team_cache
 
 logger = logging.getLogger(__name__)
@@ -160,6 +161,9 @@ def create_watcher(user, repo, organization):
         db.session.commit()
         clear_watcher_cache(user, repo)
         clear_repo_cache(repo, organization, need=False)
+        if user.id != repo.uid:
+            from utils.timeline import after_add_watcher
+            after_add_watcher(user, organization, repo)
         return watcher, None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
@@ -233,6 +237,9 @@ def delete_watcher(user, watcher, repo, organization):
         db.session.commit()
         clear_watcher_cache(user, repo)
         clear_repo_cache(repo, organization, need=False)
+        if user.id != repo.uid:
+            from utils.timeline import after_delete_watcher
+            after_delete_watcher(user, organization, repo)
         return None
     except Exception, e:
         db.session.rollback()
