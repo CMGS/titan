@@ -6,13 +6,14 @@ from utils.helper import make_view
 from views.organization.team import CreateTeam, JoinTeam, \
         QuitTeam, ViewTeam, SetTeam, AddMember
 from views.organization.organization import Create, Invite, View, \
-        Setting, Teams
+        Setting, Teams, Public
 
 MODULE_NAME = 'organization'
 view_func = make_view(MODULE_NAME)
 
 organization = Blueprint(MODULE_NAME, __name__)
 
+public = view_func(Public)
 view = view_func(View)
 teams = view_func(Teams)
 invite = view_func(Invite)
@@ -28,6 +29,7 @@ create_team = view_func(CreateTeam, module='team', tmpl='create')
 
 organization.add_url_rule('/create', view_func=create, methods=['GET', 'POST'])
 organization.add_url_rule('/<git>/', view_func=view, methods=['GET', ])
+organization.add_url_rule('/<git>/public', view_func=public, methods=['GET', ])
 organization.add_url_rule('/<git>/teams', view_func=teams, methods=['GET', ])
 organization.add_url_rule('/<git>/invite', view_func=invite, methods=['GET', 'POST'])
 organization.add_url_rule('/<git>/create', view_func=create_team, methods=['GET', 'POST'])

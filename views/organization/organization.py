@@ -108,6 +108,32 @@ class View(MethodView):
             page = int(page)
         except ValueError:
             raise abort(403)
+        data, list_page = render_activities_page(page, \
+                t='user', organization=organization, uid=g.current_user.id, \
+        )
+        return self.render_template(
+                    organization=organization, \
+                    member=member, \
+                    data=self.render_activities(data, organization), \
+                    list_page=list_page, \
+                )
+
+    def render_activities(self, data, organization):
+        for action, original, _ in data:
+            if action['type'] == 'push':
+                yield render_push_action(action, organization)
+            else:
+                #TODO for other data
+                continue
+
+class Public(MethodView):
+    decorators = [member_required(admin=False), login_required('account.login')]
+    def get(self, organization, member):
+        page = request.args.get('p', 1)
+        try:
+            page = int(page)
+        except ValueError:
+            raise abort(403)
         data, list_page = render_activities_page(page, t='organization', organization=organization)
         return self.render_template(
                     organization=organization, \

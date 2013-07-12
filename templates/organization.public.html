@@ -1,0 +1,37 @@
+{% extends "organization.view.html" %}
+{% block subtitle %}{{ organization.name }} Public timeline{% endblock %}
+{% block subcontent %}
+<h3>Public Timeline </h3>
+<ul class="unstyled">
+    {% for d in data %}
+    <li style="padding-bottom:5px;">
+        {% if d['type'] == 'push' %}
+        <p>
+            <a href="#"><img height="24px" width="24px" src="{{ d['committer'].avatar(18) }}" /></a>
+            <a href="#">{{ d['committer'].display }}</a> push {{ d['commits_num'] }} commits in
+            <a href="{{ d['repo_url'] }}">{{ d['repo'].name }}</a> branch
+            <a href="{{ d['branch_url'] }}">{{ d['branch'] }}</a>
+        </p>
+        <ul class="unstyled" style="padding-left:15px">
+            {% for commit in d['data'] %}
+            <li style="padding-bottom:5px">
+                {% if commit['author'] %}
+                <span class="label">{{ commit['author'].name }}</span>
+                {% else %}
+                <span class="label">{{ commit['author_email'] }}</span>
+                {% endif %}
+                <span class="label label-important">{{ commit['sha'][:10] }}</span>
+                <span class="label label-success">{{ commit['message'] }}</span>
+                <span class="label label-info">{{ commit['author_time'] }}</span>
+            </li>
+            {% endfor %}
+            {% if d['more'] %}
+            <li style="padding-bottom:10px"><a href="#">+more</a><li>
+            {% endif %}
+        </ul>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{{ pagination.render_pagination(list_page, '') }}
+{% endblock %}
