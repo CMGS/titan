@@ -1,9 +1,10 @@
 {% extends "base.html" %}
+{% import "/common/pagination.html" as pagination %}
 {% block nav %}{{ navbar.nav(organization=organization) }}{% endblock %}
 {% block subtitle %}{{ organization.name }} {{ team.name }}{% endblock %}
 {% block content %}
 <div class="row-fluid">
-    <div class="span3">
+    <div class="span2">
         {% if users %}
         <ul class="nav nav-tabs nav-stacked">
             {% for user in users %}
@@ -20,21 +21,57 @@
             {% endif %}
         </ul>
     </div>
-    <div class="span9">
+    <div class="span10">
         {% block subcontent %}
-        <h2>{{ organization.name }}</h2>
-        <h3>{{ team.name }}</h3>
-        {% if not team_member %}
-        <form class="form-create" method="POST" action="{{ url_for('organization.jointeam', git=organization.git, tname=team.name)}}">
-            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-            <button class="btn btn-large btn-primary" type="submit">Join</button>
-        </form>
-        {% else %}
-        <form class="form-create" method="POST" action="{{ url_for('organization.quitteam', git=organization.git, tname=team.name)}}">
-            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-            <button class="btn btn-large btn-primary" type="submit">Quit</button>
-        </form>
-        {% endif %}
+        <ul class="inline">
+            <li>
+            <h3>{{ organization.name }} - {{ team.name }}</h3>
+            </li>
+            <li>
+                {% if not team_member %}
+                <form method="POST" action="{{ url_for('organization.jointeam', git=organization.git, tname=team.name)}}">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-primary" type="submit">Join</button>
+                </form>
+                {% else %}
+                <form method="POST" action="{{ url_for('organization.quitteam', git=organization.git, tname=team.name)}}">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-primary" type="submit">Quit</button>
+                </form>
+                {% endif %}
+            </li>
+        </ul>
+        <ul class="unstyled">
+            {% for d in data %}
+            <li style="padding-bottom:5px;">
+                {% if d['type'] == 'push' %}
+                <p>
+                    <a href="#"><img height="24px" width="24px" src="{{ d['committer'].avatar(18) }}" /></a>
+                    <a href="#">{{ d['committer'].display }}</a> push {{ d['commits_num'] }} commits in
+                    <a href="{{ d['repo_url'] }}">{{ d['repo'].name }}</a> branch
+                    <a href="{{ d['branch_url'] }}">{{ d['branch'] }}</a>
+                </p>
+                <ul class="unstyled" style="padding-left:15px">
+                    {% for commit in d['data'] %}
+                    <li style="padding-bottom:5px">
+                        {% if commit['author'] %}
+                        <span class="label">{{ commit['author'].name }}</span>
+                        {% else %}
+                        <span class="label">{{ commit['author_email'] }}</span>
+                        {% endif %}
+                        <span class="label label-important">{{ commit['sha'][:10] }}</span>
+                        <span class="label label-success">{{ commit['message'] }}</span>
+                        <span class="label label-info">{{ commit['author_time'] }}</span>
+                    </li>
+                    {% endfor %}
+                    <li style="padding-bottom:10px"><a href="#">+more</a><li>
+                </ul>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {{ pagination.render_pagination(list_page, '') }}
+
         {% endblock %}
     </div>
 </div>

@@ -10,6 +10,8 @@ from flask import g, request, redirect, url_for, abort
 from utils import code
 from utils.helper import MethodView
 from utils.account import login_required
+from utils.activities import render_push_action
+from utils.timeline import render_activities_page
 from utils.validators import check_team_name, check_git
 from utils.organization import member_required, team_member_required, \
         process_file
@@ -96,12 +98,28 @@ class ViewTeam(MethodView):
     def get(self, organization, member, team, team_member):
         members = get_team_members(team.id)
         users = (get_user(member.uid) for member in members)
+        page = request.args.get('p', 1)
+        try:
+            page = int(page)
+        except ValueError:
+            raise abort(403)
+        data, list_page = render_activities_page(page, t='team', organization=organization, team=team)
         return self.render_template(
                     organization=organization, \
                     team_member=team_member, \
                     team=team, member=member, \
                     users=users, \
+                    data=self.render_activities(data, organization, team), \
+                    list_page=list_page, \
                )
+
+    def render_activities(self, data, organization, team):
+        for action, original, _ in data:
+            if action['type'] == 'push':
+                yield render_push_action(action, organization, team=team)
+            else:
+                #TODO for other data
+                continue
 
 class AddMember(MethodView):
     decorators = [

@@ -153,6 +153,10 @@ def render_activities_page(page, t='repo', **kwargs):
     elif t == 'organization':
         organization = kwargs['organization']
         activities = get_organization_activities(organization)
+    elif t == 'team':
+        team = kwargs['team']
+        organization = kwargs['organization']
+        activities = get_team_activities(organization, team)
     else:
         raise Exception('Not Implement %s Yet' % t)
     data = activities.get_activities(

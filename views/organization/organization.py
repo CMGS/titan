@@ -111,8 +111,9 @@ class View(MethodView):
         data, list_page = render_activities_page(page, t='organization', organization=organization)
         return self.render_template(
                     organization=organization, \
-                    member=member, data=self.render_activities(data, organization), \
-                    list_page=list_page
+                    member=member, \
+                    data=self.render_activities(data, organization), \
+                    list_page=list_page, \
                 )
 
     def render_activities(self, data, organization):
