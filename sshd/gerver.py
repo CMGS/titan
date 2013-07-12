@@ -2,7 +2,7 @@
 #coding:utf-8
 
 import os
-
+import re
 import select
 import logging
 import paramiko
@@ -22,6 +22,8 @@ from query.organization import get_organization_by_git, \
         get_organization_member, get_team, get_team_member
 
 logger = logging.getLogger(__name__)
+
+SEARCH_PUSH_PATTERN = r'.*?(refs/heads/.*?)\n'
 
 class Gerver(_):
     def check_auth_publickey(self, username, key):
@@ -105,8 +107,9 @@ class Gerver(_):
 
     def after_execute(self, output, err):
         if 'git-receive-pack' in self.command and output:
-            start=output.strip().split('\n',3)[1].split(' ',2)[1]
-            after_push_repo(self.user, self.repo, start, True)
+            m = re.compile(SEARCH_PUSH_PATTERN, re.DOTALL)
+            for start in m.findall(output):
+                after_push_repo(self.user, self.repo, start, True)
 
     def main_loop(self, channel):
         if not self.command:
