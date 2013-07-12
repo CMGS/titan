@@ -7,8 +7,9 @@ import logging
 from flask import g, abort, url_for, redirect
 
 from functools import wraps
-from query.organization import get_team_member, get_team_by_name
 from query.repos import get_repo_by_path, get_repo_commiter
+from query.organization import get_team_member, get_team_by_name, \
+        get_team
 
 logger = logging.getLogger(__name__)
 
@@ -91,4 +92,18 @@ def format_time(ts):
     except Exception, e:
         logger.exception(e)
         return '0'
+
+def format_branch(branch):
+    if branch.startswith('refs/heads/'):
+        return branch.split('refs/heads/')[1]
+    return branch
+
+def get_url(view, organization, repo, kw={}, **kwargs):
+    if repo.tid == 0:
+        return url_for(view, git=organization.git, rname=repo.name, **kwargs)
+    else:
+        team = kw.get('team', None)
+        if not team:
+            team = get_team(repo.tid)
+        return url_for(view, git=organization.git, rname=repo.name, tname=team.name, **kwargs)
 

@@ -11,7 +11,8 @@
         {% if d['type'] == 'push' %}
         <p>
             <a href="#"><img height="24px" width="24px" src="{{ d['committer'].avatar(18) }}" /></a>
-            {{ d['committer'].name }} push {{ d['commits_num'] }} commits in {{ d['branch'] }}
+            <a href="#">{{ d['committer'].display }}</a> push {{ d['commits_num'] }} commits in
+            <a href="{{ d['branch_url'] }}">{{ d['branch'] }}</a>
         </p>
         <ul class="unstyled" style="padding-left:15px">
             {% for commit in d['data'] %}

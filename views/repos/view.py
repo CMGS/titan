@@ -12,7 +12,8 @@ from utils.helper import MethodView, Obj
 from utils.account import login_required
 from utils.organization import member_required
 from utils.timeline import render_activities_page
-from utils.repos import repo_required, format_time
+from utils.repos import repo_required, format_time, \
+        format_branch, get_url
 
 from query.repos import get_repo_watcher
 from query.account import get_user, get_alias_by_email, \
@@ -172,17 +173,19 @@ class Activities(MethodView):
             raise abort(403)
         data, list_page = render_activities_page(page, t='repo', repo=repo)
         return self.render_template(
-                    data=self.render_activities(data), \
+                    data=self.render_activities(data, organization, repo, kwargs), \
                     list_page=list_page, \
                     member=member, repo=repo, \
                     organization=organization, \
                     **kwargs
                 )
 
-    def render_activities(self, data):
+    def render_activities(self, data, organization, repo, kwargs):
         cache = {}
         for d in data:
             if d.data['type'] == 'push':
+                d.data['branch'] = format_branch(d.data['branch'])
+                d.data['branch_url'] = get_url('repos.view', organization, repo, kw=kwargs)
                 d.data['committer'] = get_user(d.data['committer_id'])
                 for i in xrange(0, len(d.data['data'])):
                     log = d.data['data'][i]
