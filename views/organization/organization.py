@@ -149,6 +149,7 @@ class View(MethodView):
                         cache[log['author_email']] = author
                     log['author'] = author
                     log['author_time'] = format_time(log['author_time'])
+                    log['message'] = log['message'].decode('utf8')
                 yield action
             else:
                 #TODO for other data
