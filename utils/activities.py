@@ -32,7 +32,8 @@ def render_push_action(action, organization, team=None, repo=None):
     action['repo_url'] = repo_url
     action['branch_url'] = branch_url
     action['committer'] = get_user(action['committer_id'])
-    for i in xrange(0, len(action['data'])):
+    length = len(action['data'])
+    for i in xrange(0, length):
         log = action['data'][i]
         author = cache.get(log['author_email'], False)
         if author is False:
@@ -41,5 +42,8 @@ def render_push_action(action, organization, team=None, repo=None):
         log['author'] = author
         log['author_time'] = format_time(log['author_time'])
         log['message'] = log['message'].decode('utf8')
+
+    if action['commits_num'] > length:
+        action['more'] = True
     return action
 

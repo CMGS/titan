@@ -64,7 +64,9 @@
                         <span class="label label-info">{{ commit['author_time'] }}</span>
                     </li>
                     {% endfor %}
+                    {% if d['more'] %}
                     <li style="padding-bottom:10px"><a href="#">+more</a><li>
+                    {% endif %}
                 </ul>
                 {% endif %}
             </li>
