@@ -27,24 +27,33 @@
             <p>location: {{ organization.location }} create: {{ organization.create }}</p>
         </blockquote>
         <ul class="unstyled">
-        {% for d in data %}
-        <li style="padding-bottom:5px">
-            {% if d.user %}
-                <a href="#"><img height="24px" width="24px" src="{{ d.user.avatar(18) }}" /></a>
-                <span class="label">{{ d.user.name}}</span>
-            {% else %}
-                <span class="label">{{ d.email }}</span>
-            {% endif %}
-            {% if d.type == 'push' %}
-            <span class="label label-info">{{ d.type }}</span>
-            <span class="label label-important">{{ d.commit }}</span>
-            {% elif d.type == 'merge' %}
-            <span class="label label-important">{{ d.type }}</span>
-            {% endif %}
-            <span class="label label-success">{{ d.message }}</span>
-            <span>in <a href="{{ d.repo_url }}">{{ d.repo.name }}</a></span>
-        </li>
-        {% endfor %}
+            {% for d in data %}
+            <li style="padding-bottom:5px;">
+                {% if d['type'] == 'push' %}
+                <p>
+                    <a href="#"><img height="24px" width="24px" src="{{ d['committer'].avatar(18) }}" /></a>
+                    <a href="#">{{ d['committer'].display }}</a> push {{ d['commits_num'] }} commits in
+                    <a href="{{ d['repo_url'] }}">{{ d['repo'].name }}</a> branch
+                    <a href="{{ d['branch_url'] }}">{{ d['branch'] }}</a>
+                </p>
+                <ul class="unstyled" style="padding-left:15px">
+                    {% for commit in d['data'] %}
+                    <li style="padding-bottom:5px">
+                        {% if commit['author'] %}
+                        <span class="label">{{ commit['author'].name }}</span>
+                        {% else %}
+                        <span class="label">{{ commit['author_email'] }}</span>
+                        {% endif %}
+                        <span class="label label-important">{{ commit['sha'][:10] }}</span>
+                        <span class="label label-success">{{ commit['message'] }}</span>
+                        <span class="label label-info">{{ commit['author_time'] }}</span>
+                    </li>
+                    {% endfor %}
+                    <li><a href="#">show all</a><li>
+                </ul>
+                {% endif %}
+            </li>
+            {% endfor %}
         </ul>
         {{ pagination.render_pagination(list_page, '') }}
         {% endblock %}

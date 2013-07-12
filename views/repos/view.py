@@ -185,7 +185,7 @@ class Activities(MethodView):
         for d in data:
             if d.data['type'] == 'push':
                 d.data['branch'] = format_branch(d.data['branch'])
-                d.data['branch_url'] = get_url('repos.view', organization, repo, kw=kwargs)
+                d.data['branch_url'] = get_url('repos.view', organization, repo, kw=kwargs, version=d.data['branch'])
                 d.data['committer'] = get_user(d.data['committer_id'])
                 for i in xrange(0, len(d.data['data'])):
                     log = d.data['data'][i]

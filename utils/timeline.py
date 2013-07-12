@@ -128,6 +128,7 @@ def after_push_repo(user, repo, start='refs/heads/master', asynchronous=False):
     commit_time = time.time()
     data = {
         'type':'push', \
+        'repo_id': repo.id, \
         'committer_id': user.id, \
         'commits_num': len(logs), \
         'commit_time': commit_time, \
