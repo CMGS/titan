@@ -21,12 +21,14 @@
     <div class="span10">
         {% block subcontent %}
         <h1>{{ organization.name }} <small>{{ organization.location }}</small></h1>
-        <ul class="inline" style="font-size: 18px">
-            <li>ssh ident: {{ organization.git }}</li>
-            <li>repos: {{ organization.repos }}</li>
-            <li>members: {{ organization.members }}</li>
-            <li>teams: {{ organization.teams }}</li>
-        </ul>
+        <blockquote>
+            ssh identified by <strong>"{{ organization.git }}"</strong>
+            <ul class="inline">
+                <li>{{ organization.repos }} repos</li>
+                <li>{{ organization.members }} members</li>
+                <li>{{ organization.teams }} teams</li>
+            </ul>
+        </blockquote>
         <ul class="unstyled">
             {% for d in data %}
             <li style="padding-bottom:5px;">
