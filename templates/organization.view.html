@@ -20,7 +20,7 @@
     </div>
     <div class="span10">
         {% block subcontent %}
-        <h1>{{ organization.name }} <small>{{ organization.location }}</small></h1>
+        <h1>{{ organization.name }}{% if organization.location %} <small>{{ organization.location }}</small>{% endif %}</h1>
         <blockquote>
             ssh identified by <strong>"{{ organization.git }}"</strong>
             <ul class="inline">
