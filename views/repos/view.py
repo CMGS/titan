@@ -182,10 +182,18 @@ class Activities(MethodView):
     def render_activities(self, data):
         cache = {}
         for d in data:
-            d.email, d.commit, d.message, _ = d.raw.split('|', 3)
-            d.user = cache.get(d.email, None)
-            if not d.user:
-                d.user = get_user_from_alias(d.email)
-                cache[d.email] = d.user
-            yield d
+            if d.data['type'] == 'push':
+                d.data['committer'] = get_user(d.data['committer_id'])
+                for i in xrange(0, len(d.data['data'])):
+                    log = d.data['data'][i]
+                    author = cache.get(log['author_email'], None)
+                    if not author:
+                        author = get_user_from_alias(log['author_email'])
+                        cache[log['author_email']] = author
+                    log['author'] = author
+                    log['author_time'] = format_time(log['author_time'])
+                yield d.data
+            else:
+                #TODO for merge data
+                continue
 

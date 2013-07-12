@@ -14,9 +14,9 @@ from maria.config import config as _config
 
 from config import MARIA_STORE_PATH
 
-from utils.timeline import after_push
 from utils.repos import check_permits
 from query.repos import get_repo_by_path
+from utils.timeline import after_push_repo
 from query.account import get_key_by_finger, get_user
 from query.organization import get_organization_by_git, \
         get_organization_member, get_team, get_team_member
@@ -106,7 +106,7 @@ class Gerver(_):
     def after_execute(self, output, err):
         if 'git-receive-pack' in self.command and output:
             start=output.strip().split('\n',3)[1].split(' ',2)[1]
-            after_push(self.repo, start, True)
+            after_push_repo(self.user, self.repo, start, True)
 
     def main_loop(self, channel):
         if not self.command:

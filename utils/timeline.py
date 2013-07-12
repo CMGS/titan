@@ -1,7 +1,9 @@
 #!/usr/local/bin/python2.7
 #coding:utf-8
 
-import gevent
+import time
+import msgpack
+import threading
 from utils.helper import Obj
 from utils.redistore import rdb
 from utils.jagare import get_jagare
@@ -10,6 +12,7 @@ from query.repos import get_repo_watchers
 from query.organization import get_organization, get_team
 
 TIMELINE_EXPRIE = 60 * 60 * 24 * 30
+PUSH_COMMITS_LIMIT = 5
 MAX_ACTIVITIES_NUM = 1009
 ACTIVITIES_PER_PAGE = 20
 
@@ -34,7 +37,7 @@ class Activities(object):
     def get(cls, activities_key):
         return cls(activities_key)
 
-    def add(self, activities):
+    def add(self, *activities):
         rdb.zadd(self.activities_key, *activities)
         rdb.zremrangebyrank(self.activities_key, 0, -1 * (MAX_ACTIVITIES_NUM + 1))
 
@@ -44,21 +47,23 @@ class Activities(object):
             d = Obj()
             if withscores:
                 d.timestamp = action[1]
-                action = action[0]
-            d.orgin = action
-            d.type, d.raw = action.split(':', 1)
-            d.raw = d.raw.decode('utf8')
+                d.original = action[0]
+                action = msgpack.loads(action[0])
+            else:
+                d.original = action
+                action = msgpack.loads(action)
+            d.data = action
             yield d
 
     def get_actions_by_timestamp(self, max='+inf', min='-inf'):
         data = rdb.zrevrangebyscore(self.activities_key, max, min)
         return data
 
-    def delete(self, activities):
-        rdb.zrem(self.activities_key, *activities)
+    def delete(self, *activities):
+        return rdb.zrem(self.activities_key, *activities)
 
     def dispose(self):
-        rdb.delete(self.activities_key)
+        return rdb.delete(self.activities_key)
 
     def count(self):
         return rdb.zcard(self.activities_key)
@@ -90,21 +95,23 @@ def get_activities(organization=None, team=None, repo=None, **kwargs):
     if organization and (not team or not team.private):
         yield get_organization_activities(organization)
 
-def after_delete(repo, asynchronous=False):
+def after_delete_repo(repo, asynchronous=False):
     refs_keys = REFS_KEYS.format(rid=repo.id)
     for key in rdb.smembers(refs_keys):
         rdb.delete(key)
     rdb.delete(refs_keys)
     repo_activites = get_repo_activities(repo)
-    data = [d.orgin for d in repo_activites.get_activities()]
+    data = [d.original for d in repo_activites.get_activities()]
     for activities in get_activities(repo=repo):
         if not asynchronous:
-            activities.delete(data)
-        gevent.spawn(activities.delete, data)
+            activities.delete(*data)
+            continue
+        t = threading.Thread(target=activities.delete, args=data)
+        t.start()
     # redis py will delete empty sorted set
     # repo_activites.dispose()
 
-def after_push(repo, start='refs/heads/master', asynchronous=False):
+def after_push_repo(user, repo, start='refs/heads/master', asynchronous=False):
     refs_keys = REFS_KEYS.format(rid=repo.id)
     head_key = HEAD_COMMIT_KEY.format(rid=repo.id, start=start)
     last_key = LAST_COMMIT_KEY.format(rid=repo.id, start=start)
@@ -118,34 +125,26 @@ def after_push(repo, start='refs/heads/master', asynchronous=False):
             jagare.get_log(repo.get_real_path(), start, last) or \
             jagare.get_log(repo.get_real_path(), start, None)
 
-    commits = []
-    for log in logs:
-        action_time = float(log['committer_time'])
-        if len(commits) > MAX_ACTIVITIES_NUM:
-            break
-        email = log['author_email']
-        message = log['message'].strip()
-        sha = log['sha'][:10]
-        t = 'push'
-        if 'Merge pull request' in message:
-            t = 'merge'
-        action = u'{t}:{email}|{sha}|{message}|{rid}'.format(
-                    t=t, email=email, sha=sha, message=message, \
-                    rid=repo.id
-                )
-        commits.append(action)
-        commits.append(action_time)
-
-    if commits:
-        rdb.set(head_key, logs[0]['sha'])
-        rdb.set(last_key, logs[-1]['sha'])
-        rdb.sadd(refs_keys, head_key)
-        rdb.sadd(refs_keys, last_key)
-        for activities in get_activities(repo=repo):
-            if not asynchronous:
-                activities.add(commits)
-                continue
-            gevent.spawn(activities.add, commits)
+    commit_time = time.time()
+    data = {
+        'type':'push', \
+        'committer_id': user.id, \
+        'commits_num': len(logs), \
+        'commit_time': commit_time, \
+        'branch': start, \
+    }
+    data['data'] = logs[:PUSH_COMMITS_LIMIT]
+    rdb.set(head_key, logs[0]['sha'])
+    rdb.set(last_key, logs[-1]['sha'])
+    rdb.sadd(refs_keys, head_key)
+    rdb.sadd(refs_keys, last_key)
+    data = msgpack.dumps(data)
+    for activities in get_activities(repo=repo):
+        if not asynchronous:
+            activities.add(data, commit_time)
+            continue
+        t = threading.Thread(target=activities.add, args=(data, commit_time))
+        t.start()
 
 def render_activities_page(page, t='repo', **kwargs):
     if t == 'repo':

@@ -3,9 +3,9 @@
 
 import email
 import config
-import gevent
 import smtplib
 import logging
+import threading
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,8 @@ def async_send_mail(email, title, content):
             send_email(email, title, content)
         except Exception:
             logger.exception('send mail failed')
-    gevent.spawn(_send)
+    t = threading.Thread(targe=_send)
+    t.start()
 
 if __name__ == '__main__':
     from jinja2 import Environment, FileSystemLoader

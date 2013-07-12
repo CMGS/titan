@@ -275,8 +275,8 @@ def delete_repo(organization, repo, team=None):
         db.session.commit()
         clear_repo_cache(repo, organization, team)
         clear_explore_cache(organization, team)
-        from utils.timeline import after_delete
-        after_delete(repo, asynchronous=True)
+        from utils.timeline import after_delete_repo
+        after_delete_repo(repo, asynchronous=True)
         backend.delete_many(*keys)
         return None
     except Exception, e:
