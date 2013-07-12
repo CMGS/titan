@@ -11,13 +11,12 @@ from utils.jagare import get_jagare
 from utils.helper import MethodView, Obj
 from utils.account import login_required
 from utils.organization import member_required
+from utils.activities import render_push_action
 from utils.timeline import render_activities_page
-from utils.repos import repo_required, format_time, \
-        format_branch, get_url
+from utils.repos import repo_required, format_time
 
 from query.repos import get_repo_watcher
-from query.account import get_user, get_alias_by_email, \
-    get_user_from_alias
+from query.account import get_user, get_alias_by_email
 
 logger = logging.getLogger(__name__)
 
@@ -181,22 +180,9 @@ class Activities(MethodView):
                 )
 
     def render_activities(self, data, organization, repo, kwargs):
-        cache = {}
         for action, original, timestamp in data:
             if action['type'] == 'push':
-                action['branch'] = format_branch(action['branch'])
-                action['branch_url'] = get_url('repos.view', organization, repo, kw=kwargs, version=action['branch'])
-                action['committer'] = get_user(action['committer_id'])
-                for i in xrange(0, len(action['data'])):
-                    log = action['data'][i]
-                    author = cache.get(log['author_email'], None)
-                    if not author:
-                        author = get_user_from_alias(log['author_email'])
-                        cache[log['author_email']] = author
-                    log['author'] = author
-                    log['author_time'] = format_time(log['author_time'])
-                    log['message'] = log['message'].decode('utf8')
-                yield action
+                yield render_push_action(action, organization, repo=repo, team=kwargs.get('team'))
             else:
                 #TODO for merge data
                 continue

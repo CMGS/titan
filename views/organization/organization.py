@@ -9,18 +9,16 @@ from utils import code
 from utils.token import create_token
 from utils.helper import MethodView
 from utils.account import login_required
+from utils.activities import render_push_action
 from utils.timeline import render_activities_page
-from utils.repos import format_time, format_branch, get_url
 from utils.organization import send_verify_mail, member_required
 from utils.validators import check_organization_name, check_git, \
         check_members_limit, check_email
 
-from query.repos import get_repo
-from query.account import get_user_by_email, get_user, \
-        get_user_from_alias
+from query.account import get_user_by_email, get_user
 from query.organization import get_organization_member, create_organization, \
         create_verify, update_organization, get_teams_by_ogranization, \
-        get_team_members, get_team_member, get_team
+        get_team_members, get_team_member
 
 logger = logging.getLogger(__name__)
 
@@ -118,39 +116,9 @@ class View(MethodView):
                 )
 
     def render_activities(self, data, organization):
-        cache = {}
         for action, original, _ in data:
             if action['type'] == 'push':
-                repo = cache.get(action['repo_id'], None)
-                repo_url = cache.get('%d_url' % action['repo_id'])
-                branch_url = cache.get('%d_branch_url' % action['repo_id'])
-                action['branch'] = format_branch(action['branch'])
-                if not repo:
-                    repo = get_repo(action['repo_id'])
-                    if repo.tid > 0:
-                        team = get_team(repo.tid)
-                        repo_url = get_url('repos.view', organization, repo, kw={'team': team,})
-                        branch_url = get_url('repos.view', organization, repo, kw={'team': team,}, version=action['branch'])
-                    else:
-                        repo_url = get_url('repos.view', organization, repo)
-                        branch_url = get_url('repos.view', organization, repo, version=action['branch'])
-                cache[action['repo_id']] = repo
-                cache['%s_url' % action['repo_id']] = repo_url
-                cache['%d_branch_url' % action['repo_id']] = branch_url
-                action['repo'] = repo
-                action['repo_url'] = repo_url
-                action['branch_url'] = branch_url
-                action['committer'] = get_user(action['committer_id'])
-                for i in xrange(0, len(action['data'])):
-                    log = action['data'][i]
-                    author = cache.get(log['author_email'], None)
-                    if not author:
-                        author = get_user_from_alias(log['author_email'])
-                        cache[log['author_email']] = author
-                    log['author'] = author
-                    log['author_time'] = format_time(log['author_time'])
-                    log['message'] = log['message'].decode('utf8')
-                yield action
+                yield render_push_action(action, organization)
             else:
                 #TODO for other data
                 continue
