@@ -2,9 +2,17 @@
 #coding:utf-8
 
 import os
+import re
 import time
 import logging
+import HTMLParser
 from flask import g, abort, url_for, redirect
+
+import misaka
+import pygments
+from pygments import highlight
+from pygments.formatters import HtmlFormatter
+from pygments.lexers import get_lexer_by_name, guess_lexer_for_filename
 
 from functools import wraps
 from query.repos import get_repo_by_path, get_repo_commiter
@@ -106,4 +114,32 @@ def get_url(view, organization, repo, kw={}, **kwargs):
         if not team:
             team = get_team(repo.tid)
         return url_for(view, git=organization.git, rname=repo.name, tname=team.name, **kwargs)
+
+def render_code(path, content):
+    if path.rsplit('.', 1)[-1] in ['md', 'markdown', 'mkd']:
+        html = misaka.html(content, extensions=\
+                misaka.EXT_AUTOLINK|misaka.EXT_LAX_HTML_BLOCKS|misaka.EXT_SPACE_HEADERS|\
+                misaka.EXT_SUPERSCRIPT|misaka.EXT_FENCED_CODE|misaka.EXT_NO_INTRA_EMPHASIS|\
+                misaka.EXT_STRIKETHROUGH|misaka.EXT_TABLES)
+        def _r(m):
+            try:
+                lexer_name = m.group(1)
+                code = m.group(2)
+                lexer = get_lexer_by_name(lexer_name)
+                code = HTMLParser.HTMLParser().unescape(code)
+                return highlight(code, lexer, HtmlFormatter())
+            except pygments.util.ClassNotFound:
+                return m.group()
+
+        p = re.compile(r'''<pre><code class="([0-9a-zA-Z._-]+)">(.+?)</code></pre>''', re.DOTALL)
+        html = p.sub(lambda m: _r(m), html)
+
+    else:
+        try:
+            lexer = guess_lexer_for_filename(path, content)
+        except pygments.util.ClassNotFound:
+            lexer = get_lexer_by_name("python")
+        html = highlight(content, lexer,  HtmlFormatter(linenos=True, lineanchors='L', anchorlinenos=True))
+
+    return html
 

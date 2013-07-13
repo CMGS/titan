@@ -13,7 +13,8 @@ from utils.account import login_required
 from utils.organization import member_required
 from utils.activities import render_push_action
 from utils.timeline import render_activities_page
-from utils.repos import repo_required, format_time
+from utils.repos import repo_required, format_time, \
+        render_code
 
 from query.repos import get_repo_watcher
 from query.account import get_user, get_alias_by_email
@@ -133,6 +134,7 @@ class Blob(MethodView):
             content_type = 'file'
             if not isinstance(content, unicode):
                 content = content.decode('utf8')
+            content = render_code(path, content)
         else:
             content_type = 'binary'
 

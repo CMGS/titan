@@ -1,15 +1,7 @@
 {% extends "repos.view.html" %}
 
 {% block add_js %}
-<script src="{{ '/static/js/prettify.js' | s_files }}"></script>
 <link href="{{ '/static/css/prettify.css' | s_files }}" rel="stylesheet">
-<script>
-!function ($) {
-  $(function(){
-    window.prettyPrint && prettyPrint();
-  })
-}(window.jQuery);
-</script>
 <style>
 .center {margin: 5px 0 0 25px}
 </style>
@@ -40,9 +32,7 @@
     <img src="data:image/png;base64,{{ content }}"/>
 </pre>
 {% else %}
-<pre class="prettyprint linenums">
-{{ content }}
-</pre>
+{{ content|safe }}
 {% endif %}
 {% endblock %}
 
