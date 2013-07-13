@@ -54,7 +54,7 @@
 
 ## Done
 
-+ Titan自身功能不带slash
++ [x]Titan自身功能不带slash
 + 接入Repos
 + push完取2次push之间的commit logs, 超过1天自动放弃，记录下最后的commit sha
 + 增加成员 -> time.time(), repo, user -> zadd message
