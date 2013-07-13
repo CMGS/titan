@@ -1,6 +1,8 @@
 #!/usr/local/bin/python2.7
 #coding:utf-8
 
+import config
+import hashlib
 from flask import render_template
 from flask.views import MethodView as _
 
@@ -41,4 +43,9 @@ def make_view(module_name):
     return generate_view_func
 
 class Obj(object):pass
+
+def get_avatar(email, size):
+    md5email = hashlib.md5(email).hexdigest()
+    query = "%s?s=%s%s" % (md5email, size, config.GRAVATAR_EXTRA)
+    return '%s%s' % (config.GRAVATAR_BASE_URL, query)
 

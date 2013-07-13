@@ -3,11 +3,11 @@
 
 __all__ = ['User', 'Forget']
 
-import config
 import hashlib
-from datetime import datetime
-from utils.token import create_token
 from models import db
+from datetime import datetime
+from utils.helper import get_avatar
+from utils.token import create_token
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -51,9 +51,7 @@ class User(db.Model):
         db.session.commit()
 
     def avatar(self, size=48):
-        md5email = hashlib.md5(self.email).hexdigest()
-        query = "%s?s=%s%s" % (md5email, size, config.GRAVATAR_EXTRA)
-        return '%s%s' % (config.GRAVATAR_BASE_URL, query)
+        return get_avatar(self.email, size)
 
 class Forget(db.Model):
     __tablename__ = 'forget'
