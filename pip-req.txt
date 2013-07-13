@@ -3,6 +3,7 @@ Flask-SQLAlchemy==0.16
 Jinja2==2.7
 MarkupSafe==0.18
 PIL==1.1.7
+Pygments==1.6
 SQLAlchemy==0.8.1
 Werkzeug==0.8.3
 distribute==0.6.31
@@ -10,6 +11,7 @@ flask-csrf==0.9.2
 invoke==0.2.0
 itsdangerous==0.21
 -e git+git@github.com:CMGS/maria.git@aa63536dcde9f2f08e4db62ca73b8ede5413c6b0#egg=maria
+misaka==1.0.2
 paramiko==1.10.1
 pexpect-u==2.5.1
 py==1.4.12
