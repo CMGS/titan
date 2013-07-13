@@ -10,7 +10,6 @@
 * 未登录 --》创建/被邀请 --》登录帐号 --》Join Organization
 * 已登录 --》创建 --》Join Organization
 * 已登录 --》另外一个邮箱被邀请 --》输入另外一个邮箱 --》Join Organization
-
 * Admin 能管理Team/Members/Repos/Permits
 * Admin 能处理Repos归属
 

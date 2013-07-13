@@ -1,3 +1,8 @@
+.markdown {
+    border: solid 1px rgb(150, 150, 150);
+    padding-left: 15px;
+    background-color: rgb(250, 250, 250);
+}
 .highlighttable {
     width: 100%;
     text-shadow: 0 1px 0 #fff;

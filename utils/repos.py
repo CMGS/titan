@@ -132,7 +132,7 @@ def render_code(path, content):
                 return m.group()
 
         p = re.compile(r'''<pre><code class="([0-9a-zA-Z._-]+)">(.+?)</code></pre>''', re.DOTALL)
-        html = p.sub(lambda m: _r(m), html)
+        html = r'''<div class="markdown">%s</div>''' % p.sub(lambda m: _r(m), html)
 
     else:
         try:
