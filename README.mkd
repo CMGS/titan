@@ -44,18 +44,18 @@
 ## Others
 
 * Join/Quit team -> team activities
-* follower?
 * online edit and add file
 * gist
-* 仓库状态
 * fork
 * hooks
-* 接入Repos
-* Titan自身功能不带slash
+* 仓库状态
 * Organization可以选择套餐, 立即生效，必须余额大于套餐价格，下个月开始扣费
+* 第一次前端整理
 
 ## Done
 
++ Titan自身功能不带slash
++ 接入Repos
 + push完取2次push之间的commit logs, 超过1天自动放弃，记录下最后的commit sha
 + 增加成员 -> time.time(), repo, user -> zadd message
 + 获取状态的时候做trim
