@@ -28,14 +28,14 @@
 
 {% block subcontent %}
 <div class="row-fluid">
-    <div class="span3">
+    <div class="span2">
         <ul class="nav nav-tabs nav-stacked">
             <li><a href="{{ get_url('repos.setting') }}">Setting</a></li>
             <li><a href="{{ get_url('repos.commiters') }}">Commiters</a></li>
             <li><a href="{{ get_url('repos.transport') }}">Transport</a></li>
         </ul>
     </div>
-    <div class="span9">
+    <div class="span10">
         {% block setting %}
         {% if error %}
         <div class="alert alert-error">
