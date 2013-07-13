@@ -49,6 +49,7 @@ class View(MethodView):
         tname = team.name if team else None
 
         error, tree = jagare.ls_tree(repo.get_real_path(), path=path, version=version)
+        readme = None
         if not error:
             tree, meta = tree['content'], tree['meta']
             readme, tree = self.render_tree(
