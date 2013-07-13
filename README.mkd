@@ -43,9 +43,10 @@
 
 ## Others
 
-* push完取2次push之间的commit logs, 超过1天自动放弃，记录下最后的commit sha
-* 增加成员 -> time.time(), repo, user -> zadd message
-* 获取状态的时候做trim
+* Join/Quit team -> team activities
+* follower?
+* online edit and add file
+* gist
 * 仓库状态
 * fork
 * hooks
@@ -55,6 +56,9 @@
 
 ## Done
 
++ push完取2次push之间的commit logs, 超过1天自动放弃，记录下最后的commit sha
++ 增加成员 -> time.time(), repo, user -> zadd message
++ 获取状态的时候做trim
 + 设置默认分支
 + raw
 + 文件类型和大小，限制2进制文件输出
