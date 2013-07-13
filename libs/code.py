@@ -90,5 +90,6 @@ def render_rst(path, content):
     return html
 
 def render_wrapper(content, c="markdown"):
+    content = content.replace("<script>", " <script>")
     return r'''<div class="%s">%s</div>''' % (c, content)
 
