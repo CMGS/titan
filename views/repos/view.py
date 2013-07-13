@@ -51,10 +51,10 @@ class View(MethodView):
         error, tree = jagare.ls_tree(repo.get_real_path(), path=path, version=version)
         if not error:
             tree, meta = tree['content'], tree['meta']
-            tree = self.render_tree(
-                        tree, version, organization.git, \
-                        tname, repo.name
-                    )
+            readme, tree = self.render_tree(
+                                tree, version, organization.git, \
+                                tname, repo
+                            )
             path = render_path(
                         path, version, organization.git, \
                         tname, repo.name
@@ -67,6 +67,7 @@ class View(MethodView):
                     watcher=watcher, file_path=file_path, \
                     branches=get_branches(repo, jagare), \
                     tree=tree, error=error, \
+                    readme=readme,
                     **kwargs
                 )
 
@@ -87,14 +88,17 @@ class View(MethodView):
             commit.user.avatar = user.avatar(18)
         return commit
 
-    def render_tree(self, tree, version, git, tname, rname):
+    def render_tree(self, tree, version, git, tname, repo):
+        ret = []
+        readme = None
         for d in tree:
             data = Obj()
             if d['type'] == 'tree':
-                data.url = url_for('repos.view', git=git, tname=tname, rname=rname, version=version, path=d['path'])
+                data.url = url_for('repos.view', git=git, tname=tname, rname=repo.name, version=version, path=d['path'])
             elif d['type'] == 'blob':
-                #TODO blob reader
-                data.url = url_for('repos.blob', git=git, tname=tname, rname=rname, version=version, path=d['path'])
+                data.url = url_for('repos.blob', git=git, tname=tname, rname=repo.name, version=version, path=d['path'])
+                if d['name'].startswith('README'):
+                    readme = self.get_readme_file(repo, d['path'], version)
             else:
                 continue
             data.name = d['name']
@@ -103,7 +107,23 @@ class View(MethodView):
             data.ago = format_time(d['commit']['committer']['ts'])
             data.message = d['commit']['message'][:150]
             data.commit = d['commit']['sha']
-            yield data
+            data.path = d['path']
+            ret.append(data)
+        return readme, ret
+
+    def get_readme_file(self, repo, path, version):
+        jagare = get_jagare(repo.id, repo.parent)
+        error, res = jagare.cat_file(repo.get_real_path(), path, version=version)
+        if error:
+            return None
+        content_type = res.headers.get('content-type', 'application/octet-stream')
+        if 'text' not in content_type:
+            return None
+        content = res.content
+        if not isinstance(content, unicode):
+            content = content.decode('utf8')
+        content = render_code(path, content)
+        return content
 
 class Blob(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]

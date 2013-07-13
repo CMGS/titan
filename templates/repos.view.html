@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block subtitle %}{{ repo.name }}{% endblock %}
 {% block nav %}{{ navbar.nav(organization=organization) }}{% endblock %}
+{% block add_js %}
+{% if readme %}
+<link href="{{ '/static/css/prettify.css' | s_files }}" rel="stylesheet">
+{% endif %}
+{% endblock %}
 
 {% macro get_url(view='repos.view', kwargs={}) -%}
     {% if repo.tid == 0 %}
@@ -122,6 +127,9 @@
         {% endfor %}
     </tbody>
 </table>
+{% if readme %}
+{{ readme|safe }}
+{% endif %}
 {% endblock %}
 {% else %}
 <p>
