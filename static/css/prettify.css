@@ -12,8 +12,8 @@
     padding: 0;
 }
 .linenos {
-    width:4%;
-    max-width:4%;
+    width:45px;
+    max-width:45px;
     margin-right: 0px;
 }
 .linenos pre {
