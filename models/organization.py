@@ -12,6 +12,7 @@ class Organization(db.Model):
     git = db.Column(db.CHAR(15), unique=True, nullable=False)
     repos = db.Column(db.Integer, nullable=False, default=0)
     teams = db.Column(db.Integer, nullable=False, default=0)
+    gists = db.Column(db.Integer, nullable=False, default=0)
     members = db.Column(db.Integer, nullable=False, default=0)
     plan = db.Column(db.Integer, default=1, nullable=False)
     balance = db.Column(db.Float, default=0.0, nullable=False)
