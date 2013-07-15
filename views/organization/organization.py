@@ -6,8 +6,8 @@ import logging
 from flask import g, request, redirect, url_for, abort
 
 from utils import code
-from utils.token import create_token
 from utils.helper import MethodView
+from utils.token import create_token
 from utils.account import login_required
 from utils.activities import render_push_action
 from utils.timeline import render_activities_page
