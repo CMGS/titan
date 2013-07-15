@@ -116,8 +116,10 @@
             <td>
                 {% if t.type == 'blob' %}
                 <i class="icon-file"></i>
-                {% else %}
+                {% elif t.type == 'tree' %}
                 <i class="icon-folder-close"></i>
+                {% else %}
+                <i class="icon-arrow-right"></i>
                 {% endif %}
                 <a href="{{ t.url }}">{{ t.name }}</a>
             </td>

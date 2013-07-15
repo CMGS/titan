@@ -100,8 +100,9 @@ class View(MethodView):
                 data.url = url_for('repos.blob', git=git, tname=tname, rname=repo.name, version=version, path=d['path'])
                 if d['name'].startswith('README'):
                     readme = self.get_readme_file(repo, d['path'], version)
-            else:
-                continue
+            elif d['type'] == 'submodule':
+                data.url = self.get_submodule_url(d['submodule'], d['sha'])
+                d['name'] = '%s@%s' % (d['name'], d['sha'][:10])
             data.name = d['name']
             data.sha = d['sha']
             data.type = d['type']
@@ -111,6 +112,19 @@ class View(MethodView):
             data.path = d['path']
             ret.append(data)
         return readme, ret
+
+    def get_submodule_url(self, submodule, sha):
+        url = submodule['url']
+        host = submodule['host']
+        if host == '218.245.3.148':
+            git, url = url.split('@', 1)
+            _, name= url.split(':', 1)
+            tname = None
+            if '/' in name:
+                tname, name = name.split('/', 1)
+            #TODO not production
+            url = 'http://%s:12307%s' % (host, url_for('repos.view', git=git, tname=tname, rname=name, version=sha))
+        return url
 
     def get_readme_file(self, repo, path, version):
         jagare = get_jagare(repo.id, repo.parent)
