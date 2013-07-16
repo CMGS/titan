@@ -66,8 +66,10 @@ class Watchers(db.Model):
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     uid = db.Column(db.Integer, nullable=False)
     rid = db.Column(db.Integer, nullable=False, index=True)
+    oid = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, uid, rid):
+    def __init__(self, uid, rid, oid):
         self.uid = uid
         self.rid = rid
+        self.oid = oid
 

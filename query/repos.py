@@ -49,6 +49,10 @@ def get_repo_watcher(uid, rid):
 def get_repo_watchers(rid):
     return Watchers.query.filter_by(rid=rid).all()
 
+@cache('repos:watchers:user:{uid}:{oid}', 8640000)
+def get_user_watcher_repos(uid, oid):
+    return Watchers.query.filter_by(uid=uid, oid=oid).all()
+
 # clear
 
 def clear_commiter_cache(user, repo):
@@ -58,10 +62,11 @@ def clear_commiter_cache(user, repo):
     ]
     backend.delete_many(*keys)
 
-def clear_watcher_cache(user, repo):
+def clear_watcher_cache(user, repo, organization):
     keys = [
         'repos:watchers:{rid}'.format(rid=repo.id), \
-        'repos:watcher:{uid}:{rid}'.format(uid=user.id, rid=repo.id)
+        'repos:watcher:{uid}:{rid}'.format(uid=user.id, rid=repo.id), \
+        'repos:watchers:user:{uid}:{oid}'.format(uid=user.id, oid=organization.id), \
     ]
     backend.delete_many(*keys)
 
@@ -104,7 +109,7 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=0)
             return None, code.ORGANIZATION_REPOS_LIMIT
         commiter = Commiters(user.id, repo.id)
         db.session.add(commiter)
-        watcher = Watchers(user.id, repo.id)
+        watcher = Watchers(user.id, repo.id, organization.id)
         db.session.add(watcher)
         jagare = get_jagare(repo.id, parent)
         ret, error = jagare.init(repo.get_real_path())
@@ -132,7 +137,7 @@ def create_commiter(user, repo, organization):
         commiter = Commiters(user.id, repo.id)
         repo.commiters = Repos.commiters + 1
         if not get_repo_watcher(user.id, repo.id):
-            watcher = Watchers(user.id, repo.id)
+            watcher = Watchers(user.id, repo.id, organization.id)
             repo.watchers = Repos.watchers + 1
             db.session.add(watcher)
         db.session.add(commiter)
@@ -154,12 +159,12 @@ def create_commiter(user, repo, organization):
 
 def create_watcher(user, repo, organization):
     try:
-        watcher = Watchers(user.id, repo.id)
+        watcher = Watchers(user.id, repo.id, organization.id)
         repo.watchers = Repos.watchers + 1
         db.session.add(watcher)
         db.session.add(repo)
         db.session.commit()
-        clear_watcher_cache(user, repo)
+        clear_watcher_cache(user, repo, organization)
         clear_repo_cache(repo, organization, need=False)
         if user.id != repo.uid:
             from utils.timeline import after_add_watcher
@@ -235,7 +240,7 @@ def delete_watcher(user, watcher, repo, organization):
         repo.watchers = Repos.watchers - 1
         db.session.add(repo)
         db.session.commit()
-        clear_watcher_cache(user, repo)
+        clear_watcher_cache(user, repo, organization)
         clear_repo_cache(repo, organization, need=False)
         if user.id != repo.uid:
             from utils.timeline import after_delete_watcher

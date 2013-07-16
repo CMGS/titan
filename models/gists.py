@@ -41,3 +41,29 @@ class Gists(db.Model):
         db.session.add(self)
         db.session.commit()
 
+class UserGists(db.Model):
+    __tablename__ = 'user_gists'
+    __table_args__ = (db.UniqueConstraint('uid', 'oid', name='uix_uid_oid'), )
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    uid = db.Column(db.Integer, nullable=False)
+    oid = db.Column(db.Integer, nullable=False, index=True)
+    count = db.Column(db.Integer, nullable=False, default=0)
+
+    def __init__(self, oid, uid, count=0):
+        self.oid = oid
+        self.uid = uid
+        self.count = count
+
+class GistWatchers(db.Model):
+    __tablename__ = 'gist_watchers'
+    __table_args__ = (db.UniqueConstraint('uid', 'gid', name='uix_uid_gid'), )
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    uid = db.Column(db.Integer, nullable=False)
+    gid = db.Column(db.Integer, nullable=False, index=True)
+    oid = db.Column(db.Integer, nullable=False)
+
+    def __init__(self, uid, gid, oid):
+        self.uid = uid
+        self.gid = gid
+        self.oid = oid
+
