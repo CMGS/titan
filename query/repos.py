@@ -29,6 +29,14 @@ def get_organization_repos(oid):
 def get_team_repos(oid, tid):
     return Repos.query.filter((Repos.oid==oid) & (Repos.tid==tid)).all()
 
+@cache('repos:explore:user:{oid}:{uid}', 8640000)
+def get_user_organization_repos(oid, uid):
+    return Repos.query.filter((Repos.oid==oid) & (Repos.uid==uid)).all()
+
+@cache('repos:explore:team:user:{oid}:{tid}:{uid}', 8640000)
+def get_user_team_repos(oid, tid, uid):
+    return Repos.query.filter((Repos.oid==oid) & (Repos.tid==tid) & (Repos.uid==uid)).all()
+
 @cache('repos:{oid}:{path}', 864000)
 def get_repo_by_path(oid, path):
     return Repos.query.filter_by(path=path, oid=oid).limit(1).first()
@@ -81,12 +89,14 @@ def clear_repo_cache(repo, organization, team=None, old_path=None, need=True):
             clear_team_cache(organization, team)
     backend.delete_many(*keys)
 
-def clear_explore_cache(organization, team=None):
+def clear_explore_cache(organization, uid, team=None):
     keys = [
-        'repos:explore:{oid}'.format(oid=organization.id),
+        'repos:explore:{oid}'.format(oid=organization.id), \
+        'repos:explore:user:{oid}:{uid}'.format(oid=organization.id, uid=uid), \
     ]
     if team:
         keys.append('repos:explore:team:{oid}:{tid}'.format(oid=organization.id, tid=team.id))
+        keys.append('repos:explore:team:user:{oid}:{tid}:{uid}'.format(oid=organization.id, tid=team.id, uid=uid))
     backend.delete_many(*keys)
 
 # create
@@ -118,7 +128,7 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=0)
             return None, error
         db.session.commit()
         clear_repo_cache(repo, organization, team)
-        clear_explore_cache(organization, team)
+        clear_explore_cache(organization, repo.uid, team)
         clear_commiter_cache(user, repo)
         return repo, None
     except sqlalchemy.exc.IntegrityError, e:
@@ -286,7 +296,7 @@ def delete_repo(organization, repo, team=None):
             keys.append('repos:watcher:{uid}:{rid}'.format(uid=watcher.uid, rid=repo.id))
         db.session.commit()
         clear_repo_cache(repo, organization, team)
-        clear_explore_cache(organization, team)
+        clear_explore_cache(organization, repo.uid, team)
         from utils.timeline import after_delete_repo
         after_delete_repo(repo, asynchronous=True)
         backend.delete_many(*keys)
