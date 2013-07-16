@@ -53,8 +53,8 @@ class View(MethodView):
         if not error:
             tree, meta = tree['content'], tree['meta']
             readme, tree = self.render_tree(
-                                tree, version, organization.git, \
-                                tname, repo
+                                repo, organization, \
+                                tree, version, tname, \
                             )
             path = render_path(
                         path, version, organization.git, \
@@ -89,16 +89,16 @@ class View(MethodView):
             commit.user.avatar = user.avatar(18)
         return commit
 
-    def render_tree(self, tree, version, git, tname, repo):
+    def render_tree(self, repo, organization, tree, version, tname):
         ret = []
         readme = None
         for d in tree:
             data = Obj()
             if d['type'] == 'tree':
-                data.url = url_for('repos.view', git=git, tname=tname, rname=repo.name, version=version, path=d['path'])
+                data.url = url_for('repos.view', git=organization.git, tname=tname, rname=repo.name, version=version, path=d['path'])
             elif d['type'] == 'blob':
-                data.url = url_for('repos.blob', git=git, tname=tname, rname=repo.name, version=version, path=d['path'])
-                if d['name'].startswith('README'):
+                data.url = url_for('repos.blob', git=organization.git, tname=tname, rname=repo.name, version=version, path=d['path'])
+                if d['name'].startswith('README.'):
                     readme = self.get_readme_file(repo, d['path'], version)
             elif d['type'] == 'submodule':
                 data.url = self.get_submodule_url(d['submodule'], d['sha'])

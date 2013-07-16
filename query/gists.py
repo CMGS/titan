@@ -34,7 +34,7 @@ def clear_watcher_cache(user, gist, organization):
     pass
 
 # create
-def create_gist(organization, user, summary, parent=0, private=None):
+def create_gist(data, organization, user, summary, parent=0, private=None):
     try:
         gist = Gists(summary, organization.id, user.id, parent=0, private=private)
         db.session.add(gist)
@@ -46,6 +46,10 @@ def create_gist(organization, user, summary, parent=0, private=None):
         jagare = get_jagare(gist.id, parent)
         ret, error = jagare.init(gist.get_real_path())
         if not ret:
+            db.session.rollback()
+            return None, error
+        error, ret = jagare.update_file(gist.get_real_path(), data, user)
+        if error:
             db.session.rollback()
             return None, error
         db.session.commit()

@@ -47,6 +47,8 @@ REPOS_CAT_FILE_FAILED = 'cat file failed'
 
 GIST_WITHOUT_FILENAME = 'gist without filename'
 GIST_FILENAME_EXISTS = 'gist filename exists'
+GIST_UPDATE_COMMIT = 'gist update'
+GIST_UPDATE_FAILED = 'gist update failed'
 
 UNHANDLE_EXCEPTION = 'Server fault'
 

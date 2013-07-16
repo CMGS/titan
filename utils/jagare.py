@@ -118,6 +118,25 @@ class Jagare(object):
             logger.exception(e)
             return code.UNHANDLE_EXCEPTION, None
 
+    def update_file(self, repo_path, data, user):
+        try:
+            r = requests.put(
+                    '%s/%s/update-file/' % (self.node, repo_path), \
+                    files = data, \
+                    data = {
+                        "author_name": user.name, \
+                        "author_email": user.email, \
+                        "message": code.GIST_UPDATE_COMMIT, \
+                    }
+                )
+            result = self.get_result(r)
+            if not result or result['error']:
+                return code.GIST_UPDATE_FAILED, None
+            return None, result['data']
+        except Exception, e:
+            logger.exception(e)
+            return code.UNHANDLE_EXCEPTION, None
+
     def get_result(self, r):
         return json.loads(r.text)
 

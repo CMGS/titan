@@ -3,15 +3,19 @@
 
 import logging
 
-from flask import url_for, request, redirect, g
+from flask import url_for, request, redirect, \
+        g, abort
 
 from utils import code
-from utils.helper import MethodView
+from libs.code import render_code
+from utils.repos import format_time
+from utils.jagare import get_jagare
 from utils.token import create_token
+from utils.helper import MethodView, Obj
 from utils.account import login_required
 from utils.organization import member_required
 
-from query.gists import create_gist
+from query.gists import create_gist, get_gist
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +53,7 @@ class Create(MethodView):
                             codes=codes, \
                         )
             data[filename] = codes[i]
-        gist, err = create_gist(organization, g.current_user, summary, private=private)
+        gist, err = create_gist(data, organization, g.current_user, summary, private=private)
         if err:
             return self.render_template(
                         organization=organization, \
@@ -63,5 +67,52 @@ class Create(MethodView):
 class View(MethodView):
     decorators = [member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, gid):
-        return 'Hello World'
+        gist = get_gist(gid)
+        if not gist:
+            raise abort(404)
+
+        jagare = get_jagare(gist.id, gist.parent)
+        error, tree = jagare.ls_tree(gist.get_real_path())
+        if not error:
+            tree, meta = tree['content'], tree['meta']
+            tree = self.render_tree(jagare, tree, gist, organization)
+        return self.render_template(
+                    organization=organization, \
+                    member=member, \
+                    error=error, \
+                    tree=tree, \
+                    gist=gist, \
+                )
+
+    def render_tree(self, jagare, tree, gist, organization):
+        ret = []
+        for d in tree:
+            data = Obj()
+            if d['type'] == 'blob':
+                data.content, data.length = self.get_file_content(jagare, gist, d['path'])
+            else:
+                continue
+            data.name = d['name']
+            data.sha = d['sha']
+            data.type = d['type']
+            data.ago = format_time(d['commit']['committer']['ts'])
+            data.message = d['commit']['message'][:150]
+            data.commit = d['commit']['sha']
+            data.path = d['path']
+            ret.append(data)
+        return ret
+
+    def get_file_content(self, jagare, gist, path):
+        error, res = jagare.cat_file(gist.get_real_path(), path)
+        if error:
+            return None, None
+        content_type = res.headers.get('content-type', 'application/octet-stream')
+        content_length = float(res.headers.get('content-length', 0.0)) / 1024
+        if 'text' not in content_type:
+            return None, None
+        content = res.content
+        if not isinstance(content, unicode):
+            content = content.decode('utf8')
+        content = render_code(path, content)
+        return content, content_length
 

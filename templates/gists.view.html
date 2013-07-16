@@ -1,0 +1,32 @@
+{% extends "organization.view.html" %}
+{% block subtitle %}View gist:{{ gist.id }}{% endblock %}
+{% block add_js %}
+<link href="{{ '/static/css/prettify.css' | s_files }}" rel="stylesheet">
+{% endblock %}
+{% block subcontent %}
+{% if error %}
+<div class="alert alert-error">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    {{ error }}
+</div>
+{% else %}
+<h3>View gist:{{ gist.id }}</h3>
+{% if gist.summary %}
+<blockquote>
+    {{ gist.summary }}
+</blockquote>
+{% endif %}
+<ul class="unstyled">
+{% for d in tree %}
+    {% if d.content %}
+    <li style="margin-top:10px">
+        <ul class="inline", style="margin-bottom:10px;">
+            <span class="label">{{ d.name }}</span>
+            <span class="label label-info">{{ d.length }}k</span>
+        </ul>
+        {{ d.content|safe }}
+    </li>
+    {% endif %}
+{% endfor %}
+{% endif %}
+{% endblock %}
