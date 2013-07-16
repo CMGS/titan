@@ -156,6 +156,7 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=0)
         clear_repo_cache(repo, organization, team)
         clear_explore_cache(organization, repo.uid, team)
         clear_commiter_cache(user, repo)
+        clear_watcher_cache(user, repo, organization, team)
         return repo, None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()

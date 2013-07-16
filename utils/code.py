@@ -45,6 +45,9 @@ REPOS_PATH_NOT_FOUND = 'path not found'
 REPOS_LS_TREE_FAILED = 'ls tree failed'
 REPOS_CAT_FILE_FAILED = 'cat file failed'
 
+GIST_WITHOUT_FILENAME = 'gist without filename'
+GIST_FILENAME_EXISTS = 'gist filename exists'
+
 UNHANDLE_EXCEPTION = 'Server fault'
 
 VERIFY_ALREAD_EXISTS = 'you had send a mail already'

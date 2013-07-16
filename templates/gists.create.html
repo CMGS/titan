@@ -1,0 +1,68 @@
+{% extends "organization.view.html" %}
+{% block subtitle %}Create a Repo{% endblock %}
+{% block add_js %}
+<script>
+function add() {
+    s = '<label class=\"text\"><p>Filename</p><input name=\"filename\" type=\"text\" class=\"input-block-level\" placeholder=\"Filename\"></label><textarea class=\"input-xxlarge\" name=\"code\" rows=\"10\" cols=\"20\"></textarea>'
+    $('#create').append(s);
+}
+</script>
+<style>
+.form-create {
+  max-width: 500px;
+  -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+          border-radius: 5px;
+}
+.form-create .form-create-heading,
+.form-create .checkbox {
+  margin-bottom: 10px;
+}
+.form-create input[type="text"] {
+  font-size: 16px;
+  height: auto;
+  margin-bottom: 15px;
+  padding: 7px 9px;
+  width: 300px;
+}
+</style>
+{% endblock %}
+{% block subcontent %}
+<form class="form-create" method="POST">
+    <h3 class="form-create-heading">Create a gist</h3>
+    {% if error %}
+    <div class="alert alert-error">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      {{ error }}
+    </div>
+    {% endif %}
+    <label class="text">
+        <p>Summary</p>
+        <input name="summary" type="text" class="input-block-level" placeholder="Summary">
+    </label>
+    <hr />
+    <div id="create">
+        {% if not filenames %}
+        <label class="text">
+            <p>Filename</p>
+            <input name="filename" type="text" class="input-block-level" placeholder="Filename">
+        </label>
+        <textarea class="input-xxlarge" name="code" rows="10" cols="20"></textarea>
+        {% else %}
+        {% for i in range(0, filenames|length) %}
+        <label class="text">
+            <p>Filename</p>
+            <input name="filename" type="text" value="{{ filenames[i] }}" class="input-block-level" placeholder="Filename">
+        </label>
+        <textarea class="input-xxlarge" name="code" rows="10" cols="20">{{ codes[i] }}</textarea>
+        {% endfor %}
+        {% endif %}
+    </div>
+    <label class="checkbox">
+        <input name="private" type="checkbox">private
+    </label>
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <a href="#" class="btn btn-primary" onclick="add();">add</a>
+    <button class="btn btn-primary" type="submit">Submit</button>
+</form>
+{% endblock %}

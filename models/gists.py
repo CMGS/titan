@@ -14,10 +14,10 @@ class Gists(db.Model):
     watchers = db.Column(db.Integer, nullable=False, default=0)
     parent = db.Column(db.Integer, nullable=False, default=0)
     forks = db.Column(db.Integer, nullable=False, default=0)
-    private = db.Column(db.String(20), nullable=True)
+    private = db.Column(db.String(20), nullable=True, unique=True)
     create = db.Column(db.DateTime, default=datetime.now)
 
-    def __init__(self, summary, oid, uid, parent=0, watchers=0, private=''):
+    def __init__(self, summary, oid, uid, parent=0, watchers=0, private=None):
         self.oid = oid
         self.uid = uid
         self.watchers = watchers
@@ -29,7 +29,7 @@ class Gists(db.Model):
         if not getattr(self, '_real_path', None):
             real_path = os.path.join(
                             str(self.oid), \
-                            'gist', \
+                            '0', \
                             '%d.git' % self.id,
                         )
             setattr(self, '_real_path', real_path)

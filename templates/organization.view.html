@@ -15,6 +15,7 @@
             <li><a href="{{ url_for('organization.teams', git=organization.git) }}">Teams</a></li>
         </ul>
         <ul class="nav nav-tabs nav-stacked">
+            <li><a href="{{ url_for('gists.create', git=organization.git) }}">Create Gist</a></li>
             <li><a href="{{ url_for('repos.create', git=organization.git) }}">Create Repo</a></li>
             {% if organization.allow or member.admin %}
             <li><a href="{{ url_for('organization.createteam', git=organization.git) }}">Create Team</a></li>
