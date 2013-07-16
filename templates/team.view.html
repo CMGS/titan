@@ -14,15 +14,18 @@
         {% endif %}
         <ul class="nav nav-tabs nav-stacked">
             <li><a href="{{ url_for('repos.explore', git=organization.git, tname=team.name) }}">Explore</a></li>
-            {% if team_member %}
             <li><a href="{{ url_for('repos.explore', git=organization.git, tname=team.name, f='m') }}">My Repos</a></li>
+            <li><a href="{{ url_for('repos.explore', git=organization.git, tname=team.name, f='w') }}">My Watches</a></li>
+            {% if team_member or member.admin %}
             <li><a href="{{ url_for('repos.create', git=organization.git) }}">Create Repo</a></li>
             {% endif %}
-            {% if member.admin or (team_member and team_member.admin) %}
+        </ul>
+        {% if member.admin or (team_member and team_member.admin) %}
+        <ul class="nav nav-tabs nav-stacked">
             <li><a href="{{ url_for('organization.setteam', git=organization.git, tname=team.name) }}">Team Setting</a></li>
             <li><a href="{{ url_for('organization.addmember', git=organization.git, tname=team.name) }}">Add Member</a></li>
-            {% endif %}
         </ul>
+        {% endif %}
     </div>
     <div class="span10">
         {% block subcontent %}

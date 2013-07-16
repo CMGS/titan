@@ -57,9 +57,30 @@ def get_repo_watcher(uid, rid):
 def get_repo_watchers(rid):
     return Watchers.query.filter_by(rid=rid).all()
 
-@cache('repos:watchers:user:{uid}:{oid}', 8640000)
-def get_user_watcher_repos(uid, oid):
+@cache('user:watches:{uid}:{oid}', 8640000)
+def get_user_watches(uid, oid):
     return Watchers.query.filter_by(uid=uid, oid=oid).all()
+
+@cache('user:watches:organization:{uid}:{oid}', 8640000)
+def get_user_watcher_repos(uid, oid):
+    return get_watcher_repos(uid, oid, tid=None)
+
+@cache('user:watches:team:{uid}:{oid}:{tid}', 8640000)
+def get_user_watcher_team_repos(uid, oid, tid):
+    return get_watcher_repos(uid, oid, tid=tid)
+
+def get_watcher_repos(uid, oid, tid):
+    watches = get_user_watches(uid, oid)
+    query = Repos.query.filter(Repos.oid==oid)
+    if tid:
+        query = query.filter(Repos.tid==tid)
+    s = None
+    for w in watches:
+        if s is None:
+            s = (Repos.id == w.rid)
+        else:
+            s = s | (Repos.id == w.rid)
+    return query.filter(s).all()
 
 # clear
 
@@ -70,12 +91,17 @@ def clear_commiter_cache(user, repo):
     ]
     backend.delete_many(*keys)
 
-def clear_watcher_cache(user, repo, organization):
+def clear_watcher_cache(user, repo, organization, team=None):
     keys = [
         'repos:watchers:{rid}'.format(rid=repo.id), \
         'repos:watcher:{uid}:{rid}'.format(uid=user.id, rid=repo.id), \
-        'repos:watchers:user:{uid}:{oid}'.format(uid=user.id, oid=organization.id), \
+        'user:watches:{uid}:{oid}'.format(uid=user.id, oid=organization.id), \
+        'user:watches:organization:{uid}:{oid}'.format(uid=user.id, oid=organization.id), \
     ]
+    if team:
+        keys.append('user:watches:team:{uid}:{oid}:{tid}'.format(
+            uid=user.id, oid=organization.id, tid=team.id
+        ))
     backend.delete_many(*keys)
 
 def clear_repo_cache(repo, organization, team=None, old_path=None, need=True):
@@ -167,14 +193,14 @@ def create_commiter(user, repo, organization):
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
 
-def create_watcher(user, repo, organization):
+def create_watcher(user, repo, organization, team=None):
     try:
         watcher = Watchers(user.id, repo.id, organization.id)
         repo.watchers = Repos.watchers + 1
         db.session.add(watcher)
         db.session.add(repo)
         db.session.commit()
-        clear_watcher_cache(user, repo, organization)
+        clear_watcher_cache(user, repo, organization, team)
         clear_repo_cache(repo, organization, need=False)
         if user.id != repo.uid:
             from utils.timeline import after_add_watcher
@@ -244,13 +270,13 @@ def transport_repo(organization, user, repo, team=None):
 
 # delete
 
-def delete_watcher(user, watcher, repo, organization):
+def delete_watcher(user, watcher, repo, organization, team=None):
     try:
         db.session.delete(watcher)
         repo.watchers = Repos.watchers - 1
         db.session.add(repo)
         db.session.commit()
-        clear_watcher_cache(user, repo, organization)
+        clear_watcher_cache(user, repo, organization, team)
         clear_repo_cache(repo, organization, need=False)
         if user.id != repo.uid:
             from utils.timeline import after_delete_watcher

@@ -11,7 +11,8 @@ from utils.organization import member_required
 
 from query.account import get_user
 from query.repos import get_organization_repos, get_team_repos, \
-        get_user_organization_repos, get_user_team_repos
+        get_user_organization_repos, get_user_team_repos, \
+        get_user_watcher_repos, get_user_watcher_team_repos
 from query.organization import get_team_by_name, get_team_member, get_team, \
         get_team_members
 
@@ -49,10 +50,10 @@ class Explore(MethodView):
         elif f == 0:
             if team:
                 # Get user watch team repos
-                pass
+                ret = get_user_watcher_team_repos(g.current_user.id, organization.id, team.id)
             else:
                 # Get user watch repos
-                pass
+                ret = get_user_watcher_repos(g.current_user.id, organization.id)
         elif f == 1:
             if team:
                 # Get user team repos
@@ -78,7 +79,7 @@ class Explore(MethodView):
 
     def get_team(self, organization, member, tname):
         if not tname:
-            return None
+            return None, None
         team = get_team_by_name(organization.id, tname)
         if not team:
             raise abort(404)
