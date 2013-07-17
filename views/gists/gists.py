@@ -7,12 +7,12 @@ from flask import url_for, request, redirect, \
         g, abort
 
 from utils import code
-from utils.jagare import get_jagare
+from utils.repos import format_time
 from utils.token import create_token
 from utils.helper import MethodView, Obj
 from utils.account import login_required
 from utils.organization import member_required
-from utils.repos import format_time, format_content
+from utils.jagare import get_jagare, format_content
 
 from query.gists import create_gist, get_gist
 

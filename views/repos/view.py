@@ -1,22 +1,19 @@
 #!/usr/local/bin/python2.7
 #coding:utf-8
 
-import base64
 import logging
 
 from flask import g, url_for, abort, \
         Response, stream_with_context, request
 
-from utils.jagare import get_jagare
 from utils.helper import MethodView, Obj
 from utils.account import login_required
 from utils.organization import member_required
 from utils.activities import render_push_action
 from utils.timeline import render_activities_page
-from utils.repos import repo_required, format_time, \
-        format_content
+from utils.repos import repo_required, format_time
+from utils.jagare import get_jagare, format_content
 
-from libs.code import render_code
 from query.repos import get_repo_watcher
 from query.account import get_user, get_alias_by_email
 

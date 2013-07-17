@@ -1,11 +1,12 @@
 #!/usr/local/bin/python2.7
 #coding:utf-8
 
-import json
+import base64
 import logging
-import requests
+from flask import abort
+from libs.jagare import Jagare
+from libs.code import render_code
 
-from utils import code
 from config import JAGARE_NODES
 
 logger = logging.getLogger(__name__)
@@ -24,119 +25,29 @@ def get_jagare(rid, parent=0):
     cache[node] = jagare
     return jagare
 
-class Jagare(object):
-    def __init__(self, node):
-        self.node = node
+def format_content(jagare, repo, path, version='master', render=True):
+    error, res = jagare.cat_file(repo.get_real_path(), path, version=version)
+    if error:
+        raise abort(error)
 
-    def init(self, path):
-        try:
-            r = requests.post('%s/%s/init' % (self.node, path))
-            result = self.get_result(r)
-            if not result or result['error']:
-                return False, code.REPOS_INIT_FAILED
-            return True, None
-        except Exception, e:
-            logger.exception(e)
-            return False, code.UNHANDLE_EXCEPTION
+    content_type = res.headers.get('content-type', 'application/octet-stream')
+    content_length = float(res.headers.get('content-length', 0.0)) / 1024
 
-    def ls_tree(self, repo_path, path='', version='master'):
-        try:
-            url = '%s/%s/ls-tree/%s' % (self.node, repo_path, version)
-            params = {'with_commit': 1}
-            params['path'] = path if path else None
-            r = requests.get(url, params=params)
-            result = self.get_result(r)
-            if not result:
-                return code.REPOS_LS_TREE_FAILED, None
-            if result['error']:
-                return result['message'], None
-            if not result['data']:
-                return code.REPOS_PATH_NOT_FOUND, None
-            return None, result['data']
-        except Exception, e:
-            logger.exception(e)
-            return code.UNHANDLE_EXCEPTION, None
-
-    def cat_file(self, repo_path, path, version='master'):
-        try:
-            r = requests.get(
-                    '%s/%s/cat/path/%s' % (self.node, repo_path, version), \
-                    params = {'path':path}, \
-                    stream = True,
-                )
-            if not r.ok:
-                return r.status_code, None
-            return None, r
-        except Exception, e:
-            logger.exception(e)
-            return 404, None
-
-    def get_branches(self, repo_path):
-        try:
-            r = requests.get(
-                    '%s/%s/list/branches' % (self.node, repo_path)
-                )
-            result = self.get_result(r)
-            if not r.ok:
-                return None
-            return result['data']
-        except Exception, e:
-            logger.exception(e)
-            return None
-
-    def get_branches_names(self, repo_path):
-        branches = self.get_branches(repo_path)
-        if not branches:
-            return []
-        return [d['name'] for d in branches]
-
-    def get_log(self, repo_path, start=None, end=None, no_merges=1):
-        try:
-            params = {'reference': start, 'from_ref': end, 'no_merges': no_merges}
-            r = requests.get(
-                    '%s/%s/log' % (self.node, repo_path), \
-                    params = params
-                )
-            result = self.get_result(r)
-            if not r.ok:
-                return None
-            return result['data']
-        except Exception, e:
-            logger.exception(e)
-            return None
-
-    def set_default_branch(self, repo_path, branch='master'):
-        try:
-            r = requests.put(
-                    '%s/%s/update-ref/HEAD' % (self.node, repo_path), \
-                    data = {"newvalue" : "refs/heads/%s" % branch}
-                )
-
-            result = self.get_result(r)
-            return result['error'], result['message']
-        except Exception, e:
-            logger.exception(e)
-            return code.UNHANDLE_EXCEPTION, None
-
-    def update_file(self, repo_path, data, user):
-        try:
-            r = requests.put(
-                    '%s/%s/update-file/' % (self.node, repo_path), \
-                    files = data, \
-                    data = {
-                        "author_name": user.name, \
-                        "author_email": user.email, \
-                        "message": code.GIST_UPDATE_COMMIT, \
-                    }
-                )
-            result = self.get_result(r)
-            if not result or result['error']:
-                return code.GIST_UPDATE_FAILED, None
-            return None, result['data']
-        except Exception, e:
-            logger.exception(e)
-            return code.UNHANDLE_EXCEPTION, None
-
-    def get_result(self, r):
-        return json.loads(r.text)
+    if 'image' in content_type:
+        content_type = 'image'
+        content = lambda: base64.b64encode(res.content)
+    elif 'text' in content_type:
+        content_type = 'file'
+        def _():
+            c = res.content
+            if not isinstance(c, unicode):
+                c.decode('utf8')
+            if render:
+                c = render_code(path, c)
+            return c
+        content = _
+    else:
+        content_type = 'binary'
+        content = lambda: res.content
+    return content, content_type, content_length
 

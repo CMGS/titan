@@ -3,12 +3,10 @@
 
 import os
 import time
-import base64
 import logging
 from flask import g, abort, url_for, redirect
 
 from functools import wraps
-from libs.code import render_code
 from query.repos import get_repo_by_path, get_repo_commiter
 from query.organization import get_team_member, get_team_by_name, \
         get_team
@@ -108,30 +106,4 @@ def get_url(view, organization, repo, kw={}, **kwargs):
         if not team:
             team = get_team(repo.tid)
         return url_for(view, git=organization.git, rname=repo.name, tname=team.name, **kwargs)
-
-def format_content(jagare, repo, path, version='master', render=True):
-    error, res = jagare.cat_file(repo.get_real_path(), path, version=version)
-    if error:
-        raise abort(error)
-
-    content_type = res.headers.get('content-type', 'application/octet-stream')
-    content_length = float(res.headers.get('content-length', 0.0)) / 1024
-
-    if 'image' in content_type:
-        content_type = 'image'
-        content = lambda: base64.b64encode(res.content)
-    elif 'text' in content_type:
-        content_type = 'file'
-        def _():
-            c = res.content
-            if not isinstance(c, unicode):
-                c.decode('utf8')
-            if render:
-                c = render_code(path, c)
-            return c
-        content = _
-    else:
-        content_type = 'binary'
-        content = lambda: res.content
-    return content, content_type, content_length
 
