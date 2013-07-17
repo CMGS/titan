@@ -10,7 +10,12 @@
     {{ error }}
 </div>
 {% else %}
-<h3><strong>Gist:</strong>{{ gist.id }}</h3>
+<h3>
+    <strong>Gist:</strong>{{ gist.id }}
+    {% if gist.uid == g.current_user.id %}
+    <small><a href="{{ url_for('gists.edit', git=organization.git, gid=gist.id) }}">edit</a></small>
+    {% endif %}
+</h3>
 {% if gist.summary %}
 <blockquote>
     {{ gist.summary }}

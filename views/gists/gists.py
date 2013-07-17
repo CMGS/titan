@@ -10,21 +10,23 @@ from utils import code
 from utils.repos import format_time
 from utils.gists import gist_require
 from utils.token import create_token
-from utils.helper import MethodView, Obj
 from utils.account import login_required
 from utils.organization import member_required
+from utils.helper import MethodView, Obj, get_hash
 from utils.jagare import get_jagare, format_content
 
-from query.gists import create_gist
+from query.gists import create_gist, update_gist
 
 logger = logging.getLogger(__name__)
 
-def render_tree(jagare, tree, gist, organization):
+def render_tree(jagare, tree, gist, organization, render=True):
     ret = []
     for d in tree:
         data = Obj()
         if d['type'] == 'blob':
-            data.content, data.content_type, data.length = format_content(jagare, gist, d['path'])
+            data.content, data.content_type, data.length = format_content(
+                    jagare, gist, d['path'], render=render, \
+            )
         else:
             continue
         data.download = url_for('gists.raw', git=organization.git, path=d['path'], gid=gist.id)
@@ -119,7 +121,7 @@ class Edit(MethodView):
         error, tree = jagare.ls_tree(gist.get_real_path())
         if not error:
             tree, meta = tree['content'], tree['meta']
-            tree = render_tree(jagare, tree, gist, organization)
+            tree = render_tree(jagare, tree, gist, organization, False)
         return self.render_template(
                     organization=organization, \
                     member=member, \
@@ -127,3 +129,74 @@ class Edit(MethodView):
                     tree=tree, \
                     gist=gist, \
                 )
+
+    def post(self, organization, member, gist):
+        summary = request.form.get('summary')
+        filenames = request.form.getlist('filename')
+        codes = request.form.getlist('code')
+        data = {}
+        length = len(filenames)
+        for i in xrange(0, length):
+            filename = filenames[i]
+            if not filename:
+                return self.render_template(
+                            organization=organization, \
+                            member=member, \
+                            error=code.GIST_WITHOUT_FILENAME, \
+                            tree=self.gen_tree(length, filenames, codes), \
+                            gist=gist,
+                        )
+            if data.get(filename):
+                return self.render_template(
+                            organization=organization, \
+                            member=member, \
+                            error=code.GIST_FILENAME_EXISTS, \
+                            tree=self.gen_tree(length, filenames, codes), \
+                            gist=gist,
+                        )
+            data[filename] = codes[i]
+        jagare = get_jagare(gist.id, gist.parent)
+        error, tree = jagare.ls_tree(gist.get_real_path())
+        if error:
+            return self.render_template(
+                        organization=organization, \
+                        member=member, \
+                        error=code.REPOS_LS_TREE_FAILED, \
+                        tree=self.gen_tree(length, filenames, codes), \
+                        gist=gist,
+                    )
+        data = self.diff(jagare, tree, gist, organization, data)
+        _, error = update_gist(g.current_user, gist, data, summary)
+        if error:
+            return self.render_template(
+                        organization=organization, \
+                        member=member, \
+                        error=code.GIST_UPDATE_FAILED, \
+                        tree=self.gen_tree(length, filenames, codes), \
+                        gist=gist,
+                    )
+        return redirect(url_for('gists.view', git=organization.git, gid=gist.id))
+
+    def diff(self, jagare, tree, gist, organization, data):
+        tree, meta = tree['content'], tree['meta']
+        tree = render_tree(jagare, tree, gist, organization, False)
+        for d in tree:
+            name = d.name
+            if data.get(name, None) is None:
+                # set delete flag
+                data[d.path] = ''
+                continue
+            old_hash = get_hash(d.content())
+            new_hash = get_hash(data[name])
+            if old_hash != new_hash:
+                continue
+            del data[name]
+        return data
+
+    def gen_tree(self, length, filenames, codes):
+        for i in xrange(0, length):
+            d = Obj()
+            d.name = filenames[i]
+            d.content = lambda: codes[i]
+            yield d
+

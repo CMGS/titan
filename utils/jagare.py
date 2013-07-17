@@ -41,7 +41,7 @@ def format_content(jagare, repo, path, version='master', render=True):
         def _():
             c = res.content
             if not isinstance(c, unicode):
-                c.decode('utf8')
+                c = c.decode('utf8')
             if render:
                 c = render_code(path, c)
             return c

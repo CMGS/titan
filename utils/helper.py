@@ -44,8 +44,15 @@ def make_view(module_name):
 
 class Obj(object):pass
 
+def get_hash(content, t='md5'):
+    m = hashlib.new(t)
+    if isinstance(content, unicode):
+        content = content.encode('utf8')
+    m.update(content)
+    return m.hexdigest()
+
 def get_avatar(email, size):
-    md5email = hashlib.md5(email).hexdigest()
+    md5email = get_hash(email)
     query = "%s?s=%s%s" % (md5email, size, config.GRAVATAR_EXTRA)
     return '%s%s' % (config.GRAVATAR_BASE_URL, query)
 

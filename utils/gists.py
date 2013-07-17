@@ -2,7 +2,7 @@
 #coding:utf-8
 
 import logging
-from flask import abort
+from flask import abort, g
 from functools import wraps
 from query.gists import get_gist
 

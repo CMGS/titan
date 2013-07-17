@@ -1,0 +1,58 @@
+{% extends "organization.view.html" %}
+{% block subtitle %}Edit gist:{{ gist.id }}{% endblock %}
+{% block add_js %}
+<script>
+function add() {
+    s = '<label class=\"text\"><p>Filename</p><input name=\"filename\" type=\"text\" class=\"input-block-level\" placeholder=\"Filename\"></label><textarea class=\"span12\" name=\"code\" rows=\"20\"></textarea>'
+    $('#edit').append(s);
+}
+</script>
+<style>
+.form-edit {
+  -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+          border-radius: 5px;
+}
+.form-edit .form-edit-heading,
+.form-edit .checkbox {
+  margin-bottom: 10px;
+}
+.form-edit input[type="text"] {
+  font-size: 16px;
+  height: auto;
+  margin-bottom: 15px;
+  padding: 7px 9px;
+  width: 300px;
+}
+</style>
+{% endblock %}
+{% block subcontent %}
+<form class="form-edit" method="POST">
+    <h3 class="form-edit-heading">
+        Edit <strong>Gist:</strong>{{ gist.id }} <small><a href="{{ url_for('gists.view', git=organization.git, gid=gist.id) }}">back</a></small>
+    </h3>
+    {% if error %}
+    <div class="alert alert-error">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      {{ error }}
+    </div>
+    {% endif %}
+    <label class="text">
+        <p>Summary</p>
+        <input name="summary" value="{% if gist.summary %}{{ gist.summary }}{% endif %}"type="text" class="input-block-level" placeholder="Summary">
+    </label>
+    <hr />
+    <div id="edit">
+        {% for d in tree %}
+        <label class="text">
+            <p>Filename</p>
+            <input name="filename" type="text" value="{{ d.name }}" class="input-block-level" placeholder="Filename">
+        </label>
+        <textarea class="span12" name="code" rows="20">{{ d.content() }}</textarea>
+        {% endfor %}
+    </div>
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <a href="#" class="btn btn-primary" onclick="add();">add</a>
+    <button class="btn btn-primary" type="submit">Update</button>
+</form>
+{% endblock %}
