@@ -19,6 +19,25 @@ from query.gists import create_gist
 
 logger = logging.getLogger(__name__)
 
+def render_tree(jagare, tree, gist, organization):
+    ret = []
+    for d in tree:
+        data = Obj()
+        if d['type'] == 'blob':
+            data.content, data.content_type, data.length = format_content(jagare, gist, d['path'])
+        else:
+            continue
+        data.download = url_for('gists.raw', git=organization.git, path=d['path'], gid=gist.id)
+        data.name = d['name']
+        data.sha = d['sha']
+        data.type = d['type']
+        data.ago = format_time(d['commit']['committer']['ts'])
+        data.message = d['commit']['message'][:150]
+        data.commit = d['commit']['sha']
+        data.path = d['path']
+        ret.append(data)
+    return ret
+
 class Create(MethodView):
     decorators = [member_required(admin=False), login_required('account.login')]
     def get(self, organization, member):
@@ -71,7 +90,7 @@ class View(MethodView):
         error, tree = jagare.ls_tree(gist.get_real_path())
         if not error:
             tree, meta = tree['content'], tree['meta']
-            tree = self.render_tree(jagare, tree, gist, organization)
+            tree = render_tree(jagare, tree, gist, organization)
         return self.render_template(
                     organization=organization, \
                     member=member, \
@@ -79,25 +98,6 @@ class View(MethodView):
                     tree=tree, \
                     gist=gist, \
                 )
-
-    def render_tree(self, jagare, tree, gist, organization):
-        ret = []
-        for d in tree:
-            data = Obj()
-            if d['type'] == 'blob':
-                data.content, data.content_type, data.length = format_content(jagare, gist, d['path'])
-            else:
-                continue
-            data.download = url_for('gists.raw', git=organization.git, path=d['path'], gid=gist.id)
-            data.name = d['name']
-            data.sha = d['sha']
-            data.type = d['type']
-            data.ago = format_time(d['commit']['committer']['ts'])
-            data.message = d['commit']['message'][:150]
-            data.commit = d['commit']['sha']
-            data.path = d['path']
-            ret.append(data)
-        return ret
 
 class Raw(MethodView):
     decorators = [gist_require(), member_required(admin=False), login_required('account.login')]
@@ -112,3 +112,18 @@ class Raw(MethodView):
         resp.headers['Content-Type'] = res.headers.get('content-type', 'application/octet-stream')
         return resp
 
+class Edit(MethodView):
+    decorators = [gist_require(owner=True), member_required(admin=False), login_required('account.login')]
+    def get(self, organization, member, gist):
+        jagare = get_jagare(gist.id, gist.parent)
+        error, tree = jagare.ls_tree(gist.get_real_path())
+        if not error:
+            tree, meta = tree['content'], tree['meta']
+            tree = render_tree(jagare, tree, gist, organization)
+        return self.render_template(
+                    organization=organization, \
+                    member=member, \
+                    error=error, \
+                    tree=tree, \
+                    gist=gist, \
+                )
