@@ -10,7 +10,7 @@
     {{ error }}
 </div>
 {% else %}
-<h3>View gist:{{ gist.id }}</h3>
+<h3><strong>Gist:</strong>{{ gist.id }}</h3>
 {% if gist.summary %}
 <blockquote>
     {{ gist.summary }}
@@ -21,8 +21,11 @@
     {% if d.content_type == 'file' %}
     <li style="margin-top:10px">
         <ul class="inline", style="margin-bottom:10px;">
-            <span class="label">{{ d.name }}</span>
-            <span class="label label-info">{{ d.length }}k</span>
+            <li><span class="label">{{ d.name }}</span></li>
+            <li><span class="label label-info">{{ d.length }}k</span></li>
+            <li class="pull-right">
+                <a class="btn btn-small" href="{{ d.download }}"><strong>Raw</strong></a>
+            </li>
         </ul>
         {{ d.content() |safe }}
     </li>

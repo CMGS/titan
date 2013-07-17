@@ -4,17 +4,18 @@
 import logging
 
 from flask import url_for, request, redirect, \
-        g, abort
+        g, abort, Response, stream_with_context
 
 from utils import code
 from utils.repos import format_time
+from utils.gists import gist_require
 from utils.token import create_token
 from utils.helper import MethodView, Obj
 from utils.account import login_required
 from utils.organization import member_required
 from utils.jagare import get_jagare, format_content
 
-from query.gists import create_gist, get_gist
+from query.gists import create_gist
 
 logger = logging.getLogger(__name__)
 
@@ -64,12 +65,8 @@ class Create(MethodView):
         return redirect(url_for('gists.view', git=organization.git, gid=gist.id))
 
 class View(MethodView):
-    decorators = [member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, gid):
-        gist = get_gist(gid)
-        if not gist:
-            raise abort(404)
-
+    decorators = [gist_require, member_required(admin=False), login_required('account.login')]
+    def get(self, organization, member, gist):
         jagare = get_jagare(gist.id, gist.parent)
         error, tree = jagare.ls_tree(gist.get_real_path())
         if not error:
@@ -91,6 +88,7 @@ class View(MethodView):
                 data.content, data.content_type, data.length = format_content(jagare, gist, d['path'])
             else:
                 continue
+            data.download = url_for('gists.raw', git=organization.git, path=d['path'], gid=gist.id)
             data.name = d['name']
             data.sha = d['sha']
             data.type = d['type']
@@ -100,4 +98,17 @@ class View(MethodView):
             data.path = d['path']
             ret.append(data)
         return ret
+
+class Raw(MethodView):
+    decorators = [gist_require, member_required(admin=False), login_required('account.login')]
+    def get(self, organization, member, gist, path):
+        jagare = get_jagare(gist.id, gist.parent)
+        error, res = jagare.cat_file(gist.get_real_path(), path)
+        if error:
+            raise abort(error)
+        resp = Response(stream_with_context(res))
+        resp.headers['X-Accel-Buffering'] = 'no'
+        resp.headers['Cache-Control'] = 'no-cache'
+        resp.headers['Content-Type'] = res.headers.get('content-type', 'application/octet-stream')
+        return resp
 
