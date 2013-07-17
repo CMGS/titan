@@ -43,6 +43,7 @@
 
 ## Others
 
+* gist 性能，批量获取文件内容也许性能更好
 * Join/Quit team -> team activities
 * online edit and add file
 * gist
