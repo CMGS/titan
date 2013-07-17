@@ -29,10 +29,10 @@
 </pre>
 {% elif content_type == 'image' %}
 <pre>
-    <img src="data:image/png;base64,{{ content }}"/>
+    <img src="data:image/png;base64,{{ content() }}"/>
 </pre>
 {% else %}
-{{ content|safe }}
+{{ content() | safe }}
 {% endif %}
 {% endblock %}
 

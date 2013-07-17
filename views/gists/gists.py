@@ -7,13 +7,12 @@ from flask import url_for, request, redirect, \
         g, abort
 
 from utils import code
-from libs.code import render_code
-from utils.repos import format_time
 from utils.jagare import get_jagare
 from utils.token import create_token
 from utils.helper import MethodView, Obj
 from utils.account import login_required
 from utils.organization import member_required
+from utils.repos import format_time, format_content
 
 from query.gists import create_gist, get_gist
 
@@ -89,7 +88,7 @@ class View(MethodView):
         for d in tree:
             data = Obj()
             if d['type'] == 'blob':
-                data.content, data.length = self.get_file_content(jagare, gist, d['path'])
+                data.content, data.content_type, data.length = format_content(jagare, gist, d['path'])
             else:
                 continue
             data.name = d['name']
@@ -101,18 +100,4 @@ class View(MethodView):
             data.path = d['path']
             ret.append(data)
         return ret
-
-    def get_file_content(self, jagare, gist, path):
-        error, res = jagare.cat_file(gist.get_real_path(), path)
-        if error:
-            return None, None
-        content_type = res.headers.get('content-type', 'application/octet-stream')
-        content_length = float(res.headers.get('content-length', 0.0)) / 1024
-        if 'text' not in content_type:
-            return None, None
-        content = res.content
-        if not isinstance(content, unicode):
-            content = content.decode('utf8')
-        content = render_code(path, content)
-        return content, content_length
 

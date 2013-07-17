@@ -130,7 +130,7 @@
     </tbody>
 </table>
 {% if readme %}
-{{ readme|safe }}
+{{ readme() | safe }}
 {% endif %}
 {% endblock %}
 {% else %}

@@ -13,7 +13,8 @@ from utils.account import login_required
 from utils.organization import member_required
 from utils.activities import render_push_action
 from utils.timeline import render_activities_page
-from utils.repos import repo_required, format_time
+from utils.repos import repo_required, format_time, \
+        format_content
 
 from libs.code import render_code
 from query.repos import get_repo_watcher
@@ -53,6 +54,7 @@ class View(MethodView):
         if not error:
             tree, meta = tree['content'], tree['meta']
             readme, tree = self.render_tree(
+                                jagare, \
                                 repo, organization, \
                                 tree, version, tname, \
                             )
@@ -89,7 +91,7 @@ class View(MethodView):
             commit.user.avatar = user.avatar(18)
         return commit
 
-    def render_tree(self, repo, organization, tree, version, tname):
+    def render_tree(self, jagare, repo, organization, tree, version, tname):
         ret = []
         readme = None
         for d in tree:
@@ -99,7 +101,9 @@ class View(MethodView):
             elif d['type'] == 'blob':
                 data.url = url_for('repos.blob', git=organization.git, tname=tname, rname=repo.name, version=version, path=d['path'])
                 if d['name'].startswith('README.'):
-                    readme = self.get_readme_file(repo, d['path'], version)
+                    readme, content_type, _ = format_content(jagare, repo, d['path'], version=version)
+                    if content_type != 'file':
+                        readme = None
             elif d['type'] == 'submodule':
                 data.url = self.get_submodule_url(d['submodule'], d['sha'])
                 d['name'] = '%s@%s' % (d['name'], d['sha'][:10])
@@ -126,20 +130,6 @@ class View(MethodView):
             url = 'http://%s:12307%s' % (host, url_for('repos.view', git=git, tname=tname, rname=name, version=sha))
         return url
 
-    def get_readme_file(self, repo, path, version):
-        jagare = get_jagare(repo.id, repo.parent)
-        error, res = jagare.cat_file(repo.get_real_path(), path, version=version)
-        if error:
-            return None
-        content_type = res.headers.get('content-type', 'application/octet-stream')
-        if 'text' not in content_type:
-            return None
-        content = res.content
-        if not isinstance(content, unicode):
-            content = content.decode('utf8')
-        content = render_code(path, content)
-        return content
-
 class Blob(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, repo, path, **kwargs):
@@ -150,28 +140,11 @@ class Blob(MethodView):
         jagare = get_jagare(repo.id, repo.parent)
         tname = team.name if team else None
 
-        repo_path = repo.get_real_path()
-        error, res = jagare.cat_file(repo_path, path, version=version)
-        if error:
-            raise abort(error)
+        content, content_type, content_length = format_content(jagare, repo, path, version=version)
         kwargs['path'] = render_path(
                             path, version, organization.git, \
                             tname, repo.name
                         )
-
-        content = res.content
-        content_type = res.headers.get('content-type', 'application/octet-stream')
-        content_length = float(res.headers.get('content-length', 0.0)) / 1024
-        if 'image' in content_type:
-            content_type = 'image'
-            content = base64.b64encode(content)
-        elif 'text' in content_type:
-            content_type = 'file'
-            if not isinstance(content, unicode):
-                content = content.decode('utf8')
-            content = render_code(path, content)
-        else:
-            content_type = 'binary'
 
         return self.render_template(
                     member=member, repo=repo, \
