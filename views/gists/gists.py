@@ -53,10 +53,12 @@ class Create(MethodView):
         filenames = request.form.getlist('filename')
         codes = request.form.getlist('code')
         private = create_token(20) if request.form.get('private') else None
-        length = len(filenames)
         data = {}
-        for i in xrange(0, length):
-            filename = filenames[i]
+        if len(filenames) != len(codes):
+            raise abort(400)
+        for filename, content in zip(filenames, codes):
+            if not filename and not content:
+                continue
             if not filename:
                 return self.render_template(
                             organization=organization, \
@@ -73,7 +75,7 @@ class Create(MethodView):
                             filenames=filenames, \
                             codes=codes, \
                         )
-            data[filename] = codes[i]
+            data[filename] = content
         gist, err = create_gist(data, organization, g.current_user, summary, private=private)
         if err:
             return self.render_template(
@@ -135,15 +137,17 @@ class Edit(MethodView):
         filenames = request.form.getlist('filename')
         codes = request.form.getlist('code')
         data = {}
-        length = len(filenames)
-        for i in xrange(0, length):
-            filename = filenames[i]
+        if len(filenames) != len(codes):
+            raise abort(400)
+        for filename, content in zip(filenames, codes):
+            if not filename and not content:
+                continue
             if not filename:
                 return self.render_template(
                             organization=organization, \
                             member=member, \
                             error=code.GIST_WITHOUT_FILENAME, \
-                            tree=self.gen_tree(length, filenames, codes), \
+                            tree=self.gen_tree(filenames, codes), \
                             gist=gist,
                         )
             if data.get(filename):
@@ -151,10 +155,10 @@ class Edit(MethodView):
                             organization=organization, \
                             member=member, \
                             error=code.GIST_FILENAME_EXISTS, \
-                            tree=self.gen_tree(length, filenames, codes), \
+                            tree=self.gen_tree(filenames, codes), \
                             gist=gist,
                         )
-            data[filename] = codes[i]
+            data[filename] = content
         jagare = get_jagare(gist.id, gist.parent)
         error, tree = jagare.ls_tree(gist.get_real_path())
         if error:
@@ -162,7 +166,7 @@ class Edit(MethodView):
                         organization=organization, \
                         member=member, \
                         error=code.REPOS_LS_TREE_FAILED, \
-                        tree=self.gen_tree(length, filenames, codes), \
+                        tree=self.gen_tree(filenames, codes), \
                         gist=gist,
                     )
         data = self.diff(jagare, tree, gist, organization, data)
@@ -172,7 +176,7 @@ class Edit(MethodView):
                         organization=organization, \
                         member=member, \
                         error=code.GIST_UPDATE_FAILED, \
-                        tree=self.gen_tree(length, filenames, codes), \
+                        tree=self.gen_tree(filenames, codes), \
                         gist=gist,
                     )
         return redirect(url_for('gists.view', git=organization.git, gid=gist.id))
@@ -193,10 +197,10 @@ class Edit(MethodView):
             del data[name]
         return data
 
-    def gen_tree(self, length, filenames, codes):
-        for i in xrange(0, length):
+    def gen_tree(self, filenames, codes):
+        for filename, content in zip(filenames, codes):
             d = Obj()
-            d.name = filenames[i]
-            d.content = lambda: codes[i]
+            d.name = filename
+            d.content = lambda: content
             yield d
 
