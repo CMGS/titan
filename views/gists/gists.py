@@ -65,7 +65,7 @@ class Create(MethodView):
         return redirect(url_for('gists.view', git=organization.git, gid=gist.id))
 
 class View(MethodView):
-    decorators = [gist_require, member_required(admin=False), login_required('account.login')]
+    decorators = [gist_require(), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, gist):
         jagare = get_jagare(gist.id, gist.parent)
         error, tree = jagare.ls_tree(gist.get_real_path())
@@ -100,7 +100,7 @@ class View(MethodView):
         return ret
 
 class Raw(MethodView):
-    decorators = [gist_require, member_required(admin=False), login_required('account.login')]
+    decorators = [gist_require(), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, gist, path):
         jagare = get_jagare(gist.id, gist.parent)
         error, res = jagare.cat_file(gist.get_real_path(), path)
