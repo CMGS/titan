@@ -18,7 +18,7 @@
 {% endif %}
 <ul class="unstyled">
 {% for d in tree %}
-    {% if d.content_type == 'text' %}
+    {% if d.content_type == 'file' %}
     <li style="margin-top:10px">
         <ul class="inline", style="margin-bottom:10px;">
             <span class="label">{{ d.name }}</span>
