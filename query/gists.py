@@ -90,7 +90,7 @@ def update_gist(user, gist, data, summary):
         if summary != gist.summary:
             gist.summary = summary
             db.session.add(gist)
-            db.commit()
+            db.session.commit()
             clear_gist_cache(gist)
         if data:
             jagare = get_jagare(gist.id, gist.parent)

@@ -10,9 +10,9 @@ from utils import code
 from utils.repos import format_time
 from utils.gists import gist_require
 from utils.token import create_token
+from utils.helper import MethodView, Obj
 from utils.account import login_required
 from utils.organization import member_required
-from utils.helper import MethodView, Obj, get_hash
 from utils.jagare import get_jagare, format_content
 
 from query.gists import create_gist, update_gist
@@ -59,11 +59,11 @@ class Create(MethodView):
         for filename, content in zip(filenames, codes):
             if not filename and not content:
                 continue
-            if not filename:
+            if not filename or not content:
                 return self.render_template(
                             organization=organization, \
                             member=member, \
-                            error=code.GIST_WITHOUT_FILENAME, \
+                            error=code.GIST_WITHOUT_FILENAME if not filename else code.GIST_WITHOUT_CONTENT, \
                             filenames=filenames, \
                             codes=codes, \
                         )
@@ -81,7 +81,7 @@ class Create(MethodView):
             return self.render_template(
                         organization=organization, \
                         member=member, \
-                        error=code.GIST_WITHOUT_FILENAME, \
+                        error=code.GIST_CREATE_FAILED, \
                         filenames=filenames, \
                         codes=codes, \
                     )
@@ -142,11 +142,11 @@ class Edit(MethodView):
         for filename, content in zip(filenames, codes):
             if not filename and not content:
                 continue
-            if not filename:
+            if not filename or not content:
                 return self.render_template(
                             organization=organization, \
                             member=member, \
-                            error=code.GIST_WITHOUT_FILENAME, \
+                            error=code.GIST_WITHOUT_FILENAME if not filename else code.GIST_WITHOUT_CONTENT, \
                             tree=self.gen_tree(filenames, codes), \
                             gist=gist,
                         )
@@ -169,7 +169,7 @@ class Edit(MethodView):
                         tree=self.gen_tree(filenames, codes), \
                         gist=gist,
                     )
-        data = self.diff(jagare, tree, gist, organization, data)
+        data = self.diff(tree, data)
         _, error = update_gist(g.current_user, gist, data, summary)
         if error:
             return self.render_template(
@@ -181,20 +181,14 @@ class Edit(MethodView):
                     )
         return redirect(url_for('gists.view', git=organization.git, gid=gist.id))
 
-    def diff(self, jagare, tree, gist, organization, data):
+    def diff(self, tree, data):
         tree, meta = tree['content'], tree['meta']
-        tree = render_tree(jagare, tree, gist, organization, False)
         for d in tree:
-            name = d.name
+            name = d['name']
             if data.get(name, None) is None:
                 # set delete flag
-                data[d.path] = ''
+                data[d['path']] = ''
                 continue
-            old_hash = get_hash(d.content())
-            new_hash = get_hash(data[name])
-            if old_hash != new_hash:
-                continue
-            del data[name]
         return data
 
     def gen_tree(self, filenames, codes):
