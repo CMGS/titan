@@ -57,20 +57,16 @@ def get_repo_watcher(uid, rid):
 def get_repo_watchers(rid):
     return Watchers.query.filter_by(rid=rid).all()
 
-@cache('user:watches:{uid}:{oid}', 8640000)
-def get_user_watches(uid, oid):
-    return Watchers.query.filter_by(uid=uid, oid=oid).all()
-
 @cache('user:watches:organization:{uid}:{oid}', 8640000)
 def get_user_watcher_repos(uid, oid):
-    return get_watcher_repos(uid, oid, tid=None)
+    return get_watcher_repos(uid, oid)
 
 @cache('user:watches:team:{uid}:{oid}:{tid}', 8640000)
 def get_user_watcher_team_repos(uid, oid, tid):
     return get_watcher_repos(uid, oid, tid=tid)
 
-def get_watcher_repos(uid, oid, tid):
-    watches = get_user_watches(uid, oid)
+def get_watcher_repos(uid, oid, tid=None):
+    watches = Watchers.query.filter_by(uid=uid, oid=oid).all()
     query = Repos.query.filter(Repos.oid==oid)
     if tid:
         query = query.filter(Repos.tid==tid)
@@ -95,7 +91,6 @@ def clear_watcher_cache(user, repo, organization, team=None):
     keys = [
         'repos:watchers:{rid}'.format(rid=repo.id), \
         'repos:watcher:{uid}:{rid}'.format(uid=user.id, rid=repo.id), \
-        'user:watches:{uid}:{oid}'.format(uid=user.id, oid=organization.id), \
         'user:watches:organization:{uid}:{oid}'.format(uid=user.id, oid=organization.id), \
     ]
     if team:
@@ -321,6 +316,11 @@ def delete_repo(organization, repo, team=None):
         for watcher in watchers:
             db.session.delete(watcher)
             keys.append('repos:watcher:{uid}:{rid}'.format(uid=watcher.uid, rid=repo.id))
+            keys.append('user:watches:organization:{uid}:{oid}'.format(uid=watcher.uid, oid=organization.id))
+            if team:
+                keys.append('user:watches:team:{uid}:{oid}:{tid}'.format(
+                    uid=watcher.uid, oid=organization.id, tid=team.id
+                ))
         db.session.commit()
         clear_repo_cache(repo, organization, team)
         clear_explore_cache(organization, repo.uid, team)
