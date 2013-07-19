@@ -15,8 +15,10 @@ from maria.config import config as _config
 from config import MARIA_STORE_PATH
 
 from utils.repos import check_permits
-from query.repos import get_repo_by_path
 from utils.timeline import after_push_repo
+
+from query.repos import get_repo_by_path
+from query.gists import get_gist_by_path
 from query.account import get_key_by_finger, get_user
 from query.organization import get_organization_by_git, \
         get_organization_member, get_team, get_team_member
@@ -57,11 +59,11 @@ class Gerver(_):
     def check_channel_exec_request(self, channel, command):
         logger.info('Command %s received' % command)
         command, path = self.parser_command(command)
-        if not self.check_command(command[0]):
+        if not self.check_command(command[0], path):
             channel.sendall_stderr('Error: Wrong command.\n')
         elif not self.check_repo_exisit(path):
             channel.sendall_stderr('Error: Repository not found.\n')
-        elif not self.check_user_permits(command[0]):
+        elif not self.check_user_permits(command[0], path):
             channel.sendall_stderr('Error: Permission denied.\n')
         else:
             # 5 get true path
@@ -81,19 +83,27 @@ class Gerver(_):
         command[-1] = command[-1].strip("'")
         return command, command[-1]
 
-    def check_command(self, command):
+    def check_command(self, command, path):
         if not command or not command in ('git-receive-pack', 'git-upload-pack'):
+            return False
+        # User can not write gist repo through ssh
+        if path.startswith('gist/') and command == 'git-receive-pack':
             return False
         return True
 
     def check_repo_exisit(self, path):
-        repo = get_repo_by_path(self.organization.id, path)
+        if path.startswith('gist/'):
+            repo = get_gist_by_path(path)
+        else:
+            repo = get_repo_by_path(self.organization.id, path)
         if not repo:
             return False
         self.repo = repo
         return True
 
-    def check_user_permits(self, command):
+    def check_user_permits(self, command, path):
+        if path.startswith('gist/'):
+            return True
         # 4 check permits, organization admin can visit every repos
         # users can visit their own repos
         team = get_team(self.repo.tid) if self.repo.tid != 0 else None

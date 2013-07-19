@@ -1,6 +1,7 @@
 #!/usr/local/bin/python2.7
 #coding:utf-8
 
+import os
 import logging
 import sqlalchemy.exc
 from sheep.api.cache import cache, backend
@@ -23,6 +24,10 @@ def get_gist(gid):
 @cache('gists:hidden:{private}', 8640000)
 def get_gist_by_private(private):
     return Gists.query.filter_by(private=private).first()
+
+@cache('gists:path:{path}', 8640000)
+def get_gist_by_path(path):
+    return Gists.query.filter_by(path=path).first()
 
 @cache('gists:user:{oid}:{uid}', 8640000)
 def get_user_gist(oid, uid):
@@ -69,6 +74,7 @@ def clear_explore_cache(gist, user, organization):
 def clear_gist_cache(gist, organization=None, need=True):
     keys = [
         'gists:{gid}'.format(gid=gist.id), \
+        'gists:path:{path}'.format(path=gist.path), \
     ]
     if gist.private:
         keys.append('gists:hidden:{private}'.format(private=gist.private))
@@ -105,6 +111,7 @@ def create_gist(data, organization, user, summary, parent=0, private=None, watch
             user_gist.count = UserGists.count + 1
         db.session.add(user_gist)
         db.session.flush()
+        gist.path = os.path.join('gist', '%s.git' % (private or gist.id))
         watcher = GistWatchers(user.id, gist.id, organization.id)
         db.session.add(watcher)
         jagare = get_jagare(gist.id, parent)
