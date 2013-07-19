@@ -36,7 +36,35 @@ def get_gist_watchers(gid):
 def get_gist_watcher(uid, gid):
     return GistWatchers.query.filter_by(uid=uid, gid=gid).limit(1).first()
 
+@cache('gists:explore:{oid}', 8640000)
+def get_organization_gists(oid):
+    return Gists.query.filter(Gists.oid==oid).filter(Gists.private==None).all()
+
+@cache('gists:explore:user:{oid}:{uid}', 8640000)
+def get_user_organization_gists(oid, uid):
+    return Gists.query.filter((Gists.oid==oid) & (Gists.uid==uid)).all()
+
+@cache('user:watch:gists:{uid}:{oid}', 8640000)
+def get_user_watch_gists(uid, oid):
+    watches = GistWatchers.query.filter_by(uid=uid, oid=oid).all()
+    query = Gists.query.filter(Gists.oid==oid)
+    s = None
+    for w in watches:
+        if s is None:
+            s = (Gists.id == w.gid)
+        else:
+            s = s | (Gists.id == w.gid)
+    return query.filter(s).all()
+
 # clear
+
+def clear_explore_cache(gist, user, organization):
+    keys = [
+        'gists:explore:user:{oid}:{uid}'.format(uid=user.id, oid=organization.id), \
+    ]
+    if not gist.private:
+        keys.append('gists:explore:{oid}'.format(oid=organization.id))
+    backend.delete_many(*keys)
 
 def clear_gist_cache(gist, organization=None, need=True):
     keys = [
@@ -52,6 +80,7 @@ def clear_watcher_cache(user, gist, organization):
     keys = [
         'gists:watchers:{gid}'.format(gid=gist.id), \
         'gists:watcher:{uid}:{gid}'.format(uid=user.id, gid=gist.id), \
+        'user:watch:gists:{uid}:{oid}'.format(uid=user.id, oid=organization.id), \
     ]
     backend.delete_many(*keys)
 
@@ -90,6 +119,7 @@ def create_gist(data, organization, user, summary, parent=0, private=None, watch
         db.session.commit()
         clear_gist_cache(gist, organization)
         clear_user_gist_cache(user, organization)
+        clear_explore_cache(gist, user, organization)
         clear_watcher_cache(user, gist, organization)
         return gist, None
     except sqlalchemy.exc.IntegrityError, e:
@@ -178,6 +208,7 @@ def delete_gist(user, gist, organization):
         for watcher in watchers:
             db.session.delete(watcher)
             keys.append('gists:watcher:{uid}:{gid}'.format(uid=watcher.uid, gid=gist.id))
+            keys.append('user:watch:gists:{uid}:{oid}'.format(uid=watcher.uid, oid=organization.id))
         jagare = get_jagare(gist.id, gist.parent)
         ret, error = jagare.delete(gist.get_real_path())
         if not ret:
@@ -185,8 +216,8 @@ def delete_gist(user, gist, organization):
             return error
         db.session.commit()
         clear_gist_cache(gist, organization)
+        clear_explore_cache(gist, user, organization)
         #TODO after delete gist
-        #TODO clear explore cache
         backend.delete_many(*keys)
         return None
     except Exception, e:

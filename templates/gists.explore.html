@@ -1,0 +1,15 @@
+{% extends "organization.view.html" %}
+{% block subtitle %}Explore Gists{% endblock %}
+{% block subcontent %}
+<h3>Explore Gists</h3>
+<table class="table table-striped">
+    <tbody>
+        {% for gist in gists %}
+        <tr>
+            <td><a href="{{ gist.url }}">{{ gist.summary or gist.id }}</a></td>
+            <td><a href="#">{{ gist.user.name }}</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

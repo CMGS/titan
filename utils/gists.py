@@ -19,7 +19,7 @@ def gist_require(owner=False):
             gist = get_gist(gid) if gid else get_gist_by_private(private)
             if not gist:
                 raise abort(404)
-            if owner and (g.current_user.id != gist.uid or not member.admin):
+            if owner and g.current_user.id != gist.uid and not member.admin:
                 raise abort(403)
             return f(organization, member, gist, *args, **kwargs)
         return _
