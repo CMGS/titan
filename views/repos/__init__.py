@@ -50,11 +50,11 @@ repos.add_url_rule('/<git>/<tname>/<rname>/delete', view_func=delete, methods=['
 repos.add_url_rule('/<git>/explore', view_func=explore, methods=['GET'])
 repos.add_url_rule('/<git>/<tname>/explore', view_func=explore, methods=['GET'])
 
-repos.add_url_rule('/<git>/<rname>/watch', view_func=watch, methods=['GET'])
-repos.add_url_rule('/<git>/<tname>/<rname>/watch', view_func=watch, methods=['GET'])
-
 repos.add_url_rule('/<git>/<rname>/activity', view_func=activities, methods=['GET'])
 repos.add_url_rule('/<git>/<tname>/<rname>/activity', view_func=activities, methods=['GET'])
+
+repos.add_url_rule('/<git>/<rname>/watch', view_func=watch, methods=['GET'])
+repos.add_url_rule('/<git>/<tname>/<rname>/watch', view_func=watch, methods=['GET'])
 
 repos.add_url_rule('/<git>/<rname>/unwatch', view_func=unwatch, methods=['GET'])
 repos.add_url_rule('/<git>/<tname>/<rname>/unwatch', view_func=unwatch, methods=['GET'])

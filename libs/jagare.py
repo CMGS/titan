@@ -24,6 +24,17 @@ class Jagare(object):
             logger.exception(e)
             return False, code.UNHANDLE_EXCEPTION
 
+    def delete(self, path):
+        try:
+            r = requests.get('%s/%s/delete' % (self.node, path))
+            result = self.get_result(r)
+            if not result or result['error']:
+                return False, code.REPOS_DELETE_FAILED
+            return True, None
+        except Exception, e:
+            logger.exception(e)
+            return False, code.UNHANDLE_EXCEPTION
+
     def ls_tree(self, repo_path, path='', version='master'):
         try:
             url = '%s/%s/ls-tree/%s' % (self.node, repo_path, version)

@@ -14,6 +14,7 @@
     <strong>Gist:</strong>{{ gist.private or gist.id }}
     {% if gist.uid == g.current_user.id %}
     <small><a href="{{ url }}">edit</a></small>
+    <small><a href="{{ delete }}">delete</a></small>
     {% endif %}
 </h3>
 {% if gist.summary %}

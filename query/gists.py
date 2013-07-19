@@ -42,6 +42,8 @@ def clear_gist_cache(gist, organization=None, need=True):
     keys = [
         'gists:{gid}'.format(gid=gist.id), \
     ]
+    if gist.private:
+        keys.append('gists:hidden:{private}'.format(private=gist.private))
     if organization and need:
         clear_organization_cache(organization)
     backend.delete_many(*keys)
@@ -121,7 +123,7 @@ def update_gist(user, gist, data, summary):
 
 # delete
 
-def delete(user, gist, organization):
+def delete_gist(user, gist, organization):
     try:
         keys = []
         db.session.delete(gist)
@@ -135,6 +137,11 @@ def delete(user, gist, organization):
         for watcher in watchers:
             db.session.delete(watcher)
             keys.append('gists:watcher:{uid}:{gid}'.format(uid=watcher.uid, gid=gist.id))
+        jagare = get_jagare(gist.id, gist.parent)
+        ret, error = jagare.delete(gist.get_real_path())
+        if not ret:
+            db.session.rollback()
+            return error
         db.session.commit()
         clear_gist_cache(gist, organization)
         #TODO after delete gist
