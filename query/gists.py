@@ -28,6 +28,14 @@ def get_gist_by_private(private):
 def get_user_gist(oid, uid):
     return UserGists.query.filter_by(oid=oid, uid=uid).first()
 
+@cache('gists:watchers:{gid}', 8640000)
+def get_gist_watchers(gid):
+    return GistWatchers.query.filter_by(gid=gid).all()
+
+@cache('gists:watcher:{uid}:{gid}', 864000)
+def get_gist_watcher(uid, gid):
+    return GistWatchers.query.filter_by(uid=uid, gid=gid).limit(1).first()
+
 # clear
 
 def clear_gist_cache(gist, organization=None, need=True):
@@ -48,6 +56,7 @@ def clear_user_gist_cache(user, organization):
     backend.delete_many(*keys)
 
 # create
+
 def create_gist(data, organization, user, summary, parent=0, private=None):
     try:
         gist = Gists(summary, organization.id, user.id, parent=0, private=private)
@@ -89,6 +98,7 @@ def create_gist(data, organization, user, summary, parent=0, private=None):
         return None, code.UNHANDLE_EXCEPTION
 
 # update
+
 def update_gist(user, gist, data, summary):
     try:
         if summary != gist.summary:
@@ -108,4 +118,31 @@ def update_gist(user, gist, data, summary):
         db.session.rollback()
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
+
+# delete
+
+def delete(user, gist, organization):
+    try:
+        keys = []
+        db.session.delete(gist)
+        organization.gists = Organization.gists - 1
+        db.session.add(organization)
+        user_gist = get_user_gist(organization.id, user.id)
+        user_gist.count = UserGists.count - 1
+        db.session.add(user_gist)
+        watchers = get_gist_watchers(gist.id)
+        keys.append('gists:watchers:{gid}'.format(gid=gist.id))
+        for watcher in watchers:
+            db.session.delete(watcher)
+            keys.append('gists:watcher:{uid}:{gid}'.format(uid=watcher.uid, gid=gist.id))
+        db.session.commit()
+        clear_gist_cache(gist, organization)
+        #TODO after delete gist
+        #TODO clear explore cache
+        backend.delete_many(*keys)
+        return None
+    except Exception, e:
+        db.session.rollback()
+        logger.exception(e)
+        return code.UNHANDLE_EXCEPTION
 
