@@ -22,6 +22,32 @@
     {{ gist.summary }}
 </blockquote>
 {% endif %}
+<div class="row-fluid">
+    <div class="span4">
+        <div class="input-prepend">
+            <span class="add-on"><strong>SSH</strong> clone URL</span>
+            <input class="span3 uneditable-input" id="prependedInput" type="text" value="{{ organization.git}}@{{ request.environ['SERVER_NAME'] }}:gists/{{ gist.id}}.git">
+        </div>
+    </div>
+    <div class="span4 pull-right">
+        <div class="pull-right input-prepend">
+            <ul class="inline">
+                <li>
+                    {% if watcher %}
+                    <a class="btn" id="appendedInput" href="{{ watch_url }}">Unwatch</a>
+                    {% else %}
+                    <a class="btn" id="appendedInput" href="{{ watch_url }}">Watch</a>
+                    {% endif %}
+                    <span class="add-on">{{ gist.watchers }}</span>
+                </li>
+                <li>
+                    <a class="btn" id="appendedInput" href="#">Forks</a>
+                    <span class="add-on">{{ gist.forks }}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
 <ul class="unstyled">
 {% for d in tree %}
     {% if d.content_type == 'file' %}

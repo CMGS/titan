@@ -49,7 +49,11 @@ def clear_gist_cache(gist, organization=None, need=True):
     backend.delete_many(*keys)
 
 def clear_watcher_cache(user, gist, organization):
-    pass
+    keys = [
+        'gists:watchers:{gid}'.format(gid=gist.id), \
+        'gists:watcher:{uid}:{gid}'.format(uid=user.id, gid=gist.id), \
+    ]
+    backend.delete_many(*keys)
 
 def clear_user_gist_cache(user, organization):
     keys = [
@@ -59,9 +63,9 @@ def clear_user_gist_cache(user, organization):
 
 # create
 
-def create_gist(data, organization, user, summary, parent=0, private=None):
+def create_gist(data, organization, user, summary, parent=0, private=None, watchers=0):
     try:
-        gist = Gists(summary, organization.id, user.id, parent=0, private=private)
+        gist = Gists(summary, organization.id, user.id, parent=0, private=private, watchers=watchers)
         db.session.add(gist)
         organization.gists = Organization.gists + 1
         db.session.add(organization)
@@ -99,6 +103,28 @@ def create_gist(data, organization, user, summary, parent=0, private=None):
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
 
+def create_watcher(user, gist, organization):
+    try:
+        watcher = GistWatchers(user.id, gist.id, organization.id)
+        gist.watchers = Gists.watchers + 1
+        db.session.add(watcher)
+        db.session.add(gist)
+        db.session.commit()
+        clear_watcher_cache(user, gist, organization)
+        clear_gist_cache(gist)
+        #TODO after add watcher, push info to watcher's timeline
+        return watcher, None
+    except sqlalchemy.exc.IntegrityError, e:
+        db.session.rollback()
+        if 'Duplicate entry' in e.message:
+            return None, code.REPOS_WATCHER_EXISTS
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
+    except Exception, e:
+        db.session.rollback()
+        logger.exception(e)
+        return None, code.UNHANDLE_EXCEPTION
+
 # update
 
 def update_gist(user, gist, data, summary):
@@ -122,6 +148,21 @@ def update_gist(user, gist, data, summary):
         return None, code.UNHANDLE_EXCEPTION
 
 # delete
+
+def delete_watcher(user, watcher, gist, organization):
+    try:
+        db.session.delete(watcher)
+        gist.watchers = gist.watchers - 1
+        db.session.add(gist)
+        db.session.commit()
+        clear_watcher_cache(user, gist, organization)
+        clear_gist_cache(gist)
+        # TODO after delete watcher
+        return None
+    except Exception, e:
+        db.session.rollback()
+        logger.exception(e)
+        return code.UNHANDLE_EXCEPTION
 
 def delete_gist(user, gist, organization):
     try:

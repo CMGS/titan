@@ -83,7 +83,7 @@ class Create(MethodView):
                             codes=codes, \
                         )
             data[filename] = content
-        gist, err = create_gist(data, organization, g.current_user, summary, private=private)
+        gist, err = create_gist(data, organization, g.current_user, summary, private=private, watchers=1)
         if err:
             return self.render_template(
                         organization=organization, \
