@@ -6,7 +6,7 @@
     <tbody>
         {% for gist in gists %}
         <tr>
-            <td><a href="{{ gist.url }}">{{ gist.summary or gist.id }}</a></td>
+            <td><a href="{{ gist.url }}">{{ gist.summary or 'Gist:%d' % gist.id }}</a></td>
             <td><a href="#">{{ gist.user.name }}</a></td>
         </tr>
         {% endfor %}
