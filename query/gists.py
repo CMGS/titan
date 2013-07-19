@@ -20,6 +20,10 @@ logger = logging.getLogger(__name__)
 def get_gist(gid):
     return Gists.query.get(gid)
 
+@cache('gists:hidden:{private}', 8640000)
+def get_gist_by_private(private):
+    return Gists.query.filter_by(private=private).first()
+
 @cache('gists:user:{oid}:{uid}', 8640000)
 def get_user_gist(oid, uid):
     return UserGists.query.filter_by(oid=oid, uid=uid).first()

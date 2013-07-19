@@ -29,7 +29,7 @@ function add() {
 {% block subcontent %}
 <form class="form-edit" method="POST">
     <h3 class="form-edit-heading">
-        Edit <strong>Gist:</strong>{{ gist.id }} <small><a href="{{ url_for('gists.view', git=organization.git, gid=gist.id) }}">back</a></small>
+        Edit <strong>Gist:</strong>{{ gist.private or gist.id }} <small><a href="{{ url }}">back</a></small>
     </h3>
     {% if error %}
     <div class="alert alert-error">

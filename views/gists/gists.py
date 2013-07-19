@@ -19,6 +19,13 @@ from query.gists import create_gist, update_gist
 
 logger = logging.getLogger(__name__)
 
+def get_url(organization, gist, view='gists.view', **kwargs):
+    if gist.private:
+        url = url_for(view, git=organization.git, private=gist.private, **kwargs)
+    else:
+        url = url_for(view, git=organization.git, gid=gist.id, **kwargs)
+    return url
+
 def render_tree(jagare, tree, gist, organization, render=True):
     ret = []
     for d in tree:
@@ -29,7 +36,7 @@ def render_tree(jagare, tree, gist, organization, render=True):
             )
         else:
             continue
-        data.download = url_for('gists.raw', git=organization.git, path=d['path'], gid=gist.id)
+        data.download = get_url(organization, gist, view='gists.raw', path=d['path'])
         data.name = d['name']
         data.sha = d['sha']
         data.type = d['type']
@@ -85,11 +92,13 @@ class Create(MethodView):
                         filenames=filenames, \
                         codes=codes, \
                     )
-        return redirect(url_for('gists.view', git=organization.git, gid=gist.id))
+        return redirect(get_url(organization, gist))
 
 class View(MethodView):
     decorators = [gist_require(), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, gist):
+    def get(self, organization, member, gist, private=None):
+        if not private and gist.private:
+            raise abort(403)
         jagare = get_jagare(gist.id, gist.parent)
         error, tree = jagare.ls_tree(gist.get_real_path())
         if not error:
@@ -101,11 +110,12 @@ class View(MethodView):
                     error=error, \
                     tree=tree, \
                     gist=gist, \
+                    url=get_url(organization, gist, 'gists.edit')
                 )
 
 class Raw(MethodView):
     decorators = [gist_require(), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, gist, path):
+    def get(self, organization, member, gist, path, private=None):
         jagare = get_jagare(gist.id, gist.parent)
         error, res = jagare.cat_file(gist.get_real_path(), path)
         if error:
@@ -118,7 +128,7 @@ class Raw(MethodView):
 
 class Edit(MethodView):
     decorators = [gist_require(owner=True), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, gist):
+    def get(self, organization, member, gist, private=None):
         jagare = get_jagare(gist.id, gist.parent)
         error, tree = jagare.ls_tree(gist.get_real_path())
         if not error:
@@ -130,9 +140,10 @@ class Edit(MethodView):
                     error=error, \
                     tree=tree, \
                     gist=gist, \
+                    url=get_url(organization, gist), \
                 )
 
-    def post(self, organization, member, gist):
+    def post(self, organization, member, gist, private=None):
         summary = request.form.get('summary')
         filenames = request.form.getlist('filename')
         codes = request.form.getlist('code')
@@ -148,6 +159,7 @@ class Edit(MethodView):
                             member=member, \
                             error=code.GIST_WITHOUT_FILENAME if not filename else code.GIST_WITHOUT_CONTENT, \
                             tree=self.gen_tree(filenames, codes), \
+                            url=get_url(organization, gist), \
                             gist=gist,
                         )
             if data.get(filename):
@@ -156,6 +168,7 @@ class Edit(MethodView):
                             member=member, \
                             error=code.GIST_FILENAME_EXISTS, \
                             tree=self.gen_tree(filenames, codes), \
+                            url=get_url(organization, gist), \
                             gist=gist,
                         )
             data[filename] = content
@@ -167,6 +180,7 @@ class Edit(MethodView):
                         member=member, \
                         error=code.REPOS_LS_TREE_FAILED, \
                         tree=self.gen_tree(filenames, codes), \
+                        url=get_url(organization, gist), \
                         gist=gist,
                     )
         data = self.diff(tree, data)
@@ -177,9 +191,10 @@ class Edit(MethodView):
                         member=member, \
                         error=code.GIST_UPDATE_FAILED, \
                         tree=self.gen_tree(filenames, codes), \
+                        url=get_url(organization, gist), \
                         gist=gist,
                     )
-        return redirect(url_for('gists.view', git=organization.git, gid=gist.id))
+        return redirect(get_url(organization, gist))
 
     def diff(self, tree, data):
         tree, meta = tree['content'], tree['meta']
