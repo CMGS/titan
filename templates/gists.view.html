@@ -12,10 +12,10 @@
 {% else %}
 <h3>
     <strong>Gist:</strong>{{ gist.private or gist.id }}
-    <small><a href="{{ revisions }}">revisions({{ revisions_count }})</a></small>
+    <small><a href="{{ gist.meta.revisions }}">revisions({{ gist.meta.revisions_count }})</a></small>
     {% if gist.uid == g.current_user.id %}
-    <small><a href="{{ url }}">edit</a></small>
-    <small><a href="{{ delete }}">delete</a></small>
+    <small><a href="{{ gist.meta.edit }}">edit</a></small>
+    <small><a href="{{ gist.meta.delete }}">delete</a></small>
     {% endif %}
 </h3>
 {% if gist.summary %}
@@ -35,9 +35,9 @@
             <ul class="inline">
                 <li>
                     {% if watcher %}
-                    <a class="btn" id="appendedInput" href="{{ watch_url }}">Unwatch</a>
+                    <a class="btn" id="appendedInput" href="{{ gist.meta.unwatch }}">Unwatch</a>
                     {% else %}
-                    <a class="btn" id="appendedInput" href="{{ watch_url }}">Watch</a>
+                    <a class="btn" id="appendedInput" href="{{ gist.meta.watch }}">Watch</a>
                     {% endif %}
                     <span class="add-on">{{ gist.watchers }}</span>
                 </li>

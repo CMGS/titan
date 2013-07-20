@@ -7,45 +7,16 @@ from flask import url_for, request, redirect, \
         g, abort
 
 from utils import code
-from utils.repos import format_time
-from utils.gists import gist_require
+from utils.jagare import get_jagare
 from utils.token import create_token
 from utils.helper import MethodView, Obj
 from utils.account import login_required
 from utils.organization import member_required
-from utils.jagare import get_jagare, format_content
+from utils.gists import gist_require, get_url, render_tree
 
 from query.gists import create_gist, update_gist, delete_gist
 
 logger = logging.getLogger(__name__)
-
-def get_url(organization, gist, view='gists.view', **kwargs):
-    if gist.private:
-        url = url_for(view, git=organization.git, private=gist.private, **kwargs)
-    else:
-        url = url_for(view, git=organization.git, gid=gist.id, **kwargs)
-    return url
-
-def render_tree(jagare, tree, gist, organization, render=True):
-    ret = []
-    for d in tree:
-        data = Obj()
-        if d['type'] == 'blob':
-            data.content, data.content_type, data.length = format_content(
-                    jagare, gist, d['path'], render=render, \
-            )
-        else:
-            continue
-        data.download = get_url(organization, gist, view='gists.raw', path=d['path'])
-        data.name = d['name']
-        data.sha = d['sha']
-        data.type = d['type']
-        data.ago = format_time(d['commit']['committer']['ts'])
-        data.message = d['commit']['message'][:150]
-        data.commit = d['commit']['sha']
-        data.path = d['path']
-        ret.append(data)
-    return ret
 
 class Create(MethodView):
     decorators = [member_required(admin=False), login_required('account.login')]
@@ -114,7 +85,6 @@ class Edit(MethodView):
                     error=error, \
                     tree=tree, \
                     gist=gist, \
-                    url=get_url(organization, gist), \
                 )
 
     def post(self, organization, member, gist, private=None):
@@ -133,7 +103,6 @@ class Edit(MethodView):
                             member=member, \
                             error=code.GIST_WITHOUT_FILENAME if not filename else code.GIST_WITHOUT_CONTENT, \
                             tree=self.gen_tree(filenames, codes), \
-                            url=get_url(organization, gist), \
                             gist=gist,
                         )
             if data.get(filename):
@@ -142,7 +111,6 @@ class Edit(MethodView):
                             member=member, \
                             error=code.GIST_FILENAME_EXISTS, \
                             tree=self.gen_tree(filenames, codes), \
-                            url=get_url(organization, gist), \
                             gist=gist,
                         )
             data[filename] = content
@@ -154,7 +122,6 @@ class Edit(MethodView):
                         member=member, \
                         error=code.REPOS_LS_TREE_FAILED, \
                         tree=self.gen_tree(filenames, codes), \
-                        url=get_url(organization, gist), \
                         gist=gist,
                     )
         data = self.diff(tree, data)
@@ -165,10 +132,9 @@ class Edit(MethodView):
                         member=member, \
                         error=code.GIST_UPDATE_FAILED, \
                         tree=self.gen_tree(filenames, codes), \
-                        url=get_url(organization, gist), \
                         gist=gist,
                     )
-        return redirect(get_url(organization, gist))
+        return redirect(gist.meta.view)
 
     def diff(self, tree, data):
         tree, meta = tree['content'], tree['meta']

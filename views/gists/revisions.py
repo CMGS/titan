@@ -3,14 +3,12 @@
 
 import logging
 
-from views.gists.gists import get_url
-
+from utils.jagare import get_jagare
 from utils.repos import format_time
 from utils.gists import gist_require
 from utils.helper import MethodView, Obj
 from utils.account import login_required
 from utils.organization import member_required
-from utils.jagare import get_jagare
 
 from query.account import get_user_from_alias
 
@@ -29,7 +27,6 @@ class Revisions(MethodView):
                     error=error, \
                     revisions=revisions, \
                     gist=gist, \
-                    url=get_url(organization, gist), \
                 )
 
     def render_revisions(self, revisions):

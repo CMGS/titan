@@ -11,7 +11,7 @@ from query.account import get_user
 from query.gists import get_organization_gists, get_user_watch_gists, \
     get_user_organization_gists
 
-from views.gists.gists import get_url
+from utils.gists import get_url
 
 class Explore(MethodView):
     decorators = [member_required(admin=False), login_required('account.login')]
@@ -43,6 +43,6 @@ class Explore(MethodView):
         ret = self.filter_gists(organization, f)
         for r in ret:
             setattr(r, 'user', get_user(r.uid))
-            setattr(r, 'url', get_url(organization, r))
+            setattr(r, 'view', get_url(organization, r))
             yield r
 

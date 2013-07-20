@@ -12,7 +12,7 @@
 {% else %}
 <h3>
     <strong>Gist:</strong>{{ gist.private or gist.id }}
-    <small><a href="{{ url }}">back</a></small>
+    <small><a href="{{ gist.meta.view }}">back</a></small>
 </h3>
 {% if gist.summary %}
 <blockquote>

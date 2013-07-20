@@ -3,13 +3,11 @@
 
 from flask import g, abort, Response, stream_with_context
 
-from views.gists.gists import render_tree, get_url
-
 from utils.jagare import get_jagare
 from utils.helper import MethodView
-from utils.gists import gist_require
 from utils.account import login_required
 from utils.organization import member_required
+from utils.gists import gist_require, render_tree
 
 from query.gists import get_gist_watcher
 
@@ -19,14 +17,11 @@ class View(MethodView):
         if not private and gist.private:
             raise abort(403)
         jagare = get_jagare(gist.id, gist.parent)
-        error, ret = jagare.get_log(gist.get_real_path(), total=1)
-        revisions_count = 0 if error else ret['total']
         error, tree = jagare.ls_tree(gist.get_real_path())
         if not error:
             tree, meta = tree['content'], tree['meta']
             tree = render_tree(jagare, tree, gist, organization)
         watcher = get_gist_watcher(g.current_user.id, gist.id)
-        watch_url = get_url(organization, gist, 'gists.watch') if not watcher else get_url(organization, gist, 'gists.unwatch')
         return self.render_template(
                     organization=organization, \
                     member=member, \
@@ -34,11 +29,6 @@ class View(MethodView):
                     tree=tree, \
                     gist=gist, \
                     watcher=watcher, \
-                    watch_url=watch_url, \
-                    url=get_url(organization, gist, 'gists.edit'), \
-                    delete=get_url(organization, gist, 'gists.delete'), \
-                    revisions=get_url(organization, gist, 'gists.revisions'), \
-                    revisions_count=revisions_count, \
                 )
 
 class Raw(MethodView):

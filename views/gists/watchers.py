@@ -5,7 +5,6 @@ import logging
 
 from flask import g, redirect
 
-from views.gists.gists import get_url
 from utils.helper import MethodView
 from utils.gists import gist_require
 from utils.account import login_required
@@ -21,7 +20,7 @@ class Watchers(MethodView):
         watcher = get_gist_watcher(g.current_user.id, gist.id)
         if not watcher:
             create_watcher(g.current_user, gist, organization)
-        return redirect(get_url(organization, gist))
+        return redirect(gist.meta.view)
 
 class RemoveWatchers(MethodView):
     decorators = [gist_require(), member_required(admin=False), login_required('account.login')]
@@ -29,6 +28,6 @@ class RemoveWatchers(MethodView):
         watcher = get_gist_watcher(g.current_user.id, gist.id)
         if watcher:
             delete_watcher(g.current_user, watcher, gist, organization)
-        return redirect(get_url(organization, gist))
+        return redirect(gist.meta.view)
 
 
