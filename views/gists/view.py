@@ -19,6 +19,8 @@ class View(MethodView):
         if not private and gist.private:
             raise abort(403)
         jagare = get_jagare(gist.id, gist.parent)
+        error, ret = jagare.get_log(gist.get_real_path(), total=1)
+        revisions_count = 0 if error else ret['total']
         error, tree = jagare.ls_tree(gist.get_real_path())
         if not error:
             tree, meta = tree['content'], tree['meta']
@@ -35,6 +37,8 @@ class View(MethodView):
                     watch_url=watch_url, \
                     url=get_url(organization, gist, 'gists.edit'), \
                     delete=get_url(organization, gist, 'gists.delete'), \
+                    revisions=get_url(organization, gist, 'gists.revisions'), \
+                    revisions_count=revisions_count, \
                 )
 
 class Raw(MethodView):

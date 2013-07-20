@@ -1,0 +1,32 @@
+{% extends "organization.view.html" %}
+{% block subtitle %}Gist:{{ gist.id }} Revisions{% endblock %}
+{% block add_js %}
+<link href="{{ '/static/css/prettify.css' | s_files }}" rel="stylesheet">
+{% endblock %}
+{% block subcontent %}
+{% if error %}
+<div class="alert alert-error">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    {{ error }}
+</div>
+{% else %}
+<h3>
+    <strong>Gist:</strong>{{ gist.private or gist.id }}
+    <small><a href="{{ url }}">back</a></small>
+</h3>
+{% if gist.summary %}
+<blockquote>
+    {{ gist.summary }}
+</blockquote>
+{% endif %}
+<ul class="unstyled">
+    {% for rev in revisions %}
+    <li>
+        <a href="#">{{ rev['author'].name or rev['author'].email }}</a>
+        update at
+        {{ rev['committer_time'] }}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

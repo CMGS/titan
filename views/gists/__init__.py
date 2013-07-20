@@ -5,6 +5,7 @@ from flask import Blueprint
 from utils.helper import make_view
 from views.gists.view import View, Raw
 from views.gists.explore import Explore
+from views.gists.revisions import Revisions
 from views.gists.gists import Create, Edit, Delete
 from views.gists.watchers import Watchers, RemoveWatchers
 
@@ -20,6 +21,7 @@ delete = view_func(Delete)
 create = view_func(Create)
 
 explore = view_func(Explore)
+revisions = view_func(Revisions)
 
 watch = view_func(Watchers, name='watch')
 unwatch = view_func(RemoveWatchers, name='unwatch')
@@ -31,6 +33,9 @@ gists.add_url_rule('/<git>/gist/<int:gid>', view_func=view, methods=['GET', 'POS
 
 gists.add_url_rule('/<git>/gist/<private>/edit', view_func=edit, methods=['GET', 'POST'])
 gists.add_url_rule('/<git>/gist/<int:gid>/edit', view_func=edit, methods=['GET', 'POST'])
+
+gists.add_url_rule('/<git>/gist/<private>/revisions', view_func=revisions, methods=['GET'])
+gists.add_url_rule('/<git>/gist/<int:gid>/revisions', view_func=revisions, methods=['GET'])
 
 gists.add_url_rule('/<git>/gist/<private>/raw/<path:path>', view_func=raw, methods=['GET'])
 gists.add_url_rule('/<git>/gist/<int:gid>/raw/<path:path>', view_func=raw, methods=['GET'])

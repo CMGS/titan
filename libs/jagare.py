@@ -86,7 +86,7 @@ class Jagare(object):
             return []
         return [d['name'] for d in branches]
 
-    def get_log(self, repo_path, start=None, end=None, no_merges=1, size=-1, total=None):
+    def get_log(self, repo_path, start=None, end=None, no_merges=None, size=None, page=None, total=None):
         try:
             params = {
                 'reference': start, \
@@ -94,6 +94,7 @@ class Jagare(object):
                 'no_merges': no_merges, \
                 'size': size, \
                 'total': total, \
+                'page': page, \
             }
             r = requests.get(
                 '%s/%s/log' % (self.node, repo_path), \
