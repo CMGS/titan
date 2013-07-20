@@ -86,20 +86,26 @@ class Jagare(object):
             return []
         return [d['name'] for d in branches]
 
-    def get_log(self, repo_path, start=None, end=None, no_merges=1):
+    def get_log(self, repo_path, start=None, end=None, no_merges=1, size=-1, total=None):
         try:
-            params = {'reference': start, 'from_ref': end, 'no_merges': no_merges}
+            params = {
+                'reference': start, \
+                'from_ref': end, \
+                'no_merges': no_merges, \
+                'size': size, \
+                'total': total, \
+            }
             r = requests.get(
-                    '%s/%s/log' % (self.node, repo_path), \
-                    params = params
-                )
+                '%s/%s/log' % (self.node, repo_path), \
+                params = params, \
+            )
             result = self.get_result(r)
-            if not r.ok:
-                return None
-            return result['data']
+            if not r.ok or result['error']:
+                return code.REPOS_GET_LOG_FAILED, None
+            return None, result['data']
         except Exception, e:
             logger.exception(e)
-            return None
+            return code.UNHANDLE_EXCEPTION, None
 
     def set_default_branch(self, repo_path, branch='master'):
         try:
@@ -126,7 +132,7 @@ class Jagare(object):
                     }
                 )
             result = self.get_result(r)
-            if not result or result['error']:
+            if not r.ok or result['error']:
                 return code.GIST_UPDATE_FAILED, None
             return None, result['data']
         except Exception, e:

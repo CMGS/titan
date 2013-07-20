@@ -45,6 +45,7 @@ REPOS_CANT_TRANSPORT_SELF = 'repos cant transport to itself'
 REPOS_PATH_NOT_FOUND = 'path not found'
 REPOS_LS_TREE_FAILED = 'ls tree failed'
 REPOS_CAT_FILE_FAILED = 'cat file failed'
+REPOS_GET_LOG_FAILED = 'get log failed'
 
 GIST_WITHOUT_FILENAME = 'gist without filename'
 GIST_WITHOUT_CONTENT = 'gist without content'
