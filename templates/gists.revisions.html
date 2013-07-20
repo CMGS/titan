@@ -22,11 +22,20 @@
 <ul class="unstyled">
     {% for rev in revisions %}
     <li>
-        <p>
-            <a href="#">{{ rev['author'].name or rev['author'].email }}</a>
-            {{ rev['type'] }} at
-            {{ rev['committer_time'] }}
-            </p>
+        <div class="row-fluid">
+            <div class="span4">
+                <p>
+                    <a href="#">{{ rev['author'].name or rev['author'].email }}</a>
+                    {{ rev['type'] }} at
+                    {{ rev['committer_time'] }}
+                </p>
+            </div>
+            <div class="span4 pull-right">
+                <div class="pull-right input-prepend">
+                    <a class="btn" href="{{ rev['view'] }}"><strong>View gist @ </strong>{{ rev['sha'][:7] }} <i class="icon-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
         {{ rev['diff'] | safe }}
     </li>
     {% endfor %}

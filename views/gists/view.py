@@ -13,14 +13,14 @@ from query.gists import get_gist_watcher
 
 class View(MethodView):
     decorators = [gist_require(), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, gist, private=None):
+    def get(self, organization, member, gist, private=None, version='master'):
         if not private and gist.private:
             raise abort(403)
         jagare = get_jagare(gist.id, gist.parent)
-        error, tree = jagare.ls_tree(gist.get_real_path())
+        error, tree = jagare.ls_tree(gist.get_real_path(), version=version)
         if not error:
             tree, meta = tree['content'], tree['meta']
-            tree = render_tree(jagare, tree, gist, organization)
+            tree = render_tree(jagare, tree, gist, organization, version=version)
         watcher = get_gist_watcher(g.current_user.id, gist.id)
         return self.render_template(
                     organization=organization, \

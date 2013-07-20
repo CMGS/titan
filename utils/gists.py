@@ -50,13 +50,13 @@ def get_url(organization, gist, view='gists.view', **kwargs):
         url = url_for(view, git=organization.git, gid=gist.id, **kwargs)
     return url
 
-def render_tree(jagare, tree, gist, organization, render=True):
+def render_tree(jagare, tree, gist, organization, render=True, version='master'):
     ret = []
     for d in tree:
         data = Obj()
         if d['type'] == 'blob':
             data.content, data.content_type, data.length = format_content(
-                    jagare, gist, d['path'], render=render, \
+                    jagare, gist, d['path'], render=render, version=version, \
             )
         else:
             continue

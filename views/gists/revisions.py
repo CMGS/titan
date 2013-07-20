@@ -8,9 +8,9 @@ from sheep.api.local import reqcache
 from libs.code import render_diff
 from utils.jagare import get_jagare
 from utils.repos import format_time
-from utils.gists import gist_require
 from utils.helper import MethodView, Obj
 from utils.account import login_required
+from utils.gists import gist_require, get_url
 from utils.organization import member_required
 
 from query.account import get_user_from_alias
@@ -23,7 +23,7 @@ class Revisions(MethodView):
         jagare = get_jagare(gist.id, gist.parent)
         error, revisions = jagare.get_log(gist.get_real_path(), shortstat=1)
         if not error:
-            revisions = self.render_revisions(jagare, gist, revisions)
+            revisions = self.render_revisions(jagare, organization, gist, revisions)
         return self.render_template(
                     organization=organization, \
                     member=member, \
@@ -32,17 +32,18 @@ class Revisions(MethodView):
                     gist=gist, \
                 )
 
-    def render_revisions(self, jagare, gist, revisions):
+    def render_revisions(self, jagare, organization, gist, revisions):
         for rev in revisions[:-1]:
-            self.render_rev(rev)
+            self.render_rev(rev, organization, gist)
             rev['type'] = 'update'
             yield rev
         rev = revisions[-1]
-        self.render_rev(rev)
+        self.render_rev(rev, organization, gist)
         rev['type'] = 'create'
         yield rev
 
-    def render_rev(self, rev):
+    def render_rev(self, rev, organization, gist):
+        rev['view'] = get_url(organization, gist, version=rev['sha'])
         rev['committer_time'] = format_time(rev['committer_time'])
         author = reqcache.get(rev['author_email'])
         if not author:

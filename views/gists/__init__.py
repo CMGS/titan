@@ -28,8 +28,11 @@ unwatch = view_func(RemoveWatchers, name='unwatch')
 
 gists.add_url_rule('/<git>/gist/create', view_func=create, methods=['GET', 'POST'])
 gists.add_url_rule('/<git>/gist/explore', view_func=explore, methods=['GET'])
+
 gists.add_url_rule('/<git>/gist/<private>', view_func=view, methods=['GET', 'POST'])
 gists.add_url_rule('/<git>/gist/<int:gid>', view_func=view, methods=['GET', 'POST'])
+gists.add_url_rule('/<git>/gist/<private>/<version>', view_func=view, methods=['GET', 'POST'])
+gists.add_url_rule('/<git>/gist/<int:gid>/<version>', view_func=view, methods=['GET', 'POST'])
 
 gists.add_url_rule('/<git>/gist/<private>/edit', view_func=edit, methods=['GET', 'POST'])
 gists.add_url_rule('/<git>/gist/<int:gid>/edit', view_func=edit, methods=['GET', 'POST'])
