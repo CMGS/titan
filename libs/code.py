@@ -10,7 +10,7 @@ import pygments
 import docutils, docutils.core
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
-from pygments.lexers import get_lexer_by_name, guess_lexer_for_filename
+from pygments.lexers import DiffLexer, get_lexer_by_name, guess_lexer_for_filename
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +20,12 @@ RE_CHECKBOX_IN_HTML = re.compile('<li>\[[x\s]\].+</li>')
 RE_CHECKBOX_IN_TEXT = re.compile('- (\[[x\s]\]).+')
 CHECKED = '[x]'
 UNCHECKED = '[ ]'
+
+def render_diff(content):
+    lexer = DiffLexer()
+    content = content.replace("\ No newline at end of file\n", "")
+    html = highlight(content, lexer,  HtmlFormatter(linenos=True, lineanchors='L', anchorlinenos=True))
+    return html
 
 def render_code(path, content):
     if path.rsplit('.', 1)[-1] in ['md', 'markdown', 'mkd']:

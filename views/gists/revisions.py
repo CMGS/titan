@@ -3,6 +3,9 @@
 
 import logging
 
+from sheep.api.local import reqcache
+
+from libs.code import render_diff
 from utils.jagare import get_jagare
 from utils.repos import format_time
 from utils.gists import gist_require
@@ -18,9 +21,9 @@ class Revisions(MethodView):
     decorators = [gist_require(owner=True), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, gist, private=None):
         jagare = get_jagare(gist.id, gist.parent)
-        error, revisions = jagare.get_log(gist.get_real_path())
+        error, revisions = jagare.get_log(gist.get_real_path(), shortstat=1)
         if not error:
-            revisions = self.render_revisions(revisions)
+            revisions = self.render_revisions(jagare, gist, revisions)
         return self.render_template(
                     organization=organization, \
                     member=member, \
@@ -29,14 +32,26 @@ class Revisions(MethodView):
                     gist=gist, \
                 )
 
-    def render_revisions(self, revisions):
-        for rev in revisions:
-            rev['committer_time'] = format_time(rev['committer_time'])
-            author = get_user_from_alias(rev['author_email'])
-            if not author:
-                author = Obj()
-                author.email = rev['author_email']
-                author.name = None
-            rev['author'] = author
+    def render_revisions(self, jagare, gist, revisions):
+        for rev in revisions[:-1]:
+            self.render_rev(rev)
+            rev['type'] = 'update'
             yield rev
+        rev = revisions[-1]
+        self.render_rev(rev)
+        rev['type'] = 'create'
+        yield rev
+
+    def render_rev(self, rev):
+        rev['committer_time'] = format_time(rev['committer_time'])
+        author = reqcache.get(rev['author_email'])
+        if not author:
+            author = get_user_from_alias(rev['author_email'])
+            reqcache.set(rev['author_email'], author)
+        if not author:
+            author = Obj()
+            author.email = rev['author_email']
+            author.name = None
+        rev['author'] = author
+        rev['diff'] = render_diff(rev['diff'])
 

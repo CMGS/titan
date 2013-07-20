@@ -35,6 +35,20 @@ class Jagare(object):
             logger.exception(e)
             return False, code.UNHANDLE_EXCEPTION
 
+    def diff(self, repo_path, from_sha, to_sha=None, empty=None):
+        try:
+            url = '%s/%s/diff/%s' % (self.node, repo_path, from_sha)
+            if to_sha:
+                url = '%s/%s' % (url, to_sha)
+            params = {'empty': empty}
+            r = requests.get(url, params=params, stream = True)
+            if not r.ok:
+                return r.status_code, None
+            return None, r
+        except Exception, e:
+            logger.exception(e)
+            return 400, None
+
     def ls_tree(self, repo_path, path='', version='master'):
         try:
             url = '%s/%s/ls-tree/%s' % (self.node, repo_path, version)
@@ -86,7 +100,10 @@ class Jagare(object):
             return []
         return [d['name'] for d in branches]
 
-    def get_log(self, repo_path, start=None, end=None, no_merges=None, size=None, page=None, total=None):
+    def get_log(self, repo_path, start=None, \
+            end=None, no_merges=None, size=None, \
+            page=None, total=None, shortstat=None
+        ):
         try:
             params = {
                 'reference': start, \
@@ -95,6 +112,7 @@ class Jagare(object):
                 'size': size, \
                 'total': total, \
                 'page': page, \
+                'shortstat': shortstat, \
             }
             r = requests.get(
                 '%s/%s/log' % (self.node, repo_path), \

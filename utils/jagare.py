@@ -5,7 +5,7 @@ import base64
 import logging
 from flask import abort
 from libs.jagare import Jagare
-from libs.code import render_code
+from libs.code import render_code, render_diff
 
 from config import JAGARE_NODES
 
@@ -24,6 +24,20 @@ def get_jagare(rid, parent=0):
     jagare = Jagare(node)
     cache[node] = jagare
     return jagare
+
+def format_diff(jagare, repo, from_sha, to_sha=None, empty=None, render=True):
+    error, res = jagare.diff(repo.get_real_path(), from_sha, to_sha, empty)
+    if error:
+        raise abort(error)
+    def _():
+        c = res.content
+        if not isinstance(c, unicode):
+            c = c.decode('utf8')
+        if render:
+            c = render_diff(c)
+        return c
+    content = _
+    return content
 
 def format_content(jagare, repo, path, version='master', render=True):
     error, res = jagare.cat_file(repo.get_real_path(), path, version=version)

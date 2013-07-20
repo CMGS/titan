@@ -22,9 +22,12 @@
 <ul class="unstyled">
     {% for rev in revisions %}
     <li>
-        <a href="#">{{ rev['author'].name or rev['author'].email }}</a>
-        update at
-        {{ rev['committer_time'] }}
+        <p>
+            <a href="#">{{ rev['author'].name or rev['author'].email }}</a>
+            {{ rev['type'] }} at
+            {{ rev['committer_time'] }}
+            </p>
+        {{ rev['diff'] | safe }}
     </li>
     {% endfor %}
 </ul>
