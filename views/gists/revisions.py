@@ -21,7 +21,7 @@ class Revisions(MethodView):
     decorators = [gist_require(owner=True), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, gist, private=None):
         jagare = get_jagare(gist.id, gist.parent)
-        error, revisions = jagare.get_log(gist.get_real_path(), shortstat=1)
+        error, revisions = jagare.get_log(gist.get_real_path())
         if not error:
             revisions = self.render_revisions(jagare, organization, gist, revisions)
         return self.render_template(

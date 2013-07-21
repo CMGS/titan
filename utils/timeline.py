@@ -4,9 +4,9 @@
 import time
 import msgpack
 import threading
-from utils.helper import Obj
 from utils.redistore import rdb
 from utils.jagare import get_jagare
+from utils.helper import Obj, generate_list_page
 
 from query.repos import get_repo_watchers
 from query.organization import get_organization, get_team
@@ -195,11 +195,10 @@ def render_activities_page(page, t='repo', **kwargs):
     return data, list_page
 
 def _get_list_page(activities, page=1):
-    list_page = Obj()
-    list_page.count = activities.count()
-    list_page.has_prev = True if page > 1 else False
-    list_page.has_next = True if page * ACTIVITIES_PER_PAGE < list_page.count else False
-    list_page.page = page
-    list_page.pages = (list_page.count / ACTIVITIES_PER_PAGE) + 1
-    list_page.iter_pages = xrange(1, list_page.pages + 1)
+    count = activities.count()
+    has_prev = True if page > 1 else False
+    has_next = True if page * ACTIVITIES_PER_PAGE < count else False
+    pages = (count / ACTIVITIES_PER_PAGE) + 1
+    list_page = generate_list_page(count, has_prev, has_next, page, pages)
     return list_page
+

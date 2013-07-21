@@ -56,3 +56,13 @@ def get_avatar(email, size):
     query = "%s?s=%s%s" % (md5email, size, config.GRAVATAR_EXTRA)
     return '%s%s' % (config.GRAVATAR_BASE_URL, query)
 
+def generate_list_page(count, has_prev, has_next, page, pages):
+    list_page = Obj()
+    list_page.count = count
+    list_page.has_prev = has_prev
+    list_page.has_next = has_next
+    list_page.page = page
+    list_page.pages = pages
+    list_page.iter_pages = xrange(1, pages + 1)
+    return list_page
+
