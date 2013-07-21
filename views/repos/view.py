@@ -9,8 +9,8 @@ from flask import g, url_for, abort, \
 from utils.helper import MethodView, Obj
 from utils.account import login_required
 from utils.organization import member_required
-from utils.activities import render_push_action
-from utils.timeline import render_activities_page
+from utils.activities import render_push_action, \
+        render_activities_page
 from utils.repos import repo_required, format_time
 from utils.jagare import get_jagare, format_content
 

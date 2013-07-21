@@ -9,8 +9,8 @@ from utils import code
 from utils.helper import MethodView
 from utils.token import create_token
 from utils.account import login_required
-from utils.activities import render_push_action
-from utils.timeline import render_activities_page
+from utils.activities import render_push_action, \
+        render_activities_page
 from utils.organization import send_verify_mail, member_required
 from utils.validators import check_organization_name, check_git, \
         check_members_limit, check_email

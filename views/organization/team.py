@@ -10,8 +10,8 @@ from flask import g, request, redirect, url_for, abort
 from utils import code
 from utils.helper import MethodView
 from utils.account import login_required
-from utils.activities import render_push_action
-from utils.timeline import render_activities_page
+from utils.activities import render_push_action, \
+        render_activities_page
 from utils.validators import check_team_name, check_git
 from utils.organization import member_required, team_member_required, \
         process_file

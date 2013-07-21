@@ -6,9 +6,14 @@ from sheep.api.local import reqcache
 from query.repos import get_repo
 from query.organization import get_team
 from query.account import get_user, get_user_from_alias
+
+from utils.helper import generate_list_page
 from utils.repos import format_time, format_branch, get_url
+from utils.timeline import get_repo_activities, get_organization_activities, \
+        get_user_activities, get_team_activities
 
 cache=reqcache
+ACTIVITIES_PER_PAGE = 20
 
 def render_push_action(action, organization, team=None, repo=None):
     repo = repo or cache.get(action['repo_id'], None) or get_repo(action['repo_id'])
@@ -46,4 +51,37 @@ def render_push_action(action, organization, team=None, repo=None):
     if action['commits_num'] > length:
         action['more'] = True
     return action
+
+def render_activities_page(page, t='repo', **kwargs):
+    if t == 'repo':
+        repo = kwargs['repo']
+        activities = get_repo_activities(repo)
+    elif t == 'organization':
+        organization = kwargs['organization']
+        activities = get_organization_activities(organization)
+    elif t == 'team':
+        team = kwargs['team']
+        organization = kwargs['organization']
+        activities = get_team_activities(organization, team)
+    elif t == 'user':
+        organization = kwargs['organization']
+        uid = kwargs['uid']
+        activities = get_user_activities(organization, uid)
+    else:
+        raise Exception('Not Implement %s Yet' % t)
+    data = activities.get_activities(
+                start=(page-1)*ACTIVITIES_PER_PAGE, \
+                stop=page*ACTIVITIES_PER_PAGE-1, \
+                withscores=True,
+            )
+    list_page = _get_list_page(activities, page)
+    return data, list_page
+
+def _get_list_page(activities, page=1):
+    count = activities.count()
+    has_prev = True if page > 1 else False
+    has_next = True if page * ACTIVITIES_PER_PAGE < count else False
+    pages = (count / ACTIVITIES_PER_PAGE) + 1
+    list_page = generate_list_page(count, has_prev, has_next, page, pages)
+    return list_page
 

@@ -199,7 +199,7 @@ def create_watcher(user, repo, organization, team=None):
         clear_watcher_cache(user, repo, organization, team)
         clear_repo_cache(repo, organization, need=False)
         if user.id != repo.uid:
-            from utils.timeline import after_add_watcher
+            from actions.repos import after_add_watcher
             after_add_watcher(user, organization, repo)
         return watcher, None
     except sqlalchemy.exc.IntegrityError, e:
@@ -275,7 +275,7 @@ def delete_watcher(user, watcher, repo, organization, team=None):
         clear_watcher_cache(user, repo, organization, team)
         clear_repo_cache(repo, organization, need=False)
         if user.id != repo.uid:
-            from utils.timeline import after_delete_watcher
+            from actions.repos import after_delete_watcher
             after_delete_watcher(user, organization, repo)
         return None
     except Exception, e:
@@ -324,7 +324,7 @@ def delete_repo(organization, repo, team=None):
         db.session.commit()
         clear_repo_cache(repo, organization, team)
         clear_explore_cache(organization, repo.uid, team)
-        from utils.timeline import after_delete_repo
+        from actions.repos import after_delete_repo
         after_delete_repo(repo, asynchronous=True)
         backend.delete_many(*keys)
         return None

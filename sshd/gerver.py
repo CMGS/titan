@@ -15,7 +15,7 @@ from maria.config import config as _config
 from config import MARIA_STORE_PATH
 
 from utils.repos import check_permits
-from utils.timeline import after_push_repo
+from actions.repos import after_push_repo
 
 from query.repos import get_repo_by_path
 from query.gists import get_gist_by_path
