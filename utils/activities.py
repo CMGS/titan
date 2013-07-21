@@ -28,7 +28,8 @@ def render_gist_action(action, organization):
     cache.set(gist_url_key, gist_url)
     action['gist'] = gist
     action['gist_url'] = gist_url
-    action['committer'] = get_user(action['committer_id'])
+    action['committer'] = cache.get(action['committer_id'], None) or get_user(action['committer_id'])
+    cache.set(action['committer_id'], action['committer'])
     for log in action['data']:
         author = cache.get(log['author_email'], False)
         if author is False:
@@ -64,7 +65,7 @@ def render_push_action(action, organization, team=None, repo=None):
     action['repo'] = repo
     action['repo_url'] = repo_url
     action['branch_url'] = branch_url
-    action['committer'] = get_user(action['committer_id'])
+    action['committer'] = cache.get(action['committer_id'], None) or get_user(action['committer_id'])
     length = len(action['data'])
     for i in xrange(0, length):
         log = action['data'][i]
