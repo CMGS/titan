@@ -75,7 +75,7 @@
                 <p>
                     <a href="#"><img height="24px" width="24px" src="{{ d['committer'].avatar(18) }}" /></a>
                     <a href="#">{{ d['committer'].display }}</a> update
-                    <a href="{{ d['gist_url'] }}">{% if d['gist'].summary %}{{ d['gist'].summary }}{% else %}Gist:{{ d['gist'].id }}{% endif %}</a>
+                    <a href="{{ d['gist_url'] }}">Gist:{% if d['gist'].summary %}{{ d['gist'].summary }}{% else %}{{ d['gist'].private or d['gist'].id }}{% endif %}</a>
                     <span class="label label-important">{{ d['data'][0]['sha'][:10] }}</span>
                 </p>
                 {% endif %}
