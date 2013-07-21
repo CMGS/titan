@@ -84,7 +84,7 @@ def get_activities(organization=None, team=None, repo=None, gist=None):
             if watcher.uid == gist.uid:
                 continue
             yield get_user_activities(organization, watcher.uid)
-    elif repo:
+    if repo:
         organization = get_organization(repo.oid)
         team = get_team(repo.tid) if repo.tid else team
         yield get_repo_activities(repo)
@@ -93,10 +93,11 @@ def get_activities(organization=None, team=None, repo=None, gist=None):
             if watcher.uid == repo.uid:
                 continue
             yield get_user_activities(organization, watcher.uid)
-    elif team:
+    if team:
         yield get_team_activities(organization, team)
-    elif organization and (not team or not team.private):
+    if organization and (
+            (gist and not gist.private) or
+            (repo and (not team or not team.private))
+        ):
         yield get_organization_activities(organization)
-    else:
-        raise NotImplementedError
 

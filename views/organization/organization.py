@@ -122,6 +122,8 @@ class View(MethodView):
         for action, original, _ in data:
             if action['type'] == 'push':
                 yield render_push_action(action, organization)
+            elif action['type'] == 'gist':
+                print action
             else:
                 #TODO for other data
                 continue
@@ -146,6 +148,8 @@ class Public(MethodView):
         for action, original, _ in data:
             if action['type'] == 'push':
                 yield render_push_action(action, organization)
+            elif action['type'] == 'gist':
+                print action
             else:
                 #TODO for other data
                 continue
