@@ -20,10 +20,10 @@ def render_push_action(action, organization, team=None, repo=None):
     if repo.tid > 0:
         team = team or get_team(repo.tid)
         repo_url = repo_url or get_url('repos.view', organization, repo, kw={'team': team,})
-        branch_url = get_url('repos.view', organization, repo, kw={'team': team,}, version=action['branch'])
+        branch_url = branch_url or get_url('repos.view', organization, repo, kw={'team': team,}, version=action['branch'])
     else:
-        repo_url = get_url('repos.view', organization, repo)
-        branch_url = get_url('repos.view', organization, repo, version=action['branch'])
+        repo_url = repo_url or get_url('repos.view', organization, repo)
+        branch_url = branch_url or get_url('repos.view', organization, repo, version=action['branch'])
 
     cache.set(action['repo_id'], repo)
     cache.set('%s_url' % action['repo_id'], repo_url)

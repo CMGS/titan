@@ -2,11 +2,12 @@
 #coding:utf-8
 
 import time
+import logging
 import msgpack
 import threading
 from utils.redistore import rdb
 from utils.jagare import get_jagare
-from utils.helper import Obj, generate_list_page
+from utils.helper import generate_list_page
 
 from query.repos import get_repo_watchers
 from query.organization import get_organization, get_team
@@ -28,6 +29,8 @@ USER_ACTIVITES_KEY = 'activities:user:{oid}:{uid}'
 TEAM_ACTIVITES_KEY = 'activities:team:{oid}:{tid}'
 # Public Team Activities
 ORGANIZATION_ACTIVITES_KEY = 'activities:organization:{oid}'
+
+logger = logging.getLogger(__name__)
 
 class Activities(object):
     def __init__(self, activities_key):
@@ -143,9 +146,12 @@ def after_push_repo(user, repo, start='refs/heads/master', asynchronous=False):
 
     # Get new commits from last commit
     jagare = get_jagare(repo.id, repo.parent)
-    logs = jagare.get_log(repo.get_real_path(), start, head) or \
-            jagare.get_log(repo.get_real_path(), start, last) or \
-            jagare.get_log(repo.get_real_path(), start, None)
+    err, logs = jagare.get_log(repo.get_real_path(), start, head) or \
+                jagare.get_log(repo.get_real_path(), start, last) or \
+                jagare.get_log(repo.get_real_path(), start, None)
+    if err:
+        logger.exception(err)
+        return
 
     commit_time = time.time()
     data = {
