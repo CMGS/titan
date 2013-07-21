@@ -5,12 +5,14 @@ import logging
 from functools import wraps
 from flask import abort, g, url_for
 
-from utils.helper import Obj
 from utils.repos import format_time
+from utils.helper import Obj, generate_list_page
 from utils.jagare import get_jagare, format_content
 from query.gists import get_gist, get_gist_by_private
 
 logger = logging.getLogger(__name__)
+
+REVISIONS_PER_PAGE = 5
 
 def gist_require(owner=False):
     def _gist_require(f):
@@ -70,4 +72,12 @@ def render_tree(jagare, tree, gist, organization, render=True, version='master')
         data.path = d['path']
         ret.append(data)
     return ret
+
+def render_revisions_page(gist, page=1):
+    count = gist.meta.revisions_count
+    has_prev = True if page > 1 else False
+    has_next = True if page * REVISIONS_PER_PAGE < count else False
+    pages = (count / REVISIONS_PER_PAGE) + 1
+    list_page = generate_list_page(count, has_prev, has_next, page, pages)
+    return list_page
 
