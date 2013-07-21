@@ -128,6 +128,8 @@ def create_gist(data, organization, user, summary, parent=0, private=None, watch
         clear_user_gist_cache(user, organization)
         clear_explore_cache(gist, user, organization)
         clear_watcher_cache(user, gist, organization)
+        from actions.gists import after_update_gist
+        after_update_gist(user, gist, asynchronous=True, method='create')
         return gist, None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()

@@ -53,7 +53,7 @@ def after_delete_watcher(user, organization, gist, asynchronous=False):
     t = threading.Thread(target=user_activities.delete, args=data)
     t.start()
 
-def after_update_gist(user, gist, asynchronous=False):
+def after_update_gist(user, gist, asynchronous=False, method='update'):
     head_key = HEAD_COMMIT_KEY.format(gid=gist.id)
     last_key = LAST_COMMIT_KEY.format(gid=gist.id)
 
@@ -72,6 +72,7 @@ def after_update_gist(user, gist, asynchronous=False):
     commit_time = time.time()
     data = {
         'type':'gist', \
+        'method': method, \
         'gist_id': gist.id, \
         'committer_id': user.id, \
         'commits_num': len(logs), \
