@@ -35,6 +35,7 @@
             <a href="#">{{ d['committer'].display }}</a> update
             <a href="{{ d['gist_url'] }}">Gist:{% if d['gist'].summary %}{{ d['gist'].summary }}{% else %}{{ d['gist'].id }}{% endif %}</a>
             <span class="label label-important">{{ d['data'][0]['sha'][:10] }}</span>
+            <span class="label label-info">{{ d['data'][0]['author_time'] }}</span>
         </p>
         {% endif %}
     </li>
