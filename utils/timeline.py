@@ -61,7 +61,7 @@ class Activities(object):
         return rdb.zcard(self.activities_key)
 
 def get_gist_activities(gist):
-    return Activities.get(activities_key = GIST_ACTIVITES_KEY.format(oid=gist.oid, rid=gist.id))
+    return Activities.get(activities_key = GIST_ACTIVITES_KEY.format(oid=gist.oid, gid=gist.id))
 
 def get_repo_activities(repo):
     return Activities.get(activities_key = REPO_ACTIVITES_KEY.format(oid=repo.oid, rid=repo.id))
@@ -81,7 +81,7 @@ def get_activities(organization=None, team=None, repo=None, gist=None):
         yield get_gist_activities(gist)
         yield get_user_activities(organization, gist.uid)
         for watcher in get_gist_watchers(gist.id):
-            if watcher.uid == repo.uid:
+            if watcher.uid == gist.uid:
                 continue
             yield get_user_activities(organization, watcher.uid)
     elif repo:

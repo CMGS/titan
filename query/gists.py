@@ -149,7 +149,9 @@ def create_watcher(user, gist, organization):
         db.session.commit()
         clear_watcher_cache(user, gist, organization)
         clear_gist_cache(gist)
-        #TODO after add watcher, push info to watcher's timeline
+        if user.id != gist.uid:
+            from actions.gists import after_add_watcher
+            after_add_watcher(user, organization, gist)
         return watcher, None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
@@ -178,6 +180,8 @@ def update_gist(user, gist, data, summary):
                 db.session.rollback()
                 return None, error
             logger.info(ret)
+            from actions.gists import after_update_gist
+            after_update_gist(user, gist, asynchronous=True)
         return gist, None
     except Exception, e:
         db.session.rollback()
@@ -194,7 +198,9 @@ def delete_watcher(user, watcher, gist, organization):
         db.session.commit()
         clear_watcher_cache(user, gist, organization)
         clear_gist_cache(gist)
-        # TODO after delete watcher
+        if user.id != gist.uid:
+            from actions.gists import after_delete_watcher
+            after_delete_watcher(user, organization, gist)
         return None
     except Exception, e:
         db.session.rollback()
@@ -224,7 +230,8 @@ def delete_gist(user, gist, organization):
         db.session.commit()
         clear_gist_cache(gist, organization)
         clear_explore_cache(gist, user, organization)
-        #TODO after delete gist
+        from actions.gists import after_delete_gist
+        after_delete_gist(gist, asynchronous=True)
         backend.delete_many(*keys)
         return None
     except Exception, e:
