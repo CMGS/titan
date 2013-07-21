@@ -5,11 +5,14 @@ import msgpack
 from utils.redistore import rdb
 
 from query.repos import get_repo_watchers
+from query.gists import get_gist_watchers
 from query.organization import get_organization, get_team
 
 TIMELINE_EXPRIE = 60 * 60 * 24 * 30
 MAX_ACTIVITIES_NUM = 1009
 
+# Updata/Delete
+GIST_ACTIVITES_KEY = 'activities:gist:{oid}:{gid}'
 # Create Pull Request/Push/Merge/Add or Edit a File
 REPO_ACTIVITES_KEY = 'activities:repo:{oid}:{rid}'
 # Repos Activities
@@ -57,6 +60,9 @@ class Activities(object):
     def count(self):
         return rdb.zcard(self.activities_key)
 
+def get_gist_activities(gist):
+    return Activities.get(activities_key = GIST_ACTIVITES_KEY.format(oid=gist.oid, rid=gist.id))
+
 def get_repo_activities(repo):
     return Activities.get(activities_key = REPO_ACTIVITES_KEY.format(oid=repo.oid, rid=repo.id))
 
@@ -69,8 +75,16 @@ def get_team_activities(organization, team):
 def get_user_activities(organization, uid):
     return Activities.get(activities_key = USER_ACTIVITES_KEY.format(oid=organization.id, uid=uid))
 
-def get_activities(organization=None, team=None, repo=None, **kwargs):
-    if repo:
+def get_activities(organization=None, team=None, repo=None, gist=None):
+    if gist:
+        organization = get_organization(gist.oid)
+        yield get_gist_activities(gist)
+        yield get_user_activities(organization, gist.uid)
+        for watcher in get_gist_watchers(gist.id):
+            if watcher.uid == repo.uid:
+                continue
+            yield get_user_activities(organization, watcher.uid)
+    elif repo:
         organization = get_organization(repo.oid)
         team = get_team(repo.tid) if repo.tid else team
         yield get_repo_activities(repo)
@@ -79,8 +93,10 @@ def get_activities(organization=None, team=None, repo=None, **kwargs):
             if watcher.uid == repo.uid:
                 continue
             yield get_user_activities(organization, watcher.uid)
-    if team:
+    elif team:
         yield get_team_activities(organization, team)
-    if organization and (not team or not team.private):
+    elif organization and (not team or not team.private):
         yield get_organization_activities(organization)
+    else:
+        raise NotImplementedError
 
