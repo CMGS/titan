@@ -9,11 +9,11 @@ from utils import code
 from utils.helper import MethodView
 from utils.token import create_token
 from utils.account import login_required
-from utils.activities import render_push_action, \
-        render_activities_page
 from utils.organization import send_verify_mail, member_required
 from utils.validators import check_organization_name, check_git, \
         check_members_limit, check_email
+from utils.activities import render_push_action, render_gist_action, \
+        render_activities_page
 
 from query.account import get_user_by_email, get_user
 from query.organization import get_organization_member, create_organization, \
@@ -123,7 +123,7 @@ class View(MethodView):
             if action['type'] == 'push':
                 yield render_push_action(action, organization)
             elif action['type'] == 'gist':
-                print action
+                yield render_gist_action(action, organization)
             else:
                 #TODO for other data
                 continue
@@ -149,7 +149,7 @@ class Public(MethodView):
             if action['type'] == 'push':
                 yield render_push_action(action, organization)
             elif action['type'] == 'gist':
-                print action
+                yield render_gist_action(action, organization)
             else:
                 #TODO for other data
                 continue

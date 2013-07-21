@@ -72,13 +72,14 @@ def after_update_gist(user, gist, asynchronous=False):
     commit_time = time.time()
     data = {
         'type':'gist', \
-        'repo_id': gist.id, \
+        'gist_id': gist.id, \
         'committer_id': user.id, \
         'commits_num': len(logs), \
         'commit_time': commit_time, \
     }
     rdb.set(head_key, logs[0]['sha'])
     rdb.set(last_key, logs[-1]['sha'])
+    data['data'] = logs
     data = msgpack.dumps(data)
     for activities in get_activities(gist=gist):
         if not asynchronous:
