@@ -37,7 +37,7 @@ def async_send_mail(email, title, content):
             send_email(email, title, content)
         except Exception:
             logger.exception('send mail failed')
-    t = threading.Thread(targe=_send)
+    t = threading.Thread(target=_send)
     t.start()
 
 if __name__ == '__main__':
