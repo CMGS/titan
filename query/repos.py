@@ -178,6 +178,9 @@ def create_commiter(user, repo, organization, team=None):
         clear_commiter_cache(user, repo)
         clear_repo_cache(repo, organization, need=False)
         clear_watcher_cache(user, repo, organization, team)
+        if user.id != repo.uid:
+            from actions.repos import after_add_watcher
+            after_add_watcher(user, organization, repo)
         return commiter, None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
@@ -297,6 +300,9 @@ def delete_commiter(user, commiter, repo, organization, team=None):
         clear_commiter_cache(user, repo)
         clear_repo_cache(repo, organization, need=False)
         clear_watcher_cache(user, repo, organization, team)
+        if user.id != repo.uid:
+            from actions.repos import after_delete_watcher
+            after_delete_watcher(user, organization, repo)
         return None
     except Exception, e:
         db.session.rollback()
