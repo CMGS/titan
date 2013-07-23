@@ -46,7 +46,7 @@ class Create(MethodView):
                     )
 
         team = get_team_by_name(organization.id, teamname) if teamname else None
-        if teamname and not team:
+        if teamname and (not team or not get_team_member(team.id, g.current_user.id)):
             return self.render_template(
                         organization=organization, \
                         member=member, \
