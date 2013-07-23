@@ -51,7 +51,7 @@ class Commiters(MethodView):
                         error=code.ORGANIZATION_MEMBER_NOT_EXISTS, \
                         **kwargs
                     )
-        create_commiter(user, repo, organization)
+        create_commiter(user, repo, organization, kwargs.get('team', None))
         return redirect(url_for('repos.commiters', \
             git=organization.git, rname=repo.name, \
             tname=kwargs['team'].name if kwargs.get('team') else None))
@@ -76,7 +76,7 @@ class RemoveCommiter(MethodView):
                 tname=kwargs['team'].name if kwargs.get('team') else None))
         commiter = get_repo_commiter(user.id, repo.id)
         if user and commiter:
-            delete_commiter(user, commiter, repo, organization)
+            delete_commiter(user, commiter, repo, organization, kwargs.get('team', None))
         return redirect(url_for('repos.commiters', \
             git=organization.git, rname=repo.name, \
             tname=kwargs['team'].name if kwargs.get('team') else None))

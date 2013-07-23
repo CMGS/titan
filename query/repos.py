@@ -164,7 +164,7 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=0)
         logger.exception(e)
         return None, code.UNHANDLE_EXCEPTION
 
-def create_commiter(user, repo, organization):
+def create_commiter(user, repo, organization, team=None):
     try:
         commiter = Commiters(user.id, repo.id)
         repo.commiters = Repos.commiters + 1
@@ -177,6 +177,7 @@ def create_commiter(user, repo, organization):
         db.session.commit()
         clear_commiter_cache(user, repo)
         clear_repo_cache(repo, organization, need=False)
+        clear_watcher_cache(user, repo, organization, team)
         return commiter, None
     except sqlalchemy.exc.IntegrityError, e:
         db.session.rollback()
@@ -283,14 +284,19 @@ def delete_watcher(user, watcher, repo, organization, team=None):
         logger.exception(e)
         return code.UNHANDLE_EXCEPTION
 
-def delete_commiter(user, commiter, repo, organization):
+def delete_commiter(user, commiter, repo, organization, team=None):
     try:
         db.session.delete(commiter)
         repo.commiters = Repos.commiters - 1
         db.session.add(repo)
+        watcher = get_repo_watcher(user.id, repo.id)
+        if watcher:
+            repo.watchers = Repos.watchers - 1
+            db.session.delete(watcher)
         db.session.commit()
         clear_commiter_cache(user, repo)
         clear_repo_cache(repo, organization, need=False)
+        clear_watcher_cache(user, repo, organization, team)
         return None
     except Exception, e:
         db.session.rollback()
