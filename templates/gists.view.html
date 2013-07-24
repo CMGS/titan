@@ -17,6 +17,10 @@
     <small><a href="{{ gist.meta.edit }}">edit</a></small>
     <small><a href="{{ gist.meta.delete }}">delete</a></small>
     {% endif %}
+    {% if gist.parent %}
+    <p>
+    <small>Fork from <a href="{{ gist.meta.parent_view }}">{{ gist.meta.parent.summary or 'Gist:%s' % (gist.meta.parent.private or gist.meta.parent.id) }}</a></small></p>
+    {% endif %}
 </h3>
 {% if gist.summary %}
 <blockquote>

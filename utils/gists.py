@@ -41,6 +41,10 @@ def set_gist_info(organization, gist):
     meta.fork = get_url(organization, gist, 'gists.fork')
     meta.delete = get_url(organization, gist, 'gists.delete')
     meta.revisions = get_url(organization, gist, 'gists.revisions')
+    if gist.parent > 0:
+        parent = get_gist(gist.parent)
+        meta.parent = parent
+        meta.parent_view = get_url(organization, parent, 'gists.view')
     jagare = get_jagare(gist.id, gist.parent)
     error, ret = jagare.get_log(gist.get_real_path(), total=1)
     meta.revisions_count = 0 if error else ret['total']
