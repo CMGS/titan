@@ -44,7 +44,7 @@ class Raw(MethodView):
         resp.headers['Content-Type'] = res.headers.get('content-type', 'application/octet-stream')
         return resp
 
-class NetWork(MethodView):
+class Network(MethodView):
     decorators = [gist_require(), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, gist, private=None):
         pass

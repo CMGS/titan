@@ -29,6 +29,7 @@ def render_gist_action(action, organization):
     action['gist'] = gist
     action['gist_url'] = gist_url
     action['committer'] = cache.get(action['committer_id'], None) or get_user(action['committer_id'])
+    action['commit_time'] = format_time(action['commit_time'])
     cache.set(action['committer_id'], action['committer'])
     for log in action['data']:
         author = cache.get(log['author_email'], False)
