@@ -54,7 +54,7 @@ class Create(MethodView):
                             codes=codes, \
                         )
             data[filename] = content
-        gist, err = create_gist(data, organization, g.current_user, summary, private=private, watchers=1)
+        gist, err = create_gist(organization, g.current_user, summary, data=data, private=private, watchers=1)
         if err:
             return self.render_template(
                         organization=organization, \
@@ -152,4 +152,15 @@ class Edit(MethodView):
             d.name = filename
             d.content = lambda: content
             yield d
+
+class Fork(MethodView):
+    decorators = [gist_require(), member_required(admin=False), login_required('account.login')]
+    def get(self, organization, member, gist, private=None):
+        if not private and gist.private:
+            raise abort(403)
+        private = create_token(20) if private else None
+        fork_gist, err = create_gist(organization, g.current_user, gist.summary, parent=gist, private=private, watchers=1)
+        if err:
+            return redirect(get_url(organization, gist))
+        return redirect(get_url(organization, fork_gist))
 

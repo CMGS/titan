@@ -71,14 +71,14 @@ def clear_explore_cache(gist, user, organization):
         keys.append('gists:explore:{oid}'.format(oid=organization.id))
     backend.delete_many(*keys)
 
-def clear_gist_cache(gist, organization=None, need=True):
+def clear_gist_cache(gist, organization=None):
     keys = [
         'gists:{gid}'.format(gid=gist.id), \
         'gists:path:{path}'.format(path=gist.path), \
     ]
     if gist.private:
         keys.append('gists:hidden:{private}'.format(private=gist.private))
-    if organization and need:
+    if organization:
         clear_organization_cache(organization)
     backend.delete_many(*keys)
 
@@ -98,9 +98,9 @@ def clear_user_gist_cache(user, organization):
 
 # create
 
-def create_gist(data, organization, user, summary, parent=0, private=None, watchers=0):
+def create_gist(organization, user, summary, data={}, parent=None, private=None, watchers=0):
     try:
-        gist = Gists(summary, organization.id, user.id, parent=0, private=private, watchers=watchers)
+        gist = Gists(summary, organization.id, user.id, parent=parent, private=private, watchers=watchers)
         db.session.add(gist)
         organization.gists = Organization.gists + 1
         db.session.add(organization)
@@ -114,17 +114,32 @@ def create_gist(data, organization, user, summary, parent=0, private=None, watch
         gist.path = os.path.join('gist', '%s.git' % (private or gist.id))
         watcher = GistWatchers(user.id, gist.id, organization.id)
         db.session.add(watcher)
-        jagare = get_jagare(gist.id, parent)
-        ret, error = jagare.init(gist.get_real_path())
-        if not ret:
-            db.session.rollback()
-            return None, error
-        error, ret = jagare.update_file(gist.get_real_path(), data, user)
-        if error:
-            db.session.rollback()
-            return None, error
+        jagare = get_jagare(gist.id, parent.id if parent else 0)
+
+        if not parent:
+            # Deal with new gist
+            if not data:
+                db.session.rollback()
+                return None, code.GIST_WITHOUT_CONTENT
+            ret, error = jagare.init(gist.get_real_path())
+            if not ret:
+                db.session.rollback()
+                return None, error
+            error, ret = jagare.update_file(gist.get_real_path(), data, user)
+            if error:
+                db.session.rollback()
+                return None, error
+        else:
+            ret, error = jagare.clone(gist.get_real_path(), parent.get_real_path())
+            if error:
+                db.session.rollback()
+                return None, error
+            parent.forks = Gists.forks + 1
+            db.session.add(parent)
         db.session.commit()
         clear_gist_cache(gist, organization)
+        if parent:
+            clear_gist_cache(parent)
         clear_user_gist_cache(user, organization)
         clear_explore_cache(gist, user, organization)
         clear_watcher_cache(user, gist, organization)
@@ -229,8 +244,14 @@ def delete_gist(user, gist, organization):
         if not ret:
             db.session.rollback()
             return error
+        if gist.parent > 0:
+            parent_gist = get_gist(gist.parent)
+            parent_gist.forks = Gists.forks - 1
+            db.session.add(parent_gist)
         db.session.commit()
         clear_gist_cache(gist, organization)
+        if gist.parent > 0:
+            clear_gist_cache(parent_gist)
         clear_explore_cache(gist, user, organization)
         from actions.gists import after_delete_gist
         after_delete_gist(gist, asynchronous=True)

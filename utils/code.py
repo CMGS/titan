@@ -47,6 +47,7 @@ REPOS_LS_TREE_FAILED = 'ls tree failed'
 REPOS_CAT_FILE_FAILED = 'cat file failed'
 REPOS_GET_LOG_FAILED = 'get log failed'
 REPOS_GET_DIFF_FAILED = 'get diff failed'
+REPOS_CLONE_FAILED = 'repos clone failed'
 
 GIST_WITHOUT_FILENAME = 'gist without filename'
 GIST_WITHOUT_CONTENT = 'gist without content'
@@ -54,6 +55,7 @@ GIST_FILENAME_EXISTS = 'gist filename exists'
 GIST_UPDATE_COMMIT = 'gist update'
 GIST_UPDATE_FAILED = 'gist update failed'
 GIST_CREATE_FAILED = 'gist create failed'
+GIST_PARENT_NOT_EXISTS = 'gist parent not exists'
 
 UNHANDLE_EXCEPTION = 'Server fault'
 

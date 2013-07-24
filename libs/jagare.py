@@ -24,6 +24,17 @@ class Jagare(object):
             logger.exception(e)
             return False, code.UNHANDLE_EXCEPTION
 
+    def clone(self, path, target_path):
+        try:
+            r = requests.post('%s/%s/clone/%s' % (self.node, path, target_path))
+            result = self.get_result(r)
+            if not result or result['error']:
+                return False, code.REPOS_CLONE_FAILED
+            return True, None
+        except Exception, e:
+            logger.exception(e)
+            return False, code.UNHANDLE_EXCEPTION
+
     def delete(self, path):
         try:
             r = requests.get('%s/%s/delete' % (self.node, path))

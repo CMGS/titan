@@ -6,7 +6,7 @@ from utils.helper import make_view
 from views.gists.view import View, Raw
 from views.gists.explore import Explore
 from views.gists.revisions import Revisions
-from views.gists.gists import Create, Edit, Delete
+from views.gists.gists import Create, Edit, Delete, Fork
 from views.gists.watchers import Watchers, RemoveWatchers
 
 MODULE_NAME = 'gists'
@@ -19,6 +19,7 @@ edit = view_func(Edit)
 view = view_func(View)
 delete = view_func(Delete)
 create = view_func(Create)
+fork = view_func(Fork)
 
 explore = view_func(Explore)
 revisions = view_func(Revisions)
@@ -45,6 +46,9 @@ gists.add_url_rule('/<git>/gist/<int:gid>/raw/<path:path>', view_func=raw, metho
 
 gists.add_url_rule('/<git>/gist/<private>/delete', view_func=delete, methods=['GET'])
 gists.add_url_rule('/<git>/gist/<int:gid>/delete', view_func=delete, methods=['GET'])
+
+gists.add_url_rule('/<git>/gist/<private>/fork', view_func=fork, methods=['GET'])
+gists.add_url_rule('/<git>/gist/<int:gid>/fork', view_func=fork, methods=['GET'])
 
 gists.add_url_rule('/<git>/gist/<private>/watch', view_func=watch, methods=['GET'])
 gists.add_url_rule('/<git>/gist/<int:gid>/watch', view_func=watch, methods=['GET'])

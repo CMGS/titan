@@ -23,7 +23,7 @@ class Gists(db.Model):
         self.uid = uid
         self.watchers = watchers
         self.summary = summary
-        self.parent = parent
+        self.parent = parent.id if parent else 0
         self.private = private
 
     def get_real_path(self):

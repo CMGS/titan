@@ -38,6 +38,7 @@ def set_gist_info(organization, gist):
     meta.unwatch = get_url(organization, gist, 'gists.unwatch')
     meta.view = get_url(organization, gist, 'gists.view')
     meta.edit = get_url(organization, gist, 'gists.edit')
+    meta.fork = get_url(organization, gist, 'gists.fork')
     meta.delete = get_url(organization, gist, 'gists.delete')
     meta.revisions = get_url(organization, gist, 'gists.revisions')
     jagare = get_jagare(gist.id, gist.parent)
