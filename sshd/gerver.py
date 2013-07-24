@@ -157,8 +157,6 @@ class Gerver(_):
         if err:
             channel.sendall_stderr(err)
         channel.send_exit_status(p.returncode)
-        channel.shutdown(2)
-        channel.close()
         logger.info('Command execute finished')
         self.after_execute(output, err)
 
