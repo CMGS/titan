@@ -3,9 +3,9 @@
 
 from flask import Blueprint
 from utils.helper import make_view
-from views.gists.view import View, Raw
 from views.gists.explore import Explore
 from views.gists.revisions import Revisions
+from views.gists.view import View, Raw, Network
 from views.gists.gists import Create, Edit, Delete, Fork
 from views.gists.watchers import Watchers, RemoveWatchers
 
@@ -22,6 +22,7 @@ create = view_func(Create)
 fork = view_func(Fork)
 
 explore = view_func(Explore)
+network = view_func(Network)
 revisions = view_func(Revisions)
 
 watch = view_func(Watchers, name='watch')
@@ -49,6 +50,9 @@ gists.add_url_rule('/<git>/gist/<int:gid>/delete', view_func=delete, methods=['G
 
 gists.add_url_rule('/<git>/gist/<private>/fork', view_func=fork, methods=['GET'])
 gists.add_url_rule('/<git>/gist/<int:gid>/fork', view_func=fork, methods=['GET'])
+
+gists.add_url_rule('/<git>/gist/<private>/network', view_func=network, methods=['GET'])
+gists.add_url_rule('/<git>/gist/<int:gid>/network', view_func=network, methods=['GET'])
 
 gists.add_url_rule('/<git>/gist/<private>/watch', view_func=watch, methods=['GET'])
 gists.add_url_rule('/<git>/gist/<int:gid>/watch', view_func=watch, methods=['GET'])
