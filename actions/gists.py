@@ -69,7 +69,7 @@ def after_update_gist(user, gist, asynchronous=False, method='update'):
         logger.exception(err)
         return
 
-    commit_time = time.time()
+    commit_time = time.mktime(gist.update.timetuple())
     data = {
         'type':'gist', \
         'method': method, \

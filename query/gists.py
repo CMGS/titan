@@ -3,6 +3,7 @@
 
 import os
 import logging
+import datetime
 import sqlalchemy.exc
 from sheep.api.cache import cache, backend
 
@@ -185,11 +186,10 @@ def create_watcher(user, gist, organization):
 
 def update_gist(user, gist, data, summary):
     try:
+        update_data = False
         if summary != gist.summary:
             gist.summary = summary
-            db.session.add(gist)
-            db.session.commit()
-            clear_gist_cache(gist)
+            update_data = True
         if data:
             jagare = get_jagare(gist.id, gist.parent)
             error, ret = jagare.update_file(gist.get_real_path(), data, user)
@@ -197,8 +197,15 @@ def update_gist(user, gist, data, summary):
                 db.session.rollback()
                 return None, error
             logger.info(ret)
-            from actions.gists import after_update_gist
-            after_update_gist(user, gist, asynchronous=True)
+            if ret:
+                from actions.gists import after_update_gist
+                gist.update = datetime.datetime.now()
+                update_data = True
+                after_update_gist(user, gist, asynchronous=True)
+        if update_data:
+            db.session.add(gist)
+            db.session.commit()
+            clear_gist_cache(gist)
         return gist, None
     except Exception, e:
         db.session.rollback()
