@@ -18,7 +18,7 @@ class Repos(db.Model):
     commiters = db.Column(db.Integer, nullable=False, default=0)
     watchers = db.Column(db.Integer, nullable=False, default=0)
     path = db.Column(db.String(150), nullable=False)
-    parent = db.Column(db.Integer, nullable=False, default=0)
+    parent = db.Column(db.Integer, nullable=False, default=0, index=True)
     forks = db.Column(db.Integer, nullable=False, default=0)
     create = db.Column(db.DateTime, default=datetime.now)
 

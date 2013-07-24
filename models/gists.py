@@ -12,7 +12,7 @@ class Gists(db.Model):
     oid = db.Column(db.Integer, nullable=False, index=True)
     uid = db.Column(db.Integer, nullable=False, index=True)
     watchers = db.Column(db.Integer, nullable=False, default=0)
-    parent = db.Column(db.Integer, nullable=False, default=0)
+    parent = db.Column(db.Integer, nullable=False, default=0, index=True)
     forks = db.Column(db.Integer, nullable=False, default=0)
     private = db.Column(db.String(20), nullable=True, unique=True)
     path = db.Column(db.String(30), unique=True)
