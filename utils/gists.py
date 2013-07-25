@@ -19,12 +19,14 @@ def gist_require(owner=False):
         @wraps(f)
         def _(organization, member, *args, **kwargs):
             gid = kwargs.pop('gid', None)
-            private = kwargs.get('private', None)
+            private = kwargs.pop('private', None)
             if not gid and not private:
                 raise abort(404)
             gist = get_gist(gid) if gid else get_gist_by_private(private)
             if not gist:
                 raise abort(404)
+            if gist.private and not private:
+                raise abort(403)
             if owner and g.current_user.id != gist.uid and not member.admin:
                 raise abort(403)
             set_gist_info(organization, gist)
@@ -36,9 +38,12 @@ def set_gist_info(organization, gist):
     meta = Obj()
     meta.watch = get_url(organization, gist, 'gists.watch')
     meta.unwatch = get_url(organization, gist, 'gists.unwatch')
+    meta.watchers = get_url(organization, gist, 'gists.watchers')
     meta.view = get_url(organization, gist, 'gists.view')
     meta.edit = get_url(organization, gist, 'gists.edit')
     meta.fork = get_url(organization, gist, 'gists.fork')
+    meta.forks = get_url(organization, gist, 'gists.forks')
+    meta.watchers = get_url(organization, gist, 'gists.watchers')
     meta.delete = get_url(organization, gist, 'gists.delete')
     meta.revisions = get_url(organization, gist, 'gists.revisions')
     if gist.parent > 0:

@@ -1,0 +1,15 @@
+{% extends "organization.view.html" %}
+{% block subtitle %}Explore {{gist.summary or 'Gist:%s' % (gist.private or gist.id) }} Forks{% endblock %}
+{% block subcontent %}
+<h3>Explore Forks</h3>
+<table class="table table-striped">
+    <tbody>
+        {% for fork in forks %}
+        <tr>
+            <td><a href="{{ fork.view }}">{{ fork.summary or 'Gist:%s' % (fork.private or fork.id) }}</a></td>
+            <td><a href="#">{{ fork.user.name }}</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

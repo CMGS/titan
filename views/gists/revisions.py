@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 class Revisions(MethodView):
     decorators = [gist_require(owner=True), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, gist, private=None):
+    def get(self, organization, member, gist):
         page = request.args.get('p', 1)
         try:
             page = int(page)

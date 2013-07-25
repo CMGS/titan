@@ -67,13 +67,13 @@ class Create(MethodView):
 
 class Delete(MethodView):
     decorators = [gist_require(owner=True), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, gist, private=None):
+    def get(self, organization, member, gist):
         delete_gist(g.current_user, gist, organization)
         return redirect(url_for('organization.view', git=organization.git))
 
 class Edit(MethodView):
     decorators = [gist_require(owner=True), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, gist, private=None):
+    def get(self, organization, member, gist):
         jagare = get_jagare(gist.id, gist.parent)
         error, tree = jagare.ls_tree(gist.get_real_path())
         if not error:
@@ -87,7 +87,7 @@ class Edit(MethodView):
                     gist=gist, \
                 )
 
-    def post(self, organization, member, gist, private=None):
+    def post(self, organization, member, gist):
         summary = request.form.get('summary')
         filenames = request.form.getlist('filename')
         codes = request.form.getlist('code')
@@ -155,10 +155,8 @@ class Edit(MethodView):
 
 class Fork(MethodView):
     decorators = [gist_require(), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, gist, private=None):
-        if not private and gist.private:
-            raise abort(403)
-        private = create_token(20) if private else None
+    def get(self, organization, member, gist):
+        private = create_token(20) if gist.private else None
         fork_gist, err = create_gist(organization, g.current_user, gist.summary, parent=gist, private=private, watchers=1)
         if err:
             return redirect(get_url(organization, gist))

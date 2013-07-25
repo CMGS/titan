@@ -10,24 +10,40 @@ from utils.gists import gist_require
 from utils.account import login_required
 from utils.organization import member_required
 
-from query.gists import create_watcher, delete_watcher, get_gist_watcher
+from query.account import get_user
+from query.gists import create_watcher, delete_watcher, get_gist_watcher, \
+        get_gist_watchers
 
 logger = logging.getLogger(__name__)
 
-class Watchers(MethodView):
+class Watch(MethodView):
     decorators = [gist_require(), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, gist, private=None):
+    def get(self, organization, member, gist):
         watcher = get_gist_watcher(g.current_user.id, gist.id)
         if not watcher:
             create_watcher(g.current_user, gist, organization)
         return redirect(gist.meta.view)
 
-class RemoveWatchers(MethodView):
+class Unwatch(MethodView):
     decorators = [gist_require(), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, gist, private=None):
+    def get(self, organization, member, gist):
         watcher = get_gist_watcher(g.current_user.id, gist.id)
         if watcher:
             delete_watcher(g.current_user, watcher, gist, organization)
         return redirect(gist.meta.view)
 
+class Watchers(MethodView):
+    decorators = [gist_require(), member_required(admin=False), login_required('account.login')]
+    def get(self, organization, member, gist):
+        watchers = get_gist_watchers(gist.id)
+        return self.render_template(
+                    organization=organization, \
+                    member=member, \
+                    gist=gist, \
+                    watchers=self.render_forks(watchers)
+                )
 
+    def render_forks(self, watchers):
+        for watcher in watchers:
+            setattr(watcher, 'user', get_user(watcher.uid))
+            yield watcher

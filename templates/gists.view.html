@@ -43,11 +43,11 @@
                     {% else %}
                     <a class="btn" id="appendedInput" href="{{ gist.meta.watch }}">Watch</a>
                     {% endif %}
-                    <span class="add-on">{{ gist.watchers }}</span>
+                    <span class="add-on"><a href="{{ gist.meta.watchers}}">{{ gist.watchers }}</a></span>
                 </li>
                 <li>
                     <a class="btn" id="appendedInput" href="{{ gist.meta.fork }}">Fork</a>
-                    <span class="add-on">{{ gist.forks }}</span>
+                    <span class="add-on"><a href="{{ gist.meta.forks }}">{{ gist.forks }}</a></span>
                 </li>
             </ul>
         </div>

@@ -105,6 +105,6 @@ BLACK_LIST = [
     'create', 'invite', 'add', 'join', 'quit', 'new', 'watchers', \
     'watch', 'unwatch', 'blob', 'list', 'remove', 'git', 'activities', \
     'teams', 'team', 'public', 'private', 'gist', 'edit', 'raw', 'tree', \
-    'activity', 'hidden', 'logs', 'commits', 'log', 'commit', 'network', \
-    'revisions', 'revision', 'rev', 'fork', 'forks', \
+    'activity', 'hidden', 'logs', 'commits', 'log', 'commit', \
+    'revisions', 'revision', 'rev', 'fork', 'forks', 'networks', 'network', \
 ]

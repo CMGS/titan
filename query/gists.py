@@ -30,6 +30,10 @@ def get_gist_by_private(private):
 def get_gist_by_path(path):
     return Gists.query.filter_by(path=path).first()
 
+@cache('gists:forks:{gid}', 8640000)
+def get_gist_forks(gid):
+    return Gists.query.filter_by(parent=gid).all()
+
 @cache('gists:user:{oid}:{uid}', 8640000)
 def get_user_gist(oid, uid):
     return UserGists.query.filter_by(oid=oid, uid=uid).first()
@@ -75,6 +79,7 @@ def clear_explore_cache(gist, user, organization):
 def clear_gist_cache(gist, organization=None):
     keys = [
         'gists:{gid}'.format(gid=gist.id), \
+        'gists:forks:{gid}'.format(gid=gist.id), \
         'gists:path:{path}'.format(path=gist.path), \
     ]
     if gist.private:

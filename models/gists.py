@@ -16,6 +16,7 @@ class Gists(db.Model):
     forks = db.Column(db.Integer, nullable=False, default=0)
     private = db.Column(db.String(20), nullable=True, unique=True)
     path = db.Column(db.String(30), unique=True)
+    create = db.Column(db.DateTime, default=datetime.now)
     update = db.Column(db.DateTime, default=datetime.now)
 
     def __init__(self, summary, oid, uid, parent=0, watchers=0, private=None):
