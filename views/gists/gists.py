@@ -159,6 +159,6 @@ class Fork(MethodView):
         private = create_token(20) if gist.private else None
         fork_gist, err = create_gist(organization, g.current_user, gist.summary, parent=gist, private=private, watchers=1)
         if err:
-            return redirect(get_url(organization, gist))
+            return redirect(gist.meta.view)
         return redirect(get_url(organization, fork_gist))
 
