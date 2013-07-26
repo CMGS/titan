@@ -40,10 +40,10 @@ class Watchers(MethodView):
                     organization=organization, \
                     member=member, \
                     gist=gist, \
-                    watchers=self.render_forks(watchers)
+                    watchers=self.render_watchers(watchers)
                 )
 
-    def render_forks(self, watchers):
+    def render_watchers(self, watchers):
         for watcher in watchers:
             setattr(watcher, 'user', get_user(watcher.uid))
             yield watcher

@@ -38,11 +38,11 @@ class Watchers(MethodView):
         watchers = get_repo_watchers(repo.id)
         return self.render_template(
                     member=member, repo=repo, organization=organization, \
-                    watchers=self.render_forks(watchers), \
+                    watchers=self.render_watchers(watchers), \
                     admin=admin, team=team, team_member=team_member, \
                 )
 
-    def render_forks(self, watchers):
+    def render_watchers(self, watchers):
         for watcher in watchers:
             setattr(watcher, 'user', get_user(watcher.uid))
             yield watcher
