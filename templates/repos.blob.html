@@ -19,7 +19,7 @@
         </ul>
     </div>
     <div class="pull-right">
-        <a class="btn" href="{{ get_url('repos.raw', kwargs={'path': file_path, 'version': version}) }}"><strong>Raw</strong></a>
+        <a class="btn" href="{{ repo.meta.get_raw(path=file_path, version=version) }}"><strong>Raw</strong></a>
     </div>
 </div>
 <br />

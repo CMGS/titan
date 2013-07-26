@@ -32,9 +32,9 @@ def repo_required(admin=False, need_write=False):
             if teamname:
                 team = get_team_by_name(organization.id, teamname)
                 team_member = get_team_member(repo.tid, g.current_user.id)
-                kwargs['team'] = team
-                kwargs['team_member'] = team_member
             role = check_admin(g.current_user, repo, member, team_member)
+            kwargs['team'] = team
+            kwargs['team_member'] = team_member
             kwargs['admin'] = role
             if admin and not role:
                 url = url_for('repos.view', git=organization.git, rname=repo.name, tname=teamname)
@@ -75,7 +75,7 @@ def check_permits(user, repo, member, team=None, team_member=None, role=None):
     else:
         return True, False
 
-def key_formatter(**kwargs):
+def key_formatter(*a, **kwargs):
     version = kwargs.get('version')
     path = kwargs.get('path')
     key = 'repos:view'
@@ -102,7 +102,7 @@ def set_repo_meta(organization, repo, team=None):
     meta.remove_commiter = get_url(organization, repo, 'repos.remove_commiter', team=team)
     meta.transport = get_url(organization, repo, 'repos.transport', team=team)
     meta.delete = get_url(organization, repo, 'repos.delete', team=team)
-    meta.activity = get_url(organization, repo, 'repos.activity', team=team)
+    meta.activities = get_url(organization, repo, 'repos.activities', team=team)
     @reqcache(key_formatter)
     def get_view(version=None, path=None):
         return get_url(organization, repo, 'repos.view', team=team, version=version, path=path)
@@ -136,4 +136,20 @@ def get_url(organization, repo, view='repos.view', team=None, **kwargs):
         if not team:
             team = get_team(repo.tid)
         return url_for(view, git=organization.git, rname=repo.name, tname=team.name, **kwargs)
+
+def render_path(path, version, git, tname, rname):
+    if not path:
+        raise StopIteration()
+    pre = ''
+    paths = path.split('/')
+    for i in paths[:-1]:
+        p = i if not pre else '/'.join([pre, i])
+        pre = p
+        yield (i, url_for('repos.view', git=git, tname=tname, rname=rname, version=version, path=p))
+    yield (paths[-1], '')
+
+def get_branches(repo, jagare=None):
+    if not jagare:
+        jagare = get_jagare(repo.id, repo.parent)
+    return jagare.get_branches_names(repo.get_real_path())
 

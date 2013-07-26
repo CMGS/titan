@@ -7,25 +7,17 @@
 {% endif %}
 {% endblock %}
 
-{% macro get_url(view='repos.view', kwargs={}) -%}
-    {% if repo.tid == 0 %}
-    {{ url_for(view, git=organization.git, rname=repo.name, **kwargs) }}
-    {% else %}
-    {{ url_for(view, git=organization.git, rname=repo.name, tname=team.name, **kwargs) }}
-    {% endif %}
-{%- endmacro %}
-
 {% macro repo_nav(current='dashboard') -%}
 <li class="{% if current == 'code' %} active {% endif %}">
-    <a href="{{ get_url() }}">Code</a>
+    <a href="{{ repo.meta.view }}">Code</a>
 </li>
 {% if admin %}
 <li class="{% if current == 'setting' %} active {% endif %}">
-    <a href="{{ get_url('repos.setting') }}">Setting</a>
+    <a href="{{ repo.meta.setting }}">Setting</a>
 </li>
 {% endif %}
 <li class="{% if current == 'activity' %} active {% endif %}">
-    <a href="{{ get_url('repos.activities') }}">Activity</a>
+    <a href="{{ repo.meta.activities }}">Activity</a>
 </li>
 {%- endmacro %}
 
@@ -45,13 +37,13 @@
             <ul class="dropdown-menu">
                 {% for b in branches %}
                     {% if not file_path %}
-                    <li><a href="{{ get_url('repos.view', {'version': b}) }}">{{ b }}</a></li>
+                    <li><a href="{{ repo.meta.get_view(version=b) }}">{{ b }}</a></li>
                     {% else %}
-                        {% if not tree %}
-                        <li><a href="{{ get_url('repos.blob', {'path': file_path, 'version': b}) }}">{{ b }}</a></li>
-                        {% else %}
-                        <li><a href="{{ get_url('repos.view', {'path': file_path, 'version': b}) }}">{{ b }}</a></li>
-                        {% endif %}
+                    {% if not tree %}
+                    <li><a href="{{ repo.meta.get_blob(path=file_path, version=b) }}">{{ b }}</a></li>
+                    {% else %}
+                    <li><a href="{{ repo.meta.get_view(path=file_path, version=b) }}">{{ b }}</a></li>
+                    {% endif %}
                     {% endif %}
                 {% endfor %}
             </ul>
@@ -73,9 +65,9 @@
             <ul class="inline">
                 <li>
                     {% if watcher %}
-                    <a class="btn" id="appendedInput" href="{{ get_url('repos.unwatch') }}">Unwatch</a>
+                    <a class="btn" id="appendedInput" href="{{ repo.meta.unwatch }}">Unwatch</a>
                     {% else %}
-                    <a class="btn" id="appendedInput" href="{{ get_url('repos.watch') }}">Watch</a>
+                    <a class="btn" id="appendedInput" href="{{ repo.meta.watch }}">Watch</a>
                     {% endif %}
                     <span class="add-on">{{ repo.watchers }}</span>
                 </li>
@@ -89,7 +81,7 @@
 </div>
 {% if not error %}
 <ul class="breadcrumb">
-    <li><a href="{{ get_url('repos.view', kwargs={'version': version or None}) }}">{{ repo.name }}</a><span class="divider">/</span></li>
+    <li><a href="{{ repo.meta.get_view(version=version) }}">{{ repo.name }}</a><span class="divider">/</span></li>
     {% for p, u  in path %}
     {% if u %}
     <li><a href="{{ u }}">{{ p }}</a><span class="divider">/</span></li>

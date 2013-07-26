@@ -9,9 +9,9 @@ from flask import g, request, redirect, url_for
 from utils import code
 from utils.jagare import get_jagare
 from utils.helper import MethodView
-from utils.repos import repo_required
 from utils.account import login_required
 from utils.validators import check_reponame
+from utils.repos import repo_required, get_url
 from utils.organization import member_required
 
 from query.account import get_user
@@ -77,17 +77,17 @@ class Create(MethodView):
 
 class Setting(MethodView):
     decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, repo, **kwargs):
+    def get(self, organization, member, repo, admin, team, team_member):
         jagare = get_jagare(repo.id, repo.parent)
         branches = jagare.get_branches_names(repo.get_real_path())
         return self.render_template(
                     branches_switch=branches, \
                     member=member, repo=repo, \
                     organization=organization, \
-                    **kwargs
+                    admin=admin, team=team, team_member=team_member, \
                 )
 
-    def post(self, organization, member, repo, **kwargs):
+    def post(self, organization, member, repo, admin, team, team_member):
         name = request.form.get('name')
         default = request.form.get('default')
         params = {}
@@ -96,66 +96,59 @@ class Setting(MethodView):
         if default != repo.default:
             params['default'] = default
         if params:
-            params['team'] = kwargs.get('team', None)
+            params['team'] = team
             error = update_repo(organization, repo, params)
             if error:
                 return self.render_template(
                         member=member, repo=repo, organization=organization, \
                         error = error, \
-                        **kwargs
+                        admin=admin, team=team, team_member=team_member, \
                 )
-
-        return redirect(url_for('repos.setting', \
-            git=organization.git, rname=repo.name, \
-            tname=kwargs['team'].name if kwargs.get('team') else None))
+        return redirect(get_url(organization, repo, 'repos.setting', team=team))
 
 class Transport(MethodView):
     decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, repo, **kwargs):
+    def get(self, organization, member, repo, admin, team, team_member):
         return self.render_template(
                     member=member, repo=repo, organization=organization, \
-                    **kwargs
+                    admin=admin, team=team, team_member=team_member, \
                 )
 
-    def post(self, organization, member, repo, **kwargs):
+    def post(self, organization, member, repo, admin, team, team_member):
         name = request.form.get('name')
         user = get_user(name)
         if not user:
             return self.render_template(
                         member=member, repo=repo, organization=organization, \
                         error=code.ACCOUNT_NO_SUCH_USER, \
-                        **kwargs
+                        admin=admin, team=team, team_member=team_member, \
                     )
         if user.id == repo.uid:
             return self.render_template(
                         member=member, repo=repo, organization=organization, \
                         error=code.REPOS_CANT_TRANSPORT_SELF, \
-                        **kwargs
+                        admin=admin, team=team, team_member=team_member, \
                     )
         is_member = get_organization_member(organization.id, user.id)
         if not is_member:
             return self.render_template(
                         member=member, repo=repo, organization=organization, \
                         error=code.ORGANIZATION_MEMBER_NOT_EXISTS, \
-                        **kwargs
+                        admin=admin, team=team, team_member=team_member, \
                     )
 
-        team = kwargs.get('team', None)
-        tname = team.name if team else None
         error = transport_repo(organization, user, repo, team)
         if error:
             return self.render_template(
                         member=member, repo=repo, organization=organization, \
                         error=error, \
-                        **kwargs
+                        admin=admin, team=team, team_member=team_member, \
                     )
-        return redirect(url_for('repos.transport', git=organization.git, rname=repo.name, \
-            tname=tname))
+        return redirect(repo.meta.transport)
 
 class Delete(MethodView):
     decorators = [repo_required(admin=True), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, repo, **kwargs):
-        team = kwargs.get('team', None)
+    def get(self, organization, member, repo, admin, team, team_member):
         delete_repo(organization, repo, team)
         return redirect(url_for('organization.view', git=organization.git))
 

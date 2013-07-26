@@ -7,40 +7,23 @@ from flask import g, url_for, abort, \
         Response, stream_with_context, request
 
 from utils.jagare import get_jagare
-from utils.repos import repo_required
 from utils.helper import MethodView, Obj
 from utils.account import login_required
 from utils.organization import member_required
 from utils.activities import render_push_action, \
         render_activities_page
 from utils.formatter import format_content, format_time
+from utils.repos import repo_required, get_branches, render_path
 
 from query.repos import get_repo_watcher
 from query.account import get_user, get_alias_by_email
 
 logger = logging.getLogger(__name__)
 
-def render_path(path, version, git, tname, rname):
-    if not path:
-        raise StopIteration()
-    pre = ''
-    paths = path.split('/')
-    for i in paths[:-1]:
-        p = i if not pre else '/'.join([pre, i])
-        pre = p
-        yield (i, url_for('repos.view', git=git, tname=tname, rname=rname, version=version, path=p))
-    yield (paths[-1], '')
-
-def get_branches(repo, jagare=None):
-    if not jagare:
-        jagare = get_jagare(repo.id, repo.parent)
-    return jagare.get_branches_names(repo.get_real_path())
-
 class View(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, repo, path=None, **kwargs):
-        version = kwargs.get('version', repo.default)
-        team = kwargs.get('team', None)
+    def get(self, organization, member, repo, admin, team, team_member, version=None, path=None):
+        version = version or repo.default
         file_path = path
 
         watcher = get_repo_watcher(g.current_user.id, repo.id)
@@ -49,6 +32,7 @@ class View(MethodView):
 
         error, tree = jagare.ls_tree(repo.get_real_path(), path=path, version=version)
         readme = None
+        commit = None
         if not error:
             tree, meta = tree['content'], tree['meta']
             readme, tree = self.render_tree(
@@ -60,8 +44,7 @@ class View(MethodView):
                         path, version, organization.git, \
                         tname, repo.name
                     )
-            kwargs['commit'] = self.get_commit_user(meta)
-            kwargs['path'] = path
+            commit = self.get_commit_user(meta)
         return self.render_template(
                     member=member, repo=repo, \
                     organization=organization, \
@@ -69,7 +52,9 @@ class View(MethodView):
                     branches=get_branches(repo, jagare), \
                     tree=tree, error=error, \
                     readme=readme,
-                    **kwargs
+                    version=version,
+                    admin=admin, team=team, team_member=team_member, \
+                    path=path, commit=commit, \
                 )
 
     def get_commit_user(self, meta):
@@ -118,6 +103,7 @@ class View(MethodView):
     def get_submodule_url(self, submodule, sha):
         url = submodule['url']
         host = submodule['host']
+        #TODO move to utils
         if host == '218.245.3.148':
             git, url = url.split('@', 1)
             _, name= url.split(':', 1)
@@ -130,19 +116,12 @@ class View(MethodView):
 
 class Blob(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, repo, path, **kwargs):
-        version = kwargs.get('version', repo.default)
-        team = kwargs.get('team', None)
-
+    def get(self, organization, member, repo, admin, team, team_member, version, path):
         watcher = get_repo_watcher(g.current_user.id, repo.id)
         jagare = get_jagare(repo.id, repo.parent)
         tname = team.name if team else None
 
         content, content_type, content_length = format_content(jagare, repo, path, version=version)
-        kwargs['path'] = render_path(
-                            path, version, organization.git, \
-                            tname, repo.name
-                        )
 
         return self.render_template(
                     member=member, repo=repo, \
@@ -152,13 +131,16 @@ class Blob(MethodView):
                     content=content, \
                     content_length=content_length, \
                     content_type=content_type, \
-                    **kwargs
+                    admin=admin, team=team, team_member=team_member, \
+                    version=version, \
+                    path=render_path(
+                            path, version, organization.git, tname, repo.name
+                    )
                 )
 
 class Raw(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, repo, path, **kwargs):
-        version = kwargs.get('version', repo.default)
+    def get(self, organization, member, repo, admin, team, team_member, version, path):
         jagare = get_jagare(repo.id, repo.parent)
         repo_path = repo.get_real_path()
         error, res = jagare.cat_file(repo_path, path, version=version)
@@ -172,7 +154,7 @@ class Raw(MethodView):
 
 class Activities(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, repo, **kwargs):
+    def get(self, organization, member, repo, admin, team, team_member):
         page = request.args.get('p', 1)
         try:
             page = int(page)
@@ -180,17 +162,17 @@ class Activities(MethodView):
             raise abort(403)
         data, list_page = render_activities_page(page, t='repo', repo=repo)
         return self.render_template(
-                    data=self.render_activities(data, organization, repo, kwargs), \
+                    data=self.render_activities(data, organization, repo, team), \
                     list_page=list_page, \
                     member=member, repo=repo, \
                     organization=organization, \
-                    **kwargs
+                    admin=admin, team=team, team_member=team_member, \
                 )
 
-    def render_activities(self, data, organization, repo, kwargs):
+    def render_activities(self, data, organization, repo, team):
         for action, original, timestamp in data:
             if action['type'] == 'push':
-                yield render_push_action(action, organization, repo=repo, team=kwargs.get('team'))
+                yield render_push_action(action, organization, repo=repo, team=team)
             else:
                 #TODO for merge data
                 continue

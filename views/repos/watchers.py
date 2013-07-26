@@ -3,7 +3,7 @@
 
 import logging
 
-from flask import g, redirect, url_for
+from flask import g, redirect
 
 from utils.helper import MethodView
 from utils.repos import repo_required
@@ -16,21 +16,17 @@ logger = logging.getLogger(__name__)
 
 class Watch(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, repo, **kwargs):
+    def get(self, organization, member, repo, admin, team, team_member):
         watcher = get_repo_watcher(g.current_user.id, repo.id)
-        team = kwargs.get('team', None)
         if not watcher:
             create_watcher(g.current_user, repo, organization, team=team)
-        tname = team.name if team else None
-        return redirect(url_for('repos.view', git=organization.git, tname=tname, rname=repo.name))
+        return redirect(repo.meta.view)
 
 class Unwatch(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, repo, **kwargs):
+    def get(self, organization, member, repo, admin, team, team_member):
         watcher = get_repo_watcher(g.current_user.id, repo.id)
-        team = kwargs.get('team', None)
         if watcher:
             delete_watcher(g.current_user, watcher, repo, organization, team=team)
-        tname = team.name if team else None
-        return redirect(url_for('repos.view', git=organization.git, tname=tname, rname=repo.name))
+        return redirect(repo.meta.view)
 

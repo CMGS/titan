@@ -30,9 +30,9 @@
 <div class="row-fluid">
     <div class="span2">
         <ul class="nav nav-tabs nav-stacked">
-            <li><a href="{{ get_url('repos.setting') }}">Setting</a></li>
-            <li><a href="{{ get_url('repos.commiters') }}">Commiters</a></li>
-            <li><a href="{{ get_url('repos.transport') }}">Transport</a></li>
+            <li><a href="{{ repo.meta.setting }}">Setting</a></li>
+            <li><a href="{{ repo.meta.commiter }}">Commiters</a></li>
+            <li><a href="{{ repo.meta.transport }}">Transport</a></li>
         </ul>
     </div>
     <div class="span10">
@@ -56,7 +56,7 @@
             <button class="btn btn-primary" type="submit">Update</button>
         </form>
         <hr>
-        <a class="btn btn-danger" href="{{ get_url('repos.delete') }}">Delete</a>
+        <a class="btn btn-danger" href="{{ repo.meta.delete }}">Delete</a>
         {% endblock %}
     </div>
 </div>

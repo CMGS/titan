@@ -19,7 +19,7 @@
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     <button class="btn btn-primary" type="submit">Add</button>
 </form>
-<form class="form-setting" method="POST" action="{{ get_url('repos.remove') }}">
+<form class="form-setting" method="POST" action="{{ repo.meta.remove_commiter }}">
     <input name="name" type="text" class="input-block-level" placeholder="Name">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     <button class="btn btn-primary" type="submit">Delete</button>
