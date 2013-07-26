@@ -4,10 +4,10 @@
 from flask import Blueprint
 from utils.helper import make_view
 from views.repos.explore import Explore
-from views.repos.watchers import Watch, Unwatch
+from views.repos.view import View, Blob, Raw, Activities
+from views.repos.watchers import Watch, Unwatch, Watchers
 from views.repos.commiters import Commiters, RemoveCommiter
 from views.repos.repos import Create, Transport, Delete, Setting
-from views.repos.view import View, Blob, Raw, Activities
 
 MODULE_NAME = 'repos'
 view_func = make_view(MODULE_NAME)
@@ -25,6 +25,7 @@ commiters = view_func(Commiters)
 remove_commiter = view_func(RemoveCommiter, name='remove_commiter')
 watch = view_func(Watch)
 unwatch = view_func(Unwatch)
+watchers = view_func(Watchers)
 
 raw = view_func(Raw)
 view = view_func(View)
@@ -58,6 +59,9 @@ repos.add_url_rule('/<git>/<tname>/<rname>/watch', view_func=watch, methods=['GE
 
 repos.add_url_rule('/<git>/<rname>/unwatch', view_func=unwatch, methods=['GET'])
 repos.add_url_rule('/<git>/<tname>/<rname>/unwatch', view_func=unwatch, methods=['GET'])
+
+repos.add_url_rule('/<git>/<rname>/watchers', view_func=watchers, methods=['GET'])
+repos.add_url_rule('/<git>/<tname>/<rname>/watchers', view_func=watchers, methods=['GET'])
 
 repos.add_url_rule('/<git>/<rname>', view_func=view, methods=['GET'])
 repos.add_url_rule('/<git>/<tname>/<rname>', view_func=view, methods=['GET'])

@@ -1,0 +1,14 @@
+{% extends "repos.view.html" %}
+{% block subtitle %} Watchers {{ repo.name }}{% endblock %}
+{% block subcontent %}
+<h3>Explore {{ repo.name }} Watchers</h3>
+<table class="table table-striped">
+    <tbody>
+        {% for watcher in watchers %}
+        <tr>
+            <td><a href="#">{{ watcher.user.name }}</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

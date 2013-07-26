@@ -89,7 +89,7 @@ def set_repo_meta(organization, repo, team=None):
     meta = Obj()
     meta.watch = get_url(organization, repo, 'repos.watch', team=team)
     meta.unwatch = get_url(organization, repo, 'repos.unwatch', team=team)
-    #meta.watchers = get_url(organization, repo, 'repos.watchers', team=team)
+    meta.watchers = get_url(organization, repo, 'repos.watchers', team=team)
     meta.view = get_url(organization, repo, 'repos.view', team=team)
     #meta.edit = get_url(organization, repo, 'repos.edit', team=team)
     #meta.fork = get_url(organization, repo, 'repos.fork', team=team)

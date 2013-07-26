@@ -69,7 +69,7 @@
                     {% else %}
                     <a class="btn" id="appendedInput" href="{{ repo.meta.watch }}">Watch</a>
                     {% endif %}
-                    <span class="add-on">{{ repo.watchers }}</span>
+                    <span class="add-on"><a href="{{ repo.meta.watchers }}">{{ repo.watchers }}</a></span>
                 </li>
                 <li>
                     <a class="btn" id="appendedInput" href="#">Forks</a>
