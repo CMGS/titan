@@ -2,6 +2,7 @@
 #coding:utf-8
 
 import logging
+from datetime import datetime
 
 from flask import request, abort
 
@@ -54,12 +55,19 @@ class Commits(MethodView):
                 )
 
     def render_commits(self, jagare, organization, repo, commits, list_page):
+        pre = None
         for commit in commits:
             self.render_commit(commit, organization, repo)
+            if not pre:
+                pre = commit
+            else:
+                commit['pre'] = pre
+                pre = commit
             yield commit
 
     def render_commit(self, commit, organization, repo):
         commit['view'] = get_url(organization, repo, version=commit['sha'])
+        commit['author_date'] = datetime.fromtimestamp(float(commit['author_time'])).date()
         commit['author_time'] = format_time(commit['author_time'])
         author = reqcache.get(commit['author_email'])
         if not author:

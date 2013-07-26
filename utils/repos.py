@@ -95,7 +95,6 @@ def set_repo_meta(organization, repo, team=None):
     #meta.edit = get_url(organization, repo, 'repos.edit', team=team)
     #meta.fork = get_url(organization, repo, 'repos.fork', team=team)
     #meta.forks = get_url(organization, repo, 'repos.forks', team=team)
-    #meta.watchers = get_url(organization, repo, 'repos.watchers', team=team)
     meta.delete = get_url(organization, repo, 'repos.delete', team=team)
     meta.setting = get_url(organization, repo, 'repos.setting', team=team)
     meta.commiter = get_url(organization, repo, 'repos.commiters', team=team)

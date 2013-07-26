@@ -13,6 +13,15 @@
 <table class="table">
     <tbody>
     {% for commit in commits %}
+    {% if not commit.get('pre') %}
+    <tr>
+        <td colspan=3>{{ commit['author_date'].strftime('%b %d, %Y') }}</td>
+    </tr>
+    {% elif (commit['pre']['author_date'] - commit['author_date']).days > 0 %}
+    <tr>
+        <td colspan=3>{{ commit['author_date'].strftime('%b %d, %Y') }}</td>
+    </tr>
+    {% endif %}
     <tr>
         <td style="width:50px;"><img src="{{ commit['author'].avatar(50) }}" /></td>
         <td>
