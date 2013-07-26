@@ -153,3 +153,17 @@ def get_branches(repo, jagare=None):
         jagare = get_jagare(repo.id, repo.parent)
     return jagare.get_branches_names(repo.get_real_path())
 
+def get_submodule_url(submodule, sha):
+    url = submodule['url']
+    host = submodule['host']
+    #TODO move to utils
+    if host == '218.245.3.148':
+        git, url = url.split('@', 1)
+        _, name= url.split(':', 1)
+        tname = None
+        if '/' in name:
+            tname, name = name.split('/', 1)
+        #TODO not production
+        url = 'http://%s:12307%s' % (host, url_for('repos.view', git=git, tname=tname, rname=name, version=sha))
+    return url
+

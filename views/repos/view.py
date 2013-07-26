@@ -13,7 +13,8 @@ from utils.organization import member_required
 from utils.activities import render_push_action, \
         render_activities_page
 from utils.formatter import format_content, format_time
-from utils.repos import repo_required, get_branches, render_path
+from utils.repos import repo_required, get_branches, render_path, \
+        get_submodule_url
 
 from query.repos import get_repo_watcher
 from query.account import get_user, get_alias_by_email
@@ -88,7 +89,7 @@ class View(MethodView):
                     if content_type != 'file':
                         readme = None
             elif d['type'] == 'submodule':
-                data.url = self.get_submodule_url(d['submodule'], d['sha'])
+                data.url = get_submodule_url(d['submodule'], d['sha'])
                 d['name'] = '%s@%s' % (d['name'], d['sha'][:10])
             data.name = d['name']
             data.sha = d['sha']
@@ -99,20 +100,6 @@ class View(MethodView):
             data.path = d['path']
             ret.append(data)
         return readme, ret
-
-    def get_submodule_url(self, submodule, sha):
-        url = submodule['url']
-        host = submodule['host']
-        #TODO move to utils
-        if host == '218.245.3.148':
-            git, url = url.split('@', 1)
-            _, name= url.split(':', 1)
-            tname = None
-            if '/' in name:
-                tname, name = name.split('/', 1)
-            #TODO not production
-            url = 'http://%s:12307%s' % (host, url_for('repos.view', git=git, tname=tname, rname=name, version=sha))
-        return url
 
 class Blob(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
