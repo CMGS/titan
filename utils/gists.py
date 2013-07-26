@@ -4,6 +4,7 @@
 import logging
 from functools import wraps
 from flask import abort, g, url_for
+from sheep.api.local import reqcache
 
 from utils.repos import format_time
 from utils.helper import Obj, generate_list_page
@@ -29,12 +30,12 @@ def gist_require(owner=False):
                 raise abort(403)
             if owner and g.current_user.id != gist.uid and not member.admin:
                 raise abort(403)
-            set_gist_info(organization, gist)
+            set_gist_meta(organization, gist)
             return f(organization, member, gist, *args, **kwargs)
         return _
     return _gist_require
 
-def set_gist_info(organization, gist):
+def set_gist_meta(organization, gist):
     meta = Obj()
     meta.watch = get_url(organization, gist, 'gists.watch')
     meta.unwatch = get_url(organization, gist, 'gists.unwatch')
@@ -46,13 +47,15 @@ def set_gist_info(organization, gist):
     meta.watchers = get_url(organization, gist, 'gists.watchers')
     meta.delete = get_url(organization, gist, 'gists.delete')
     meta.revisions = get_url(organization, gist, 'gists.revisions')
-    if gist.parent > 0:
-        parent = get_gist(gist.parent)
-        meta.parent = parent
-        meta.parent_view = get_url(organization, parent, 'gists.view')
-    jagare = get_jagare(gist.id, gist.parent)
-    error, ret = jagare.get_log(gist.get_real_path(), total=1)
-    meta.revisions_count = 0 if error else ret['total']
+    if gist.parent:
+        meta.parent = set_gist_meta(organization, get_gist(gist.parent))
+    @reqcache('gist:revisions:count:{gid}')
+    def count_revisions(gid):
+        jagare = get_jagare(gist.id, gist.parent)
+        error, ret = jagare.get_log(gist.get_real_path(), total=1)
+        count = 0 if error else ret['total']
+        return count
+    meta.count_revisions = lambda: count_revisions(gist.id)
     setattr(gist, 'meta', meta)
 
 def get_url(organization, gist, view='gists.view', **kwargs):
@@ -84,7 +87,7 @@ def render_tree(jagare, tree, gist, organization, render=True, version='master')
     return ret
 
 def render_revisions_page(gist, page=1):
-    count = gist.meta.revisions_count
+    count = gist.meta.count_revisions()
     has_prev = True if page > 1 else False
     has_next = True if page * REVISIONS_PER_PAGE < count else False
     pages = (count / REVISIONS_PER_PAGE) + 1

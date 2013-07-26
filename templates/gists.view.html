@@ -12,14 +12,14 @@
 {% else %}
 <h3>
     <strong>Gist:</strong>{{ gist.private or gist.id }}
-    <small><a href="{{ gist.meta.revisions }}">revisions({{ gist.meta.revisions_count }})</a></small>
+    <small><a href="{{ gist.meta.revisions }}">revisions({{ gist.meta.count_revisions() }})</a></small>
     {% if gist.uid == g.current_user.id %}
     <small><a href="{{ gist.meta.edit }}">edit</a></small>
     <small><a href="{{ gist.meta.delete }}">delete</a></small>
     {% endif %}
     {% if gist.parent %}
     <p>
-    <small>Fork from <a href="{{ gist.meta.parent_view }}">{{ gist.meta.parent.summary or 'Gist:%s' % (gist.meta.parent.private or gist.meta.parent.id) }}</a></small></p>
+    <small>Fork from <a href="{{ gist.meta.parent.meta.view }}">{{ gist.meta.parent.summary or 'Gist:%s' % (gist.meta.parent.private or gist.meta.parent.id) }}</a></small></p>
     {% endif %}
 </h3>
 {% if gist.summary %}
