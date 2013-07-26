@@ -5,7 +5,6 @@ from sheep.api.local import reqcache
 
 from query.repos import get_repo
 from query.gists import get_gist
-from query.organization import get_team
 from query.account import get_user, get_user_from_alias
 
 from utils.helper import generate_list_page

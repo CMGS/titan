@@ -45,7 +45,6 @@ def set_gist_meta(organization, gist):
     meta.edit = get_url(organization, gist, 'gists.edit')
     meta.fork = get_url(organization, gist, 'gists.fork')
     meta.forks = get_url(organization, gist, 'gists.forks')
-    meta.watchers = get_url(organization, gist, 'gists.watchers')
     meta.delete = get_url(organization, gist, 'gists.delete')
     meta.revisions = get_url(organization, gist, 'gists.revisions')
     if gist.parent:
