@@ -14,7 +14,7 @@ from query.repos import create_watcher, delete_watcher, get_repo_watcher
 
 logger = logging.getLogger(__name__)
 
-class Watchers(MethodView):
+class Watch(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, repo, **kwargs):
         watcher = get_repo_watcher(g.current_user.id, repo.id)
@@ -24,7 +24,7 @@ class Watchers(MethodView):
         tname = team.name if team else None
         return redirect(url_for('repos.view', git=organization.git, tname=tname, rname=repo.name))
 
-class RemoveWatchers(MethodView):
+class Unwatch(MethodView):
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, repo, **kwargs):
         watcher = get_repo_watcher(g.current_user.id, repo.id)

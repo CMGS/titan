@@ -4,7 +4,7 @@
 from flask import Blueprint
 from utils.helper import make_view
 from views.repos.explore import Explore
-from views.repos.watchers import Watchers, RemoveWatchers
+from views.repos.watchers import Watch, Unwatch
 from views.repos.commiters import Commiters, RemoveCommiter
 from views.repos.repos import Create, Transport, Delete, Setting
 from views.repos.view import View, Blob, Raw, Activities
@@ -22,9 +22,9 @@ explore = view_func(Explore)
 activities = view_func(Activities)
 
 commiters = view_func(Commiters)
-remove_commiter = view_func(RemoveCommiter, name='remove')
-watch = view_func(Watchers, name='watch')
-unwatch = view_func(RemoveWatchers, name='unwatch')
+remove_commiter = view_func(RemoveCommiter, name='remove_commiter')
+watch = view_func(Watch)
+unwatch = view_func(Unwatch)
 
 raw = view_func(Raw)
 view = view_func(View)

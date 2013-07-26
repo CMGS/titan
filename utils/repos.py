@@ -3,12 +3,15 @@
 
 import os
 import logging
+from functools import wraps
+from sheep.api.local import reqcache
 from flask import g, abort, url_for, redirect
 
-from functools import wraps
-from query.repos import get_repo_by_path, get_repo_commiter
+from utils.helper import Obj
+from utils.jagare import get_jagare
 from query.organization import get_team_member, get_team_by_name, \
         get_team
+from query.repos import get_repo_by_path, get_repo_commiter, get_repo
 
 logger = logging.getLogger(__name__)
 
@@ -19,9 +22,9 @@ def repo_required(admin=False, need_write=False):
         def _(organization, member, *args, **kwargs):
             teamname = kwargs.pop('tname', '')
             reponame = kwargs.pop('rname', '')
-            path = os.path.join(teamname, '%s.git' % reponame)
             if not reponame:
                 raise abort(404)
+            path = os.path.join(teamname, '%s.git' % reponame)
             repo = get_repo_by_path(organization.id, path)
             if not repo:
                 raise abort(404)
@@ -41,6 +44,7 @@ def repo_required(admin=False, need_write=False):
                 raise abort(403)
             if need_write and not write:
                 raise abort(403)
+            set_repo_meta(organization, repo, team)
             return f(organization, member, repo, *args, **kwargs)
         return _
     return _repo_required
@@ -70,6 +74,60 @@ def check_permits(user, repo, member, team=None, team_member=None, role=None):
             return False, False
     else:
         return True, False
+
+def key_formatter(**kwargs):
+    version = kwargs.get('version')
+    path = kwargs.get('path')
+    key = 'repos:view'
+    if version:
+        key += ':%s' % version
+    if path:
+        key += ':%s' % path
+    return key
+
+def set_repo_meta(organization, repo, team=None):
+    meta = Obj()
+    meta.watch = get_url(organization, repo, 'repos.watch', team=team)
+    meta.unwatch = get_url(organization, repo, 'repos.unwatch', team=team)
+    #meta.watchers = get_url(organization, repo, 'repos.watchers', team=team)
+    meta.view = get_url(organization, repo, 'repos.view', team=team)
+    #meta.edit = get_url(organization, repo, 'repos.edit', team=team)
+    #meta.fork = get_url(organization, repo, 'repos.fork', team=team)
+    #meta.forks = get_url(organization, repo, 'repos.forks', team=team)
+    #meta.watchers = get_url(organization, repo, 'repos.watchers', team=team)
+    meta.delete = get_url(organization, repo, 'repos.delete', team=team)
+    #meta.revisions = get_url(organization, repo, 'repos.revisions', team=team)
+    meta.setting = get_url(organization, repo, 'repos.setting', team=team)
+    meta.commiter = get_url(organization, repo, 'repos.commiters', team=team)
+    meta.remove_commiter = get_url(organization, repo, 'repos.remove_commiter', team=team)
+    meta.transport = get_url(organization, repo, 'repos.transport', team=team)
+    meta.delete = get_url(organization, repo, 'repos.delete', team=team)
+    meta.activity = get_url(organization, repo, 'repos.activity', team=team)
+    @reqcache(key_formatter)
+    def get_view(version=None, path=None):
+        return get_url(organization, repo, 'repos.view', team=team, version=version, path=path)
+    meta.get_view = get_view
+    @reqcache('repos:blob:{version}:{path}')
+    def get_blob(version, path):
+        return get_url(organization, repo, 'repos.blob', team=team, version=version, path=path)
+    meta.get_blob = get_blob
+    @reqcache('repos:raw:{version}:{path}')
+    def get_raw(version, path):
+        return get_url(organization, repo, 'repos.raw', team=team, version=version, path=path)
+    meta.get_raw = get_raw
+    if repo.parent:
+        parent = get_repo(repo.parent)
+        #TODO valid check
+        parent_team = get_team(parent.tid) if parent.tid else None
+        meta.parent = set_repo_meta(organization, parent, team=parent_team)
+    @reqcache('repo:revisions:count:{gid}')
+    def count_revisions(gid):
+        jagare = get_jagare(repo.id, repo.parent)
+        error, ret = jagare.get_log(repo.get_real_path(), total=1)
+        count = 0 if error else ret['total']
+        return count
+    meta.count_revisions = lambda: count_revisions(repo.id)
+    setattr(repo, 'meta', meta)
 
 def get_url(organization, repo, view='repos.view', team=None, **kwargs):
     if repo.tid == 0:
