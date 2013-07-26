@@ -9,13 +9,16 @@
 
 {% macro repo_nav(current='dashboard') -%}
 <li class="{% if current == 'code' %} active {% endif %}">
-    <a href="{{ repo.meta.view }}">Code</a>
+    <a href="{{ repo.meta.get_view(version) }}">Code</a>
 </li>
 {% if admin %}
 <li class="{% if current == 'setting' %} active {% endif %}">
     <a href="{{ repo.meta.setting }}">Setting</a>
 </li>
 {% endif %}
+<li class="{% if current == 'commits' %} active {% endif %}">
+    <a href="{{ repo.meta.get_commits(version) }}">Commits</a>
+</li>
 <li class="{% if current == 'activity' %} active {% endif %}">
     <a href="{{ repo.meta.activities }}">Activity</a>
 </li>
@@ -35,6 +38,7 @@
         <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ version or repo.default }}<b class="caret"></b></a>
             <ul class="dropdown-menu">
+                {% block show_branches %}
                 {% for b in branches %}
                     {% if not file_path %}
                     <li><a href="{{ repo.meta.get_view(version=b) }}">{{ b }}</a></li>
@@ -46,6 +50,7 @@
                     {% endif %}
                     {% endif %}
                 {% endfor %}
+                {% endblock %}
             </ul>
         </li>
     </ul>

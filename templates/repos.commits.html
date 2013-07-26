@@ -1,0 +1,30 @@
+{% extends "repos.view.html" %}
+{% import "/common/pagination.html" as pagination %}
+{% block subtitle %} Commits {{ repo.name }}{% endblock %}
+{% block subnav %}
+    {{ repo_nav('commits') }}
+{% endblock %}
+{% block show_branches %}
+{% for b in branches %}
+    <li><a href="{{ repo.meta.get_commits(version=b) }}">{{ b }}</a></li>
+{% endfor %}
+{% endblock %}
+{% block subcontent %}
+<table class="table">
+    <tbody>
+    {% for commit in commits %}
+    <tr>
+        <td style="width:50px;"><img src="{{ commit['author'].avatar(50) }}" /></td>
+        <td>
+            <strong style="font-size:16px">{{ commit['message'] }}</strong>
+            <p>
+                <a href="#">{{ commit['author'].name or commit['author'].email }}</a> author {{ commit['author_time'] }}
+            </p>
+        </td>
+        <td style="vertical-align:middle;text-align:right"><a class="btn" href="{{ commit['view'] }}"><strong>View gist @ </strong>{{ commit['sha'][:7] }} <i class="icon-arrow-right"></i></a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{{ pagination.render_pagination(list_page, '') }}
+{% endblock %}

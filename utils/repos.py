@@ -7,8 +7,9 @@ from functools import wraps
 from sheep.api.local import reqcache
 from flask import g, abort, url_for, redirect
 
-from utils.helper import Obj
+import config
 from utils.jagare import get_jagare
+from utils.helper import Obj, generate_list_page
 from query.organization import get_team_member, get_team_by_name, \
         get_team
 from query.repos import get_repo_by_path, get_repo_commiter, get_repo
@@ -96,7 +97,6 @@ def set_repo_meta(organization, repo, team=None):
     #meta.forks = get_url(organization, repo, 'repos.forks', team=team)
     #meta.watchers = get_url(organization, repo, 'repos.watchers', team=team)
     meta.delete = get_url(organization, repo, 'repos.delete', team=team)
-    #meta.revisions = get_url(organization, repo, 'repos.revisions', team=team)
     meta.setting = get_url(organization, repo, 'repos.setting', team=team)
     meta.commiter = get_url(organization, repo, 'repos.commiters', team=team)
     meta.remove_commiter = get_url(organization, repo, 'repos.remove_commiter', team=team)
@@ -115,18 +115,23 @@ def set_repo_meta(organization, repo, team=None):
     def get_raw(version, path):
         return get_url(organization, repo, 'repos.raw', team=team, version=version, path=path)
     meta.get_raw = get_raw
+    #TODO not support path NOW!!!!
+    @reqcache('repos:commits:{version}')
+    def get_commits(version):
+        return get_url(organization, repo, 'repos.commits', team=team, version=version or repo.default)
+    meta.get_commits = get_commits
     if repo.parent:
         parent = get_repo(repo.parent)
         #TODO valid check
         parent_team = get_team(parent.tid) if parent.tid else None
         meta.parent = set_repo_meta(organization, parent, team=parent_team)
-    @reqcache('repo:revisions:count:{gid}')
-    def count_revisions(gid):
+    @reqcache('repo:commits:count:{gid}')
+    def count_commits(gid):
         jagare = get_jagare(repo.id, repo.parent)
         error, ret = jagare.get_log(repo.get_real_path(), total=1)
         count = 0 if error else ret['total']
         return count
-    meta.count_revisions = lambda: count_revisions(repo.id)
+    meta.count_commits = lambda: count_commits(repo.id)
     setattr(repo, 'meta', meta)
 
 def get_url(organization, repo, view='repos.view', team=None, **kwargs):
@@ -166,4 +171,13 @@ def get_submodule_url(submodule, sha):
         #TODO not production
         url = 'http://%s:12307%s' % (host, url_for('repos.view', git=git, tname=tname, rname=name, version=sha))
     return url
+
+def render_commits_page(repo, page=1):
+    count = repo.meta.count_commits()
+    has_prev = True if page > 1 else False
+    has_next = True if page * config.COMMITS_PER_PAGE < count else False
+    pages = count / config.COMMITS_PER_PAGE
+    pages += 1 if count % config.COMMITS_PER_PAGE else 0
+    list_page = generate_list_page(count, has_prev, has_next, page, pages)
+    return list_page
 

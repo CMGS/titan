@@ -23,6 +23,9 @@ FORGET_STUB_EXPIRE = 30*60
 GRAVATAR_BASE_URL = 'http://www.gravatar.com/avatar/'
 GRAVATAR_EXTRA = ''
 
+COMMITS_PER_PAGE = 10
+REVISIONS_PER_PAGE = 5
+
 PACKAGE_COST = {
     1: 0,
     2: 0,

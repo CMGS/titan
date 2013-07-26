@@ -52,8 +52,8 @@ class View(MethodView):
                     watcher=watcher, file_path=file_path, \
                     branches=get_branches(repo, jagare), \
                     tree=tree, error=error, \
-                    readme=readme,
-                    version=version,
+                    readme=readme, \
+                    version=version, \
                     admin=admin, team=team, team_member=team_member, \
                     path=path, commit=commit, \
                 )

@@ -7,14 +7,14 @@ from flask import request, abort
 
 from sheep.api.local import reqcache
 
+import config
 from libs.code import render_diff
 from utils.jagare import get_jagare
 from utils.formatter import format_time
 from utils.helper import MethodView, Obj
 from utils.account import login_required
 from utils.organization import member_required
-from utils.gists import gist_require, get_url, render_revisions_page, \
-        REVISIONS_PER_PAGE
+from utils.gists import gist_require, get_url, render_revisions_page
 
 from query.account import get_user_from_alias
 
@@ -29,11 +29,11 @@ class Revisions(MethodView):
         except ValueError:
             raise abort(403)
         jagare = get_jagare(gist.id, gist.parent)
-        error, revisions = jagare.get_log(gist.get_real_path(), page=page, size=REVISIONS_PER_PAGE)
+        error, revisions = jagare.get_log(gist.get_real_path(), page=page, size=config.REVISIONS_PER_PAGE)
         if not revisions:
             raise abort(404)
-        revisions = self.render_revisions(jagare, organization, gist, revisions)
         list_page = render_revisions_page(gist, page)
+        revisions = self.render_revisions(jagare, organization, gist, revisions, list_page)
         return self.render_template(
                     organization=organization, \
                     member=member, \
@@ -43,14 +43,14 @@ class Revisions(MethodView):
                     list_page=list_page, \
                 )
 
-    def render_revisions(self, jagare, organization, gist, revisions):
+    def render_revisions(self, jagare, organization, gist, revisions, list_page):
         for rev in revisions[:-1]:
             self.render_rev(rev, organization, gist)
             rev['type'] = 'update'
             yield rev
         rev = revisions[-1]
         self.render_rev(rev, organization, gist)
-        rev['type'] = 'create'
+        rev['type'] = 'create' if not list_page.has_next else 'update'
         yield rev
 
     def render_rev(self, rev, organization, gist):
