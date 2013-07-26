@@ -6,13 +6,14 @@ import logging
 from flask import g, url_for, abort, \
         Response, stream_with_context, request
 
+from utils.jagare import get_jagare
+from utils.repos import repo_required
 from utils.helper import MethodView, Obj
 from utils.account import login_required
 from utils.organization import member_required
 from utils.activities import render_push_action, \
         render_activities_page
-from utils.repos import repo_required, format_time
-from utils.jagare import get_jagare, format_content
+from utils.formatter import format_content, format_time
 
 from query.repos import get_repo_watcher
 from query.account import get_user, get_alias_by_email

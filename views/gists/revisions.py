@@ -9,7 +9,7 @@ from sheep.api.local import reqcache
 
 from libs.code import render_diff
 from utils.jagare import get_jagare
-from utils.repos import format_time
+from utils.formatter import format_time
 from utils.helper import MethodView, Obj
 from utils.account import login_required
 from utils.organization import member_required

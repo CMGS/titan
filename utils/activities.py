@@ -11,7 +11,7 @@ from query.account import get_user, get_user_from_alias
 from utils.helper import generate_list_page
 from utils.gists import get_url as get_gist_url
 from utils.repos import get_url as get_repo_url
-from utils.repos import format_time, format_branch
+from utils.formatter import format_time, format_branch
 from utils.timeline import get_repo_activities, get_organization_activities, \
         get_user_activities, get_team_activities
 
@@ -52,13 +52,8 @@ def render_push_action(action, organization, team=None, repo=None):
     action['branch'] = format_branch(action['branch'])
     branch_url = cache.get(repo_branch_key)
 
-    if repo.tid > 0:
-        team = team or get_team(repo.tid)
-        repo_url = repo_url or get_repo_url('repos.view', organization, repo, kw={'team': team,})
-        branch_url = branch_url or get_repo_url('repos.view', organization, repo, kw={'team': team,}, version=action['branch'])
-    else:
-        repo_url = repo_url or get_repo_url('repos.view', organization, repo)
-        branch_url = branch_url or get_repo_url('repos.view', organization, repo, version=action['branch'])
+    repo_url = repo_url or get_repo_url(organization, repo)
+    branch_url = branch_url or get_repo_url(organization, repo, version=action['branch'])
 
     cache.set(repo_key, repo)
     cache.set(repo_url_key, repo_url)
