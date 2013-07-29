@@ -19,6 +19,7 @@
         </ul>
     </div>
     <div class="pull-right">
+        <a class="btn" href="{{ repo.meta.get_commits(path=file_path, version=version) }}"><strong>History</strong></a>
         <a class="btn" href="{{ repo.meta.get_raw(path=file_path, version=version) }}"><strong>Raw</strong></a>
     </div>
 </div>
