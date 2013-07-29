@@ -107,6 +107,14 @@
 {% endif %}
 </ul>
 {% block show_content %}
+{% if file_path %}
+<div class="row-fluid">
+    <div class="pull-right">
+        <a class="btn" href="{{ repo.meta.get_commits(path=file_path, version=version) }}"><strong>History</strong></a>
+    </div>
+</div>
+<br />
+{% endif %}
 <table class="table">
     <tbody>
         {% for t in tree %}
