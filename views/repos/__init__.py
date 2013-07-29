@@ -68,6 +68,9 @@ repos.add_url_rule('/<git>/<tname>/<rname>/watchers', view_func=watchers, method
 repos.add_url_rule('/<git>/<rname>/commits/<version>', view_func=commits, methods=['GET'])
 repos.add_url_rule('/<git>/<tname>/<rname>/commits/<version>', view_func=commits, methods=['GET'])
 
+repos.add_url_rule('/<git>/<rname>/commits/<version>/<path>', view_func=commits, methods=['GET'])
+repos.add_url_rule('/<git>/<tname>/<rname>/commits/<version>/<path>', view_func=commits, methods=['GET'])
+
 repos.add_url_rule('/<git>/<rname>', view_func=view, methods=['GET'])
 repos.add_url_rule('/<git>/<tname>/<rname>', view_func=view, methods=['GET'])
 

@@ -78,6 +78,8 @@ class View(MethodView):
     def render_tree(self, jagare, repo, organization, tree, version, tname):
         ret = []
         readme = None
+        if len(tree) == 1 and tree[0]['type'] == 'blob':
+            raise abort(404)
         for d in tree:
             data = Obj()
             if d['type'] == 'tree':

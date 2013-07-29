@@ -113,7 +113,8 @@ class Jagare(object):
 
     def get_log(self, repo_path, start=None, \
             end=None, no_merges=None, size=None, \
-            page=None, total=None, shortstat=None
+            page=None, total=None, shortstat=None, \
+            path=None,
         ):
         try:
             params = {
@@ -123,6 +124,7 @@ class Jagare(object):
                 'size': size, \
                 'total': total, \
                 'page': page, \
+                'path': path,
                 'shortstat': shortstat, \
             }
             r = requests.get(

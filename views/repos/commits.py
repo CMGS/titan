@@ -22,9 +22,8 @@ from query.account import get_user_from_alias
 logger = logging.getLogger(__name__)
 
 class Commits(MethodView):
-    #TODO not support filter by path
     decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
-    def get(self, organization, member, repo, admin, team, team_member, version=None):
+    def get(self, organization, member, repo, admin, team, team_member, version=None, path=None):
         page = request.args.get('p', 1)
         try:
             page = int(page)
@@ -36,12 +35,12 @@ class Commits(MethodView):
         error, commits = jagare.get_log(
                 repo.get_real_path(), page=page, \
                 size=config.COMMITS_PER_PAGE, shortstat=1, \
-                start=version,
+                start=version, path=path, \
         )
         if not commits:
             raise abort(404)
 
-        list_page = render_commits_page(repo, page)
+        list_page = render_commits_page(repo, page, path)
         commits = self.render_commits(jagare, organization, repo, commits, list_page)
         return self.render_template(
                     member=member, repo=repo, \

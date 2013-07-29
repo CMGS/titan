@@ -76,15 +76,22 @@ def check_permits(user, repo, member, team=None, team_member=None, role=None):
     else:
         return True, False
 
-def key_formatter(*a, **kwargs):
-    version = kwargs.get('version')
-    path = kwargs.get('path')
-    key = 'repos:view'
-    if version:
-        key += ':%s' % version
-    if path:
-        key += ':%s' % path
-    return key
+def key_formatter_maker(view_key):
+    def key_formatter(*a, **kwargs):
+        version = kwargs.get('version')
+        path = kwargs.get('path')
+        key = view_key
+        if version:
+            key += ':%s' % version
+        if path:
+            key += ':%s' % path
+        return key
+    return key_formatter
+
+def get_url_maker(organization, repo, team, view):
+    def _(version=None, path=None):
+        return get_url(organization, repo, view, team=team, version=version or repo.default, path=path)
+    return _
 
 def set_repo_meta(organization, repo, team=None):
     meta = Obj()
@@ -102,35 +109,22 @@ def set_repo_meta(organization, repo, team=None):
     meta.transport = get_url(organization, repo, 'repos.transport', team=team)
     meta.delete = get_url(organization, repo, 'repos.delete', team=team)
     meta.activities = get_url(organization, repo, 'repos.activities', team=team)
-    @reqcache(key_formatter)
-    def get_view(version=None, path=None):
-        return get_url(organization, repo, 'repos.view', team=team, version=version, path=path)
-    meta.get_view = get_view
-    @reqcache('repos:blob:{version}:{path}')
-    def get_blob(version, path):
-        return get_url(organization, repo, 'repos.blob', team=team, version=version, path=path)
-    meta.get_blob = get_blob
-    @reqcache('repos:raw:{version}:{path}')
-    def get_raw(version, path):
-        return get_url(organization, repo, 'repos.raw', team=team, version=version, path=path)
-    meta.get_raw = get_raw
-    #TODO not support path NOW!!!!
-    @reqcache('repos:commits:{version}')
-    def get_commits(version):
-        return get_url(organization, repo, 'repos.commits', team=team, version=version or repo.default)
-    meta.get_commits = get_commits
+    meta.get_view = reqcache(key_formatter_maker('repos:view'))(get_url_maker(organization, repo, team, 'repos.view'))
+    meta.get_blob = reqcache(key_formatter_maker('repos:blob'))(get_url_maker(organization, repo, team, 'repos.blob'))
+    meta.get_raw = reqcache(key_formatter_maker('repos:raw'))(get_url_maker(organization, repo, team, 'repos.raw'))
+    meta.get_commits = reqcache(key_formatter_maker('repos:commits'))(get_url_maker(organization, repo, team, 'repos.commits'))
     if repo.parent:
         parent = get_repo(repo.parent)
         #TODO valid check
         parent_team = get_team(parent.tid) if parent.tid else None
         meta.parent = set_repo_meta(organization, parent, team=parent_team)
-    @reqcache('repo:commits:count:{gid}')
-    def count_commits(gid):
+    @reqcache('repo:commits:count:{gid}:{path}')
+    def count_commits(gid, path):
         jagare = get_jagare(repo.id, repo.parent)
-        error, ret = jagare.get_log(repo.get_real_path(), total=1)
+        error, ret = jagare.get_log(repo.get_real_path(), total=1, path=path)
         count = 0 if error else ret['total']
         return count
-    meta.count_commits = lambda: count_commits(repo.id)
+    meta.count_commits = lambda path: count_commits(repo.id, path)
     setattr(repo, 'meta', meta)
 
 def get_url(organization, repo, view='repos.view', team=None, **kwargs):
@@ -171,8 +165,8 @@ def get_submodule_url(submodule, sha):
         url = 'http://%s:12307%s' % (host, url_for('repos.view', git=git, tname=tname, rname=name, version=sha))
     return url
 
-def render_commits_page(repo, page=1):
-    count = repo.meta.count_commits()
+def render_commits_page(repo, page=1, path=None):
+    count = repo.meta.count_commits(path)
     has_prev = True if page > 1 else False
     has_next = True if page * config.COMMITS_PER_PAGE < count else False
     pages = count / config.COMMITS_PER_PAGE
