@@ -41,7 +41,7 @@ class Commits(MethodView):
             raise abort(404)
 
         list_page = render_commits_page(repo, page, path)
-        commits = self.render_commits(jagare, organization, repo, commits, list_page)
+        commits = self.render_commits(jagare, organization, repo, commits, list_page, path=path)
         return self.render_template(
                     member=member, repo=repo, \
                     organization=organization, \
@@ -53,10 +53,10 @@ class Commits(MethodView):
                     list_page=list_page, \
                 )
 
-    def render_commits(self, jagare, organization, repo, commits, list_page):
+    def render_commits(self, jagare, organization, repo, commits, list_page, path):
         pre = None
         for commit in commits:
-            self.render_commit(commit, organization, repo)
+            self.render_commit(commit, organization, repo, path)
             if not pre:
                 pre = commit
             else:
@@ -64,8 +64,8 @@ class Commits(MethodView):
                 pre = commit
             yield commit
 
-    def render_commit(self, commit, organization, repo):
-        commit['view'] = get_url(organization, repo, version=commit['sha'])
+    def render_commit(self, commit, organization, repo, path):
+        commit['view'] = get_url(organization, repo, version=commit['sha'], path=path)
         commit['author_date'] = datetime.fromtimestamp(float(commit['author_time'])).date()
         commit['author_time'] = format_time(commit['author_time'])
         author = reqcache.get(commit['author_email'])

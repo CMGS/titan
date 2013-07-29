@@ -3,7 +3,7 @@
 
 import logging
 
-from flask import g, url_for, abort, \
+from flask import g, url_for, abort, redirect, \
         Response, stream_with_context, request
 
 from utils.jagare import get_jagare
@@ -41,6 +41,8 @@ class View(MethodView):
                                 repo, organization, \
                                 tree, version, tname, \
                             )
+            if len(tree) == 1 and tree[0].type == 'blob':
+                return redirect(tree[0].url)
             path = render_path(
                         path, version, organization.git, \
                         tname, repo.name
@@ -78,8 +80,6 @@ class View(MethodView):
     def render_tree(self, jagare, repo, organization, tree, version, tname):
         ret = []
         readme = None
-        if len(tree) == 1 and tree[0]['type'] == 'blob':
-            raise abort(404)
         for d in tree:
             data = Obj()
             if d['type'] == 'tree':
