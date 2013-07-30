@@ -1,0 +1,22 @@
+{% extends "repos.view.html" %}
+{% block add_js %}
+<link href="{{ '/static/css/prettify.css' | s_files }}" rel="stylesheet">
+{% endblock %}
+{% block subtitle %} {{ commit['message'] }}{% endblock %}
+{% block subcontent %}
+<p>
+    <a href="#">{{ commit['author'].name or commit['author'].email }}</a>
+    update at
+    {{ commit['author_time'] }}
+</p>
+<p>
+Showing {{ commit['files'] }} changed files with {{ commit['additions'] }} additions and {{ commit['deletions'] }} deletions.
+</p>
+{% for diff in commit['diffs'] %}
+<p>
+    <span class="label">{{ diff['after'] }}</span>
+    <a class="btn btn-mini pull-right" href="{{ repo.meta.get_blob(version=commit['sha'], path=diff['after']) }}"><strong>View file @ {{ commit['sha'][:7] }}</strong></a>
+</p>
+{{ diff['diff'] | safe }}
+{% endfor %}
+{% endblock %}

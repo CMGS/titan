@@ -2,6 +2,7 @@
 #coding:utf-8
 
 import os
+import re
 import logging
 from functools import wraps
 from sheep.api.local import reqcache
@@ -15,6 +16,8 @@ from query.organization import get_team_member, get_team_by_name, \
 from query.repos import get_repo_by_path, get_repo_commiter, get_repo
 
 logger = logging.getLogger(__name__)
+HEADER = re.compile(r"""^diff[ ]--git[ ]a/(?P<a_path>.+)[ ]b/(?P<b_path>.+)""")
+
 
 # USE login_required first
 def repo_required(admin=False, need_write=False):
@@ -113,6 +116,7 @@ def set_repo_meta(organization, repo, team=None):
     meta.get_blob = reqcache(key_formatter_maker('repos:blob'))(get_url_maker(organization, repo, team, 'repos.blob'))
     meta.get_raw = reqcache(key_formatter_maker('repos:raw'))(get_url_maker(organization, repo, team, 'repos.raw'))
     meta.get_commits = reqcache(key_formatter_maker('repos:commits'))(get_url_maker(organization, repo, team, 'repos.commits'))
+    meta.get_commit = reqcache(key_formatter_maker('repos:commit'))(get_url_maker(organization, repo, team, 'repos.commit'))
     if repo.parent:
         parent = get_repo(repo.parent)
         #TODO valid check
@@ -173,4 +177,31 @@ def render_commits_page(repo, page=1, path=None):
     pages += 1 if count % config.COMMITS_PER_PAGE else 0
     list_page = generate_list_page(count, has_prev, has_next, page, pages)
     return list_page
+
+def parse_raw_diff_patches(patches):
+    result = []
+    cur_patch_idx = -1
+    find = -1
+    for line in patches.splitlines():
+        if line == '':
+            continue
+        if line.startswith('diff'):
+            match = re.match(HEADER, line)
+            if match:
+                result.append({})
+                cur_patch_idx += 1
+                before = match.group('a_path')
+                after = match.group('b_path')
+                result[cur_patch_idx]['before'] = before
+                result[cur_patch_idx]['after'] = after
+            find = -1
+            continue
+        if line.startswith('@@'):
+            result[cur_patch_idx]['diff'] = [line, ]
+            find = 0
+            continue
+        if find < 0 or cur_patch_idx < 0:
+            continue  # Lines before the real patch part
+        result[cur_patch_idx]['diff'].append(line)
+    return result
 

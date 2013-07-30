@@ -33,7 +33,7 @@ class Revisions(MethodView):
         if not revisions:
             raise abort(404)
         list_page = render_revisions_page(gist, page)
-        revisions = self.render_revisions(jagare, organization, gist, revisions, list_page)
+        revisions = self.render_revisions(organization, gist, revisions, list_page)
         return self.render_template(
                     organization=organization, \
                     member=member, \
@@ -43,7 +43,7 @@ class Revisions(MethodView):
                     list_page=list_page, \
                 )
 
-    def render_revisions(self, jagare, organization, gist, revisions, list_page):
+    def render_revisions(self, organization, gist, revisions, list_page):
         for rev in revisions[:-1]:
             self.render_rev(rev, organization, gist)
             rev['type'] = 'update'

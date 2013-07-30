@@ -30,7 +30,11 @@
                 <a href="#">{{ commit['author'].name or commit['author'].email }}</a> author {{ commit['author_time'] }}
             </p>
         </td>
-        <td style="vertical-align:middle;text-align:right"><a class="btn" href="{{ commit['view'] }}"><strong>View gist @ </strong>{{ commit['sha'][:7] }} <i class="icon-arrow-right"></i></a></td>
+        <td style="vertical-align:middle;text-align:right">
+            <a class="btn" href="{{ repo.meta.get_commit(version=commit['sha']) }}">{{ commit['sha'][:10] }}</a>
+            <br />
+            <a href="{{ commit['view'] }}"><strong>Browse code</strong> <i class="icon-arrow-right"></i></a>
+        </td>
     </tr>
     {% endfor %}
     </tbody>
