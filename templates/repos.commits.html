@@ -31,7 +31,7 @@
             </p>
         </td>
         <td style="vertical-align:middle;text-align:right">
-            <a class="btn" href="{{ repo.meta.get_commit(version=commit['sha']) }}">{{ commit['sha'][:10] }}</a>
+            <a class="btn" href="{{ repo.meta.get_commit(version=commit['sha']) }}{% if path %}#{{ path }}{% endif %}">{{ commit['sha'][:10] }}</a>
             <br />
             <a href="{{ commit['view'] }}"><strong>Browse code</strong> <i class="icon-arrow-right"></i></a>
         </td>

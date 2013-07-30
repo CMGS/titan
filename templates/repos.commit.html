@@ -17,6 +17,7 @@ Showing {{ commit['files'] }} changed files with {{ commit['additions'] }} addit
     <span class="label">{{ diff['after'] }}</span>
     <a class="btn btn-mini pull-right" href="{{ repo.meta.get_blob(version=commit['sha'], path=diff['after']) }}"><strong>View file @ {{ commit['sha'][:7] }}</strong></a>
 </p>
+<a name="{{ diff['after'] }}"></a>
 {{ diff['diff'] | safe }}
 {% endfor %}
 {% endblock %}

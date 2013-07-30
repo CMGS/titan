@@ -51,6 +51,7 @@ class Commits(MethodView):
                     version=version, \
                     admin=admin, team=team, team_member=team_member, \
                     commits=commits, \
+                    path=path, \
                     list_page=list_page, \
                 )
 
