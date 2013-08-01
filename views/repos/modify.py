@@ -66,6 +66,7 @@ class NewFile(MethodView):
                     content=content, \
                     branches=get_branches(repo), \
                     version=version, \
+                    filename=filename, \
                     path = render_path(
                                 path, version, organization.git, \
                                 tname, repo.name

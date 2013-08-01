@@ -3,7 +3,7 @@
 
 import logging
 
-from flask import g, url_for, abort, redirect, \
+from flask import g, url_for, abort, \
         Response, stream_with_context, request
 
 from utils.jagare import get_jagare
@@ -14,7 +14,7 @@ from utils.activities import render_push_action, \
         render_activities_page
 from utils.formatter import format_content, format_time
 from utils.repos import repo_required, get_branches, render_path, \
-        get_submodule_url
+        get_submodule_url, check_obj_type
 
 from query.repos import get_repo_watcher
 from query.account import get_user, get_alias_by_email
@@ -30,6 +30,8 @@ class View(MethodView):
         watcher = get_repo_watcher(g.current_user.id, repo.id)
         jagare = get_jagare(repo.id, repo.parent)
         tname = team.name if team else None
+        if not check_obj_type(repo, path, version, 'tree'):
+            raise abort(403)
 
         error, tree = jagare.ls_tree(repo.get_real_path(), path=path, version=version)
         readme = None
@@ -41,8 +43,7 @@ class View(MethodView):
                                 repo, organization, \
                                 tree, version, tname, \
                             )
-            if len(tree) == 1 and tree[0].type == 'blob':
-                return redirect(tree[0].url)
+
             path = render_path(
                         path, version, organization.git, \
                         tname, repo.name

@@ -68,6 +68,8 @@ def after_update_gist(user, gist, asynchronous=False, method='update'):
     if err:
         logger.exception(err)
         return
+    if not logs:
+        return
 
     commit_time = time.mktime(gist.update.timetuple())
     data = {

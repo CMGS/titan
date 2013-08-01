@@ -74,6 +74,8 @@ def after_push_repo(user, repo, start='refs/heads/master', asynchronous=False):
     if err:
         logger.exception(err)
         return
+    if not logs:
+        return
 
     commit_time = time.mktime(repo.update.timetuple())
     data = {
