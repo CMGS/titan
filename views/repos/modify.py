@@ -136,17 +136,16 @@ class EditFile(MethodView):
 class DeleteFile(MethodView):
     decorators = [repo_required(need_write=True), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, repo, admin, team, team_member, version=None, path=None):
-        jagare = get_jagare(repo.id, repo.parent)
-        error, r = jagare.cat_file(repo.get_real_path(), path=path, version=version, only_type=1)
-        if not error and r.json()['data']['type'] == 'blob':
-            error = update_file(
-                    organization, \
-                    g.current_user, \
-                    repo, {path: ''}, \
-                    version, \
-                    '%s %s' % (code.REPOS_DELETE_FILE, path)
-            )
-            if not error:
-                path=path.rsplit('/', 1)[0] if '/' in path else None
+        if not check_obj_type(repo, path, version, 'blob'):
+            raise abort(403)
+        error = update_file(
+                organization, \
+                g.current_user, \
+                repo, {path: ''}, \
+                version, \
+                '%s %s' % (code.REPOS_DELETE_FILE, path)
+        )
+        if not error:
+            path=path.rsplit('/', 1)[0] if '/' in path else None
         return redirect(repo.meta.get_view(version=version, path=path))
 
