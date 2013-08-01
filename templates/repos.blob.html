@@ -19,8 +19,13 @@
         </ul>
     </div>
     <div class="pull-right">
+        <a class="btn" href="#"><strong>Blame</strong></a>
         <a class="btn" href="{{ repo.meta.get_commits(path=file_path, version=version) }}"><strong>History</strong></a>
         <a class="btn" href="{{ repo.meta.get_raw(path=file_path, version=version) }}"><strong>Raw</strong></a>
+        {% if admin %}
+        <a class="btn" href="#"><strong>Edit</strong></a>
+        <a class="btn" href="#"><strong style="color:#D14">Delete</strong></a>
+        {% endif %}
     </div>
 </div>
 <br />

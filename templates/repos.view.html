@@ -94,7 +94,7 @@
     <li class="active">{{ p }}<span class="divider">/</span></li>
     {% endif %}
     {% endfor %}
-    <li><a href="#"><i class="icon-plus"></i></a></li>
+    {% if not content and admin %}<li><a href="#"><i class="icon-plus"></i></a></li>{% endif %}
     {% if commit %}
     <li class="pull-right">
         <span class="label">{{ commit.user.name }}</span>
