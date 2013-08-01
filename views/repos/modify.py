@@ -24,7 +24,6 @@ class NewFile(MethodView):
     def get(self, organization, member, repo, admin, team, team_member, version=None, path=None):
         if not check_obj_type(repo, path, version, 'tree'):
             raise abort(403)
-        self.check(repo, path, version)
         return self.add(organization, repo, team, version, path)
 
     def post(self, organization, member, repo, admin, team, team_member, version=None, path=None):
