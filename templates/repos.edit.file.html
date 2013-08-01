@@ -42,7 +42,9 @@
             {% endfor %}
         </ul>
     </label>
+    <div class="row-fluid">
     <textarea class="span12" name="content" rows="20">{{ content() }}</textarea>
+    </div>
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     <button class="btn btn-primary" type="submit">Update</button>
 </form>
