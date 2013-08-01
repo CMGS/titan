@@ -2,6 +2,7 @@
 #coding:utf-8
 
 import logging
+import datetime
 import sqlalchemy.exc
 from sheep.api.cache import cache, backend
 
@@ -267,6 +268,25 @@ def transport_repo(organization, user, repo, team=None):
         db.session.rollback()
         logger.exception(e)
         return code.UNHANDLE_EXCEPTION
+
+def update_file(organization, user, repo, data, version, message):
+    jagare = get_jagare(repo.id, repo.parent)
+    error, ret = jagare.update_file(
+            repo.get_real_path(), \
+            data, user, \
+            message=message, \
+            branch=version, \
+            parent=version, \
+    )
+    if error:
+        logger.info(ret)
+        return error
+    from actions.repos import after_push_repo
+    repo.update = datetime.datetime.now()
+    db.session.add(repo)
+    db.session.commit()
+    clear_repo_cache(repo, organization)
+    after_push_repo(user, repo, start='refs/heads/%s' % version, asynchronous=True)
 
 # delete
 

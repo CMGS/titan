@@ -11,6 +11,7 @@ from flask import g, abort, url_for, redirect
 import config
 from utils.jagare import get_jagare
 from utils.helper import Obj, generate_list_page
+from utils.formatter import format_time, format_content
 from query.organization import get_team_member, get_team_by_name, \
         get_team
 from query.repos import get_repo_by_path, get_repo_commiter, get_repo
@@ -117,6 +118,7 @@ def set_repo_meta(organization, repo, team=None):
     meta.get_raw = reqcache(key_formatter_maker('repos:raw'))(get_url_maker(organization, repo, team, 'repos.raw'))
     meta.get_commits = reqcache(key_formatter_maker('repos:commits'))(get_url_maker(organization, repo, team, 'repos.commits'))
     meta.get_commit = reqcache(key_formatter_maker('repos:commit'))(get_url_maker(organization, repo, team, 'repos.commit'))
+    meta.get_delete_file = reqcache(key_formatter_maker('repos:delete_file'))(get_url_maker(organization, repo, team, 'repos.delete_file'))
     if repo.parent:
         parent = get_repo(repo.parent)
         #TODO valid check
@@ -204,4 +206,24 @@ def parse_raw_diff_patches(patches):
             continue  # Lines before the real patch part
         result[cur_patch_idx]['diff'].append(line)
     return result
+
+def get_tree_with_content(jagare, tree, repo, organization, render=True, version='master'):
+    ret = []
+    for d in tree:
+        data = Obj()
+        if d['type'] == 'blob':
+            data.content, data.content_type, data.length = format_content(
+                    jagare, repo, d['path'], render=render, version=version, \
+            )
+        else:
+            continue
+        data.name = d['name']
+        data.sha = d['sha']
+        data.type = d['type']
+        data.ago = format_time(d['commit']['committer']['ts'])
+        data.message = d['commit']['message'][:150]
+        data.commit = d['commit']['sha']
+        data.path = d['path']
+        ret.append(data)
+    return ret
 

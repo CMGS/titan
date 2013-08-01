@@ -24,7 +24,7 @@
         <a class="btn" href="{{ repo.meta.get_raw(path=file_path, version=version) }}"><strong>Raw</strong></a>
         {% if admin %}
         <a class="btn" href="#"><strong>Edit</strong></a>
-        <a class="btn" href="#"><strong style="color:#D14">Delete</strong></a>
+        <a class="btn" href="{% if version in branches %}{{ repo.meta.get_delete_file(path=file_path, version=version) }}{% else %}#{% endif %}"><strong style="color:#D14">Delete</strong></a>
         {% endif %}
     </div>
 </div>

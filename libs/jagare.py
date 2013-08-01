@@ -60,10 +60,10 @@ class Jagare(object):
             logger.exception(e)
             return 400, None
 
-    def ls_tree(self, repo_path, path='', version='master'):
+    def ls_tree(self, repo_path, path='', version='master', with_commit=1):
         try:
             url = '%s/%s/ls-tree/%s' % (self.node, repo_path, version)
-            params = {'with_commit': 1}
+            params = {'with_commit': with_commit}
             params['path'] = path if path else None
             r = requests.get(url, params=params)
             result = self.get_result(r)
@@ -152,7 +152,7 @@ class Jagare(object):
             logger.exception(e)
             return code.UNHANDLE_EXCEPTION, None
 
-    def update_file(self, repo_path, data, user):
+    def update_file(self, repo_path, data, user, message, branch='master', parent='master'):
         try:
             r = requests.put(
                     '%s/%s/update-file/' % (self.node, repo_path), \
@@ -160,7 +160,9 @@ class Jagare(object):
                     data = {
                         "author_name": user.name, \
                         "author_email": user.email, \
-                        "message": code.GIST_UPDATE_COMMIT, \
+                        "message": message, \
+                        "branch": branch, \
+                        "parent": parent, \
                     }
                 )
             result = self.get_result(r)

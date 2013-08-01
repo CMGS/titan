@@ -21,6 +21,7 @@ class Repos(db.Model):
     parent = db.Column(db.Integer, nullable=False, default=0, index=True)
     forks = db.Column(db.Integer, nullable=False, default=0)
     create = db.Column(db.DateTime, default=datetime.now)
+    update = db.Column(db.DateTime, default=datetime.now)
 
     def __init__(self, name, path, oid, uid, tid=0, summary='', parent=0, commiters=0, watchers=0):
         self.name = name

@@ -75,7 +75,7 @@ def after_push_repo(user, repo, start='refs/heads/master', asynchronous=False):
         logger.exception(err)
         return
 
-    commit_time = time.time()
+    commit_time = time.mktime(repo.update.timetuple())
     data = {
         'type':'push', \
         'repo_id': repo.id, \

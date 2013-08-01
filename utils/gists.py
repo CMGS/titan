@@ -8,6 +8,7 @@ from sheep.api.local import reqcache
 
 import config
 from utils.jagare import get_jagare
+from utils.repos import get_tree_with_content
 from utils.helper import Obj, generate_list_page
 from utils.formatter import format_time, format_content
 
@@ -65,24 +66,9 @@ def get_url(organization, gist, view='gists.view', **kwargs):
     return url
 
 def render_tree(jagare, tree, gist, organization, render=True, version='master'):
-    ret = []
-    for d in tree:
-        data = Obj()
-        if d['type'] == 'blob':
-            data.content, data.content_type, data.length = format_content(
-                    jagare, gist, d['path'], render=render, version=version, \
-            )
-        else:
-            continue
-        data.download = get_url(organization, gist, view='gists.raw', path=d['path'])
-        data.name = d['name']
-        data.sha = d['sha']
-        data.type = d['type']
-        data.ago = format_time(d['commit']['committer']['ts'])
-        data.message = d['commit']['message'][:150]
-        data.commit = d['commit']['sha']
-        data.path = d['path']
-        ret.append(data)
+    ret = get_tree_with_content(jagare, tree, gist, organization, render, version)
+    for r in ret:
+        r.download = get_url(organization, gist, view='gists.raw', path=r.path)
     return ret
 
 def render_revisions_page(gist, page=1):

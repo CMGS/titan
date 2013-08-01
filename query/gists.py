@@ -104,7 +104,7 @@ def clear_user_gist_cache(user, organization):
 
 # create
 
-def create_gist(organization, user, summary, data={}, parent=None, private=None, watchers=0):
+def create_gist(organization, user, summary, data={}, parent=None, private=None, watchers=0, message=code.GIST_CREATE_COMMIT):
     try:
         gist = Gists(summary, organization.id, user.id, parent=parent, private=private, watchers=watchers)
         db.session.add(gist)
@@ -131,7 +131,7 @@ def create_gist(organization, user, summary, data={}, parent=None, private=None,
             if not ret:
                 db.session.rollback()
                 return None, error
-            error, ret = jagare.update_file(gist.get_real_path(), data, user)
+            error, ret = jagare.update_file(gist.get_real_path(), data, user, message)
             if error:
                 db.session.rollback()
                 return None, error
@@ -189,7 +189,7 @@ def create_watcher(user, gist, organization):
 
 # update
 
-def update_gist(user, gist, data, summary):
+def update_gist(user, gist, data, summary, message=code.GIST_UPDATE_COMMIT):
     try:
         update_data = False
         if summary != gist.summary:
@@ -197,7 +197,7 @@ def update_gist(user, gist, data, summary):
             update_data = True
         if data:
             jagare = get_jagare(gist.id, gist.parent)
-            error, ret = jagare.update_file(gist.get_real_path(), data, user)
+            error, ret = jagare.update_file(gist.get_real_path(), data, user, message)
             if error:
                 db.session.rollback()
                 return None, error
