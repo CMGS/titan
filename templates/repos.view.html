@@ -85,6 +85,7 @@
     </div>
 </div>
 {% if not error %}
+{% block show_path %}
 <ul class="breadcrumb">
     <li><a href="{{ repo.meta.get_view(version=version) }}">{{ repo.name }}</a><span class="divider">/</span></li>
     {% for p, u  in path %}
@@ -104,8 +105,9 @@
         <a href="#"><img height="24px" width="24px" src="{{ commit.user.avatar }}" /></a>
         {% endif %}
     </li>
-{% endif %}
+    {% endif %}
 </ul>
+{% endblock %}
 {% block show_content %}
 {% if file_path %}
 <div class="row-fluid">

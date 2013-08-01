@@ -19,11 +19,10 @@
         </ul>
     </div>
     <div class="pull-right">
-        <a class="btn" href="#"><strong>Blame</strong></a>
-        <a class="btn" href="{{ repo.meta.get_commits(path=file_path, version=version) }}"><strong>History</strong></a>
         <a class="btn" href="{{ repo.meta.get_raw(path=file_path, version=version) }}"><strong>Raw</strong></a>
+        <a class="btn" href="{{ repo.meta.get_commits(path=file_path, version=version) }}"><strong>History</strong></a>
         {% if admin %}
-        <a class="btn" href="#"><strong>Edit</strong></a>
+        <a class="btn" href="{% if version in branches %}{{ repo.meta.get_edit_file(path=file_path, version=version) }}{% else %}#{% endif %}"><strong>Edit</strong></a>
         <a class="btn" href="{% if version in branches %}{{ repo.meta.get_delete_file(path=file_path, version=version) }}{% else %}#{% endif %}"><strong style="color:#D14">Delete</strong></a>
         {% endif %}
     </div>

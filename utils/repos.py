@@ -118,7 +118,8 @@ def set_repo_meta(organization, repo, team=None):
     meta.get_raw = reqcache(key_formatter_maker('repos:raw'))(get_url_maker(organization, repo, team, 'repos.raw'))
     meta.get_commits = reqcache(key_formatter_maker('repos:commits'))(get_url_maker(organization, repo, team, 'repos.commits'))
     meta.get_commit = reqcache(key_formatter_maker('repos:commit'))(get_url_maker(organization, repo, team, 'repos.commit'))
-    meta.get_delete_file = reqcache(key_formatter_maker('repos:delete_file'))(get_url_maker(organization, repo, team, 'repos.delete_file'))
+    meta.get_delete_file = reqcache(key_formatter_maker('repos:delete:file'))(get_url_maker(organization, repo, team, 'repos.delete_file'))
+    meta.get_edit_file = reqcache(key_formatter_maker('repos:edit:file'))(get_url_maker(organization, repo, team, 'repos.edit_file'))
     if repo.parent:
         parent = get_repo(repo.parent)
         #TODO valid check

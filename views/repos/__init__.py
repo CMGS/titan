@@ -36,6 +36,7 @@ view = view_func(View)
 blob = view_func(Blob)
 
 delete_file = view_func(DeleteFile, name='delete_file')
+edit_file = view_func(EditFile, name='edit_file', tmpl='edit.file')
 
 repos.add_url_rule('/<git>/new', view_func=create, methods=['GET', 'POST'])
 
@@ -80,6 +81,9 @@ repos.add_url_rule('/<git>/<tname>/<rname>/commits/<version>/<path:path>', view_
 
 repos.add_url_rule('/<git>/<rname>/delete/<version>/<path:path>', view_func=delete_file, methods=['GET'])
 repos.add_url_rule('/<git>/<tname>/<rname>/delete/<version>/<path:path>', view_func=delete_file, methods=['GET'])
+
+repos.add_url_rule('/<git>/<rname>/edit/<version>/<path:path>', view_func=edit_file, methods=['GET', 'POST'])
+repos.add_url_rule('/<git>/<tname>/<rname>/edit/<version>/<path:path>', view_func=edit_file, methods=['GET', 'POST'])
 
 repos.add_url_rule('/<git>/<rname>', view_func=view, methods=['GET'])
 repos.add_url_rule('/<git>/<tname>/<rname>', view_func=view, methods=['GET'])

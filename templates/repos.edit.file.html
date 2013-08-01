@@ -1,0 +1,51 @@
+{% extends "repos.view.html" %}
+
+{% block add_js %}
+<style>
+.center {margin: 5px 0 0 25px}
+</style>
+{% endblock %}
+
+{% block show_path %}
+{% endblock %}
+
+{% block show_branches %}
+{% for b in branches %}
+    <li><a href="{{ repo.meta.get_edit_file(path=file_path, version=b) }}">{{ b }}</a></li>
+{% endfor %}
+{% endblock %}
+
+{% block show_content %}
+{% if content_type != 'file' %}
+<pre>
+    Binary file Can not online editing.
+</pre>
+{% else %}
+<form method="POST">
+    {% if error_message %}
+    <div class="alert alert-error">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      {{ error_message }}
+    </div>
+    {% endif %}
+    <label class="text">
+        <ul class="breadcrumb">
+            <li>{{ repo.name }}<span class="divider">/</span></li>
+            {% for p, u  in path %}
+            {% if u %}
+            <li>{{ p }}<span class="divider">/</span></li>
+            {% else %}
+            <li>
+                <input style="margin-bottom:0px" name="filename" type="text" value="{{ p }}" class="input-block-level" placeholder="Filename">
+            </li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+    </label>
+    <textarea class="span12" name="content" rows="20">{{ content() }}</textarea>
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <button class="btn btn-primary" type="submit">Update</button>
+</form>
+{% endif %}
+{% endblock %}
+
