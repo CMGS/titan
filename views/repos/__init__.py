@@ -8,7 +8,7 @@ from views.repos.commits import Commits, Commit
 from views.repos.view import View, Blob, Raw, Activities
 from views.repos.watchers import Watch, Unwatch, Watchers
 from views.repos.commiters import Commiters, RemoveCommiter
-from views.repos.modify import DeleteFile, AddFile, EditFile
+from views.repos.modify import DeleteFile, NewFile, EditFile
 from views.repos.repos import Create, Transport, Delete, Setting
 
 MODULE_NAME = 'repos'
@@ -37,6 +37,7 @@ blob = view_func(Blob)
 
 delete_file = view_func(DeleteFile, name='delete_file')
 edit_file = view_func(EditFile, name='edit_file', tmpl='edit.file')
+new_file = view_func(NewFile, name='new_file', tmpl='new.file')
 
 repos.add_url_rule('/<git>/new', view_func=create, methods=['GET', 'POST'])
 
@@ -84,6 +85,12 @@ repos.add_url_rule('/<git>/<tname>/<rname>/delete/<version>/<path:path>', view_f
 
 repos.add_url_rule('/<git>/<rname>/edit/<version>/<path:path>', view_func=edit_file, methods=['GET', 'POST'])
 repos.add_url_rule('/<git>/<tname>/<rname>/edit/<version>/<path:path>', view_func=edit_file, methods=['GET', 'POST'])
+
+repos.add_url_rule('/<git>/<rname>/new/<version>', view_func=new_file, methods=['GET', 'POST'])
+repos.add_url_rule('/<git>/<tname>/<rname>/new/<version>', view_func=new_file, methods=['GET', 'POST'])
+
+repos.add_url_rule('/<git>/<rname>/new/<version>/<path:path>', view_func=new_file, methods=['GET', 'POST'])
+repos.add_url_rule('/<git>/<tname>/<rname>/new/<version>/<path:path>', view_func=new_file, methods=['GET', 'POST'])
 
 repos.add_url_rule('/<git>/<rname>', view_func=view, methods=['GET'])
 repos.add_url_rule('/<git>/<tname>/<rname>', view_func=view, methods=['GET'])

@@ -52,6 +52,7 @@ REPOS_DELETE_FILE = 'delete file'
 REPOS_EDIT_FILE = 'edit file'
 REPOS_EDIT_WITHOUT_INFO = 'filename or content is empty'
 REPOS_EDIT_FAILED = 'edit failed'
+REPOS_NEW_FILE = 'new file'
 
 GIST_WITHOUT_FILENAME = 'gist without filename'
 GIST_WITHOUT_CONTENT = 'gist without content'

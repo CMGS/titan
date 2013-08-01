@@ -92,10 +92,10 @@
     {% if u %}
     <li><a href="{{ u }}">{{ p }}</a><span class="divider">/</span></li>
     {% else %}
-    <li class="active">{{ p }}<span class="divider">/</span></li>
+    <li class="active">{{ p }}</li>
     {% endif %}
     {% endfor %}
-    {% if not content and admin %}<li><a href="#"><i class="icon-plus"></i></a></li>{% endif %}
+    {% if not content and admin %}<li><a href="{{ repo.meta.get_new_file(version, file_path) }}"><i class="icon-plus"></i></a></li>{% endif %}
     {% if commit %}
     <li class="pull-right">
         <span class="label">{{ commit.user.name }}</span>

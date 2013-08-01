@@ -103,7 +103,6 @@ def set_repo_meta(organization, repo, team=None):
     meta.unwatch = get_url(organization, repo, 'repos.unwatch', team=team)
     meta.watchers = get_url(organization, repo, 'repos.watchers', team=team)
     meta.view = get_url(organization, repo, 'repos.view', team=team)
-    #meta.edit = get_url(organization, repo, 'repos.edit', team=team)
     #meta.fork = get_url(organization, repo, 'repos.fork', team=team)
     #meta.forks = get_url(organization, repo, 'repos.forks', team=team)
     meta.delete = get_url(organization, repo, 'repos.delete', team=team)
@@ -120,6 +119,7 @@ def set_repo_meta(organization, repo, team=None):
     meta.get_commit = reqcache(key_formatter_maker('repos:commit'))(get_url_maker(organization, repo, team, 'repos.commit'))
     meta.get_delete_file = reqcache(key_formatter_maker('repos:delete:file'))(get_url_maker(organization, repo, team, 'repos.delete_file'))
     meta.get_edit_file = reqcache(key_formatter_maker('repos:edit:file'))(get_url_maker(organization, repo, team, 'repos.edit_file'))
+    meta.get_new_file = reqcache(key_formatter_maker('repos:new:file'))(get_url_maker(organization, repo, team, 'repos.new_file'))
     if repo.parent:
         parent = get_repo(repo.parent)
         #TODO valid check

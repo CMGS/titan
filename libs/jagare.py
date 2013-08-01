@@ -78,11 +78,11 @@ class Jagare(object):
             logger.exception(e)
             return code.UNHANDLE_EXCEPTION, None
 
-    def cat_file(self, repo_path, path, version='master'):
+    def cat_file(self, repo_path, path, version='master', only_type=None):
         try:
             r = requests.get(
                     '%s/%s/cat/path/%s' % (self.node, repo_path, version), \
-                    params = {'path':path}, \
+                    params = {'path':path, 'only_type': only_type}, \
                     stream = True,
                 )
             if not r.ok:
