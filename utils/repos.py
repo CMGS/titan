@@ -228,3 +228,10 @@ def get_tree_with_content(jagare, tree, repo, organization, render=True, version
         ret.append(data)
     return ret
 
+def check_obj_type(repo, path, version, t):
+    jagare = get_jagare(repo.id, repo.parent)
+    error, r = jagare.cat_file(repo.get_real_path(), path=path, version=version, only_type=1)
+    if error or r.json()['data']['type'] != t:
+        return False
+    return True
+

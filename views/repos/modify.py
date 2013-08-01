@@ -7,13 +7,13 @@ import logging
 from flask import g, redirect, request, abort
 
 from utils import code
+from utils.helper import MethodView
 from utils.jagare import get_jagare
 from utils.account import login_required
-from utils.organization import member_required
-from utils.helper import MethodView
 from utils.formatter import format_content
+from utils.organization import member_required
 from utils.repos import repo_required, get_branches, \
-        render_path
+        render_path, check_obj_type
 
 from query.repos import update_file, get_repo_watcher
 
@@ -22,16 +22,13 @@ logger = logging.getLogger(__name__)
 class NewFile(MethodView):
     decorators = [repo_required(need_write=True), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, repo, admin, team, team_member, version=None, path=None):
-        jagare = get_jagare(repo.id, repo.parent)
-        error, r = jagare.cat_file(repo.get_real_path(), path=path, version=version, only_type=1)
-        if error or r.json()['data']['type'] != 'tree':
+        if not check_obj_type(repo, path, version, 'tree'):
             raise abort(403)
+        self.check(repo, path, version)
         return self.add(organization, repo, team, version, path)
 
     def post(self, organization, member, repo, admin, team, team_member, version=None, path=None):
-        jagare = get_jagare(repo.id, repo.parent)
-        error, r = jagare.cat_file(repo.get_real_path(), path=path, version=version, only_type=1)
-        if error or r.json()['data']['type'] != 'tree':
+        if not check_obj_type(repo, path, version, 'tree'):
             raise abort(403)
         filename = request.form.get('filename')
         content = request.form.get('content')
@@ -80,9 +77,13 @@ class NewFile(MethodView):
 class EditFile(MethodView):
     decorators = [repo_required(need_write=True), member_required(admin=False), login_required('account.login')]
     def get(self, organization, member, repo, admin, team, team_member, version=None, path=None):
+        if not check_obj_type(repo, path, version, 'blob'):
+            raise abort(403)
         return self.edit(organization, repo, team, version, path)
 
     def post(self, organization, member, repo, admin, team, team_member, version=None, path=None):
+        if not check_obj_type(repo, path, version, 'blob'):
+            raise abort(403)
         filename = request.form.get('filename')
         content = request.form.get('content')
         if not filename or not content:
