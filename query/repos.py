@@ -14,7 +14,6 @@ from utils import code
 from utils.jagare import get_jagare
 from utils.validators import check_repos_limit
 
-from actions.repos import after_push_repo
 from query.organization import clear_organization_cache, clear_team_cache
 
 logger = logging.getLogger(__name__)
@@ -242,6 +241,7 @@ def update_repo_content(repo, organization, user, starts):
         clear_repo_cache(repo, organization, need=False)
         db.session.add(repo)
         db.session.commit()
+        from actions.repos import after_push_repo
         for start in starts:
             after_push_repo(user, repo, start, True)
     except Exception, e:
