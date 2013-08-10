@@ -1,0 +1,18 @@
+{% extends "repos.view.html" %}
+{% block subtitle %}Explore {{ repo.name }} Forks{% endblock %}
+{% block subnav %}
+    {{ repo_nav('') }}
+{% endblock %}
+{% block subcontent %}
+<h3>{{ repo.name }} Forks</h3>
+<table class="table table-striped">
+    <tbody>
+        {% for fork in forks %}
+        <tr>
+            <td><a href="{{ fork.view }}">{{ fork.name }}</a></td>
+            <td><a href="#">{{ fork.user.name }}</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

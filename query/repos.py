@@ -22,6 +22,10 @@ logger = logging.getLogger(__name__)
 def get_repo(rid):
     return Repos.query.get(rid)
 
+@cache('repos:forks:{rid}', 8640000)
+def get_repo_forks(rid):
+    return Repos.query.filter_by(parent=rid).all()
+
 @cache('repos:explore:{oid}', 8640000)
 def get_organization_repos(oid):
     return Repos.query.filter_by(oid=oid).all()
@@ -103,6 +107,7 @@ def clear_watcher_cache(user, repo, organization, team=None):
 def clear_repo_cache(repo, organization, team=None, old_path=None, need=True):
     keys = [
         'repos:{rid}'.format(rid=repo.id), \
+        'repos:forks:{rid}'.format(rid=repo.id), \
         'repos:{oid}:{path}'.format(oid=organization.id, path=old_path or repo.path),
     ]
     if need:
@@ -159,7 +164,7 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=No
         db.session.commit()
         clear_repo_cache(repo, organization, team)
         if parent:
-            clear_repo_cache(parent, organization, team)
+            clear_repo_cache(parent, organization, need=False)
         clear_explore_cache(organization, repo.uid, team)
         clear_commiter_cache(user, repo)
         clear_watcher_cache(user, repo, organization, team)

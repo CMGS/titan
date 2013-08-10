@@ -64,10 +64,7 @@ class Create(MethodView):
                         error = error, \
                     )
 
-        view_url = url_for('repos.view', git=organization.git, rname=name)
-        if teamname:
-            view_url = url_for('repos.view', git=organization.git, tname=teamname, rname=name)
-        return redirect(view_url)
+        return redirect(get_url(organization, repo))
 
     def get_joined_teams(self, organization):
         for team in get_teams_by_ogranization(organization.id):
@@ -189,8 +186,5 @@ class Fork(MethodView):
                         error = error, \
                     )
 
-        view_url = url_for('repos.view', git=organization.git, rname=name)
-        if teamname:
-            view_url = url_for('repos.view', git=organization.git, tname=teamname, rname=name)
-        return redirect(view_url)
+        return redirect(get_url(organization, fork_repo))
 

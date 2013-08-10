@@ -3,8 +3,8 @@
 
 import logging
 
-from flask import g, url_for, abort, \
-        Response, stream_with_context, request
+from flask import g, abort, Response, \
+        stream_with_context, request
 
 from utils.jagare import get_jagare
 from utils.helper import MethodView, Obj
@@ -14,10 +14,10 @@ from utils.activities import render_push_action, \
         render_activities_page
 from utils.formatter import format_content, format_time
 from utils.repos import repo_required, get_branches, render_path, \
-        get_submodule_url, check_obj_type
+        get_submodule_url, check_obj_type, get_url
 
-from query.repos import get_repo_watcher
 from query.account import get_user, get_alias_by_email
+from query.repos import get_repo_watcher, get_repo_forks
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ class View(MethodView):
             readme, tree = self.render_tree(
                                 jagare, \
                                 repo, organization, \
-                                tree, version, tname, \
+                                tree, version, team, \
                             )
 
             path = render_path(
@@ -78,15 +78,15 @@ class View(MethodView):
             commit.user.avatar = user.avatar(18)
         return commit
 
-    def render_tree(self, jagare, repo, organization, tree, version, tname):
+    def render_tree(self, jagare, repo, organization, tree, version, team):
         ret = []
         readme = None
         for d in tree:
             data = Obj()
             if d['type'] == 'tree':
-                data.url = url_for('repos.view', git=organization.git, tname=tname, rname=repo.name, version=version, path=d['path'])
+                data.url = get_url(organization, repo, view='repos.view', team=team, version=version, path=d['path'])
             elif d['type'] == 'blob':
-                data.url = url_for('repos.blob', git=organization.git, tname=tname, rname=repo.name, version=version, path=d['path'])
+                data.url = get_url(organization, repo, view='repos.blob', team=team, version=version, path=d['path'])
                 if d['name'].startswith('README.'):
                     readme, content_type, _ = format_content(jagare, repo, d['path'], version=version)
                     if content_type != 'file':
@@ -166,4 +166,22 @@ class Activities(MethodView):
             else:
                 #TODO for merge data
                 continue
+
+class Forks(MethodView):
+    decorators = [repo_required(), member_required(admin=False), login_required('account.login')]
+    def get(self, organization, member, repo, admin, team, team_member):
+        forks = get_repo_forks(repo.id)
+        return self.render_template(
+                    organization=organization, \
+                    member=member, \
+                    repo=repo, \
+                    forks=self.render_forks(organization, forks, team)
+                )
+
+    def render_forks(self, organization, forks, team):
+        for fork in forks:
+            view_url = get_url(organization, fork, view='repos.view', team=team)
+            setattr(fork, 'view', view_url)
+            setattr(fork, 'user', get_user(fork.uid))
+            yield fork
 
