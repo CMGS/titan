@@ -16,12 +16,11 @@ from config import MARIA_STORE_PATH
 
 from utils.repos import check_permits
 
-from query.repos import get_repo_by_path
 from query.gists import get_gist_by_path
 from query.account import get_key_by_finger, get_user
 from query.organization import get_organization_by_git, \
-        get_organization_member, get_team, get_team_member, \
-        update_repo_content
+        get_organization_member, get_team, get_team_member
+from query.repos import get_repo_by_path, update_repo_content
 
 logger = logging.getLogger(__name__)
 
