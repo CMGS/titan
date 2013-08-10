@@ -9,13 +9,15 @@ from views.repos.view import View, Blob, Raw, Activities
 from views.repos.watchers import Watch, Unwatch, Watchers
 from views.repos.commiters import Commiters, RemoveCommiter
 from views.repos.modify import DeleteFile, NewFile, EditFile
-from views.repos.repos import Create, Transport, Delete, Setting
+from views.repos.repos import Create, Transport, Delete, Setting, \
+        Fork
 
 MODULE_NAME = 'repos'
 view_func = make_view(MODULE_NAME)
 
 repos = Blueprint(MODULE_NAME, __name__)
 
+fork = view_func(Fork)
 create = view_func(Create)
 setting = view_func(Setting)
 transport = view_func(Transport)
@@ -58,6 +60,9 @@ repos.add_url_rule('/<git>/<tname>/<rname>/delete', view_func=delete, methods=['
 
 repos.add_url_rule('/<git>/explore', view_func=explore, methods=['GET'])
 repos.add_url_rule('/<git>/<tname>/explore', view_func=explore, methods=['GET'])
+
+repos.add_url_rule('/<git>/<rname>/fork', view_func=fork, methods=['GET', 'POST'])
+repos.add_url_rule('/<git>/<tname>/<rname>/fork', view_func=fork, methods=['GET', 'POST'])
 
 repos.add_url_rule('/<git>/<rname>/activity', view_func=activities, methods=['GET'])
 repos.add_url_rule('/<git>/<tname>/<rname>/activity', view_func=activities, methods=['GET'])

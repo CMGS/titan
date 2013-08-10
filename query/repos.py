@@ -123,12 +123,12 @@ def clear_explore_cache(organization, uid, team=None):
 
 # create
 
-def create_repo(name, path, user, organization, team=None, summary='', parent=0):
+def create_repo(name, path, user, organization, team=None, summary='', parent=None, default='master'):
     try:
         tid = team.id if team else 0
         oid = organization.id
         uid = user.id
-        repo = Repos(name, path, oid, uid, tid, summary, parent, commiters=1, watchers=1)
+        repo = Repos(name, path, oid, uid, tid, summary, parent, commiters=1, watchers=1, default=default)
         db.session.add(repo)
         organization.repos = Organization.repos + 1
         db.session.add(organization)
@@ -144,12 +144,22 @@ def create_repo(name, path, user, organization, team=None, summary='', parent=0)
         watcher = Watchers(user.id, repo.id, organization.id)
         db.session.add(watcher)
         jagare = get_jagare(repo.id, parent)
-        ret, error = jagare.init(repo.get_real_path())
-        if not ret:
-            db.session.rollback()
-            return None, error
+        if not parent:
+            ret, error = jagare.init(repo.get_real_path())
+            if not ret:
+                db.session.rollback()
+                return None, error
+        else:
+            ret, error = jagare.clone(repo.get_real_path(), parent.get_real_path())
+            if error:
+                db.session.rollback()
+                return None, error
+            parent.forks = Repos.forks + 1
+            db.session.add(parent)
         db.session.commit()
         clear_repo_cache(repo, organization, team)
+        if parent:
+            clear_repo_cache(parent, organization, team)
         clear_explore_cache(organization, repo.uid, team)
         clear_commiter_cache(user, repo)
         clear_watcher_cache(user, repo, organization, team)

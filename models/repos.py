@@ -23,7 +23,7 @@ class Repos(db.Model):
     create = db.Column(db.DateTime, default=datetime.now)
     update = db.Column(db.DateTime, default=datetime.now)
 
-    def __init__(self, name, path, oid, uid, tid=0, summary='', parent=0, commiters=0, watchers=0):
+    def __init__(self, name, path, oid, uid, tid=0, summary='', parent=None, commiters=0, watchers=0, default='master'):
         self.name = name
         self.path = path
         self.oid = oid
@@ -32,7 +32,8 @@ class Repos(db.Model):
         self.commiters = commiters
         self.watchers = watchers
         self.summary = summary
-        self.parent = parent
+        self.parent = parent.id if parent else 0
+        self.default = default
 
     def get_real_path(self):
         if not getattr(self, '_real_path', None):

@@ -19,7 +19,7 @@ class Gists(db.Model):
     create = db.Column(db.DateTime, default=datetime.now)
     update = db.Column(db.DateTime, default=datetime.now)
 
-    def __init__(self, summary, oid, uid, parent=0, watchers=0, private=None):
+    def __init__(self, summary, oid, uid, parent=None, watchers=0, private=None):
         self.oid = oid
         self.uid = uid
         self.watchers = watchers

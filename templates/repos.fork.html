@@ -1,0 +1,44 @@
+{% extends "organization.view.html" %}
+{% block subtitle %}Fork {{ repo.name }}{% endblock %}
+{% block add_js %}
+<style>
+.form-fork {
+  max-width: 500px;
+  -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+          border-radius: 5px;
+}
+.form-fork .form-fork-heading,
+.form-fork .checkbox {
+  margin-bottom: 10px;
+}
+.form-fork input[type="text"] {
+  font-size: 16px;
+  height: auto;
+  margin-bottom: 15px;
+  padding: 7px 9px;
+  width: 300px;
+}
+</style>
+{% endblock %}
+{% block subcontent %}
+<form class="form-fork" method="POST">
+    <h3 class="form-fork-heading">Fork {{ repo.name }}</h3>
+    {% if error %}
+    <div class="alert alert-error">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      {{ error }}
+    </div>
+    {% endif %}
+    <label class="text">
+        <p>Repo name</p>
+        <input name="name" value="{{ repo.name }}_{{ g.current_user.name }}"type="text" class="input-block-level" placeholder="Name">
+    </label>
+    <label class="text">
+        <p>Summary</p>
+        <input name="summary" value="{{ repo.summary }}" type="text" class="input-block-level" placeholder="Summary">
+    </label>
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <button class="btn btn-large btn-primary" type="submit">Submit</button>
+</form>
+{% endblock %}
