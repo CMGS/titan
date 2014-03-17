@@ -18,8 +18,6 @@ from libs.statics import static_files, \
 from libs.sessions import SessionMiddleware, \
     RedisSessionStore
 
-from werkzeug.wsgi import SharedDataMiddleware
-
 from flaskext.csrf import csrf
 from flask import Flask, request, g, render_template
 
@@ -59,9 +57,6 @@ app.wsgi_app = SessionMiddleware(
         cookie_httponly=False, \
         cookie_domain=config.COOKIE_DOMAIN, \
         environ_key=config.SESSION_ENVIRON_KEY)
-
-app.wsgi_app = SharedDataMiddleware(app.wsgi_app, \
-        {'/static': os.path.join(os.path.dirname(__file__), 'static')})
 
 @app.route('/')
 def index():

@@ -6,15 +6,26 @@ import time
 import logging
 import mimetypes
 
+import config
+
 logger = logging.getLogger()
 from gunicorn.app.base import Application
 
 from gzipper import GzipMiddelware
+from utils.helper import set_environ
 
-class SHEEPApplication(Application):
+from base import handler_factory
+
+titan_handlers=[
+    {'url': '/uploadfiles/(.*)', 'static_files': config.UPLOAD_DIR_PATH+'/\\1'},
+    {'url': '/static/(.*)', 'static_files': 'static/\\1'}, \
+    {'url': '/.*', 'wsgi_app': 'app:app'}, \
+]
+
+class TitanApp(Application):
     def __init__(self, usage=None, on_init=None):
         self.on_init = on_init
-        super(SHEEPApplication, self).__init__(usage=usage)
+        super(TitanApp, self).__init__(usage=usage)
 
     def init(self, parser, opts, args):
         if len(args) != 1:
@@ -30,22 +41,22 @@ class SHEEPApplication(Application):
         return app
 
 class WSGIApplication(object):
-    def __init__(self, appconf):
-        self.appconf = appconf
+    def __init__(self):
         self.handlers = None
 
     def __call__(self, environ, start_response):
+        set_environ(environ)
         path_info = environ['PATH_INFO'] or '/'
         if self.handlers is None:
             self.handlers = []
-            for h in self.appconf['handlers']:
+            for h in titan_handlers:
                 app_handler = handler_factory(h)
                 self.handlers.append(app_handler)
 
         for handler in self.handlers:
             m = handler.match(path_info)
             if m:
-                environ['sheep.matched'] = m
+                environ['titan.matched'] = m
                 return handler(environ, start_response)
 
         start_response('404 Not Found', [])
@@ -54,15 +65,12 @@ class WSGIApplication(object):
 class StaticFilesApplication(object):
     def __new__(cls, path_template):
         def call(self, environ, start_response):
-            from sheep.api.statics import static_files
             path = environ['PATH_INFO'] or '/'
             if not path.startswith('/'):
                 path = '/' + path
             start_response('301 Moved Permanently', \
-                        [('Location', static_files(path)), ])
+                        [('Location', path), ])
             return ''
-        if not is_sdk_env():
-            cls.__call__ = call
         obj = object.__new__(StaticFilesApplication, path_template)
         return obj
 
@@ -70,7 +78,7 @@ class StaticFilesApplication(object):
         self.path_template = path_template
 
     def __call__(self, environ, start_response):
-        m = environ['sheep.matched']
+        m = environ['titan.matched']
         path = m.expand(self.path_template)
         return StaticFileApplication(path)(environ, start_response)
 
@@ -96,7 +104,7 @@ class StaticFileApplication(object):
             return mtime > t
 
     def __call__(self, environ, start_response):
-        path = os.path.join(os.environ['SHEEP_APPROOT'], self.path)
+        path = os.path.join(os.environ['TITAN_APPROOT'], self.path)
         if os.path.isfile(path):
             mimetype = mimetypes.guess_type(path)[0] or 'text/plain'
             last_modified = self._generate_last_modified_string(path)

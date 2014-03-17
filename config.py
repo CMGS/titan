@@ -6,7 +6,7 @@ import yaml
 
 def init_config(config, local_config=None, reload=False):
     s = sys.modules[__name__]
-    if not reload and getattr(s, '__initiated__'):
+    if not reload and getattr(s, '__initiated__', None):
         return
     c = yaml.load(open(config, 'r'))
     if local_config and os.path.isfile(local_config):
