@@ -2,6 +2,7 @@
 #coding:utf-8
 
 import time
+import config
 import logging
 
 from libs.files import get_uploader, purge
@@ -203,7 +204,7 @@ class SetTeam(MethodView):
         return redirect(url_for('organization.setteam', git=organization.git, tname=team.name))
 
     def get_pic(self, organization, team, member, team_member, upload_avatar):
-        uploader = get_uploader()
+        uploader = get_uploader(path=config.UPLOAD_DIR_PATH)
         filename, stream, error = process_file(team, upload_avatar)
         if error:
             return self.render_template(

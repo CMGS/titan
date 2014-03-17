@@ -4,6 +4,7 @@
 import re
 import time
 import redis
+import common
 import config
 import inspect
 import logging
@@ -11,19 +12,12 @@ from functools import wraps
 
 from werkzeug.contrib import cache
 
-pool = redis.ConnectionPool(
-        host=config.REDIS_HOST, port=config.REDIS_PORT, \
-        db=config.REDIS_DB, password=config.REDIS_PASSWORD, \
-        max_connections=config.REDIS_POOL_SIZE)
+client = redis.Redis(connection_pool=common.cache_pool)
 
-client = redis.Redis(connection_pool=pool)
-
-backend = cache.RedisCache(host=client, \
-        default_timeout = config.CACHE_DEFAULT_TIMEOUT, \
-        key_prefix = 'titan:cache:')
-
-cross_cache = cache.RedisCache(host=client, \
-        default_timeout = config.CACHE_DEFAULT_TIMEOUT)
+backend = cache.RedisCache(
+        host=client, \
+        default_timeout=config.CACHE_DEFAULT_TIMEOUT, \
+        key_prefix=config.CACHE_PREFIX)
 
 ONE_HOUR = 3600
 ONE_DAY = 86400

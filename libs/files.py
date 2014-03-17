@@ -7,14 +7,13 @@ from shutil import copyfileobj
 
 logger = logging.getLogger(__name__)
 
-uploads_dir = os.path.join('permdir', '.uploads')
-
-if not os.path.exists(uploads_dir):
-        os.mkdir(uploads_dir)
-
 uploaders = {}
 def get_uploader(**kwargs):
     global uploaders
+    path = kwargs['path']
+    if not os.path.exists(path):
+        logger.info('create upload dir %s' % path)
+        os.mkdir(path)
     key = tuple(kwargs.values())
     uploader = uploaders.get(key, None)
     if not uploader:
@@ -23,12 +22,12 @@ def get_uploader(**kwargs):
     return uploader
 
 class LocalFileSystem(object):
-    def __init__(self):
-        self.prefix = uploads_dir
+    def __init__(self, path):
+        self.path = path
 
     def writeFile(self, path, data, auto = True, headers={}, metadata={}):
         try:
-            path = os.path.join(self.prefix, path)
+            path = os.path.join(self.path, path)
             dirs = os.path.dirname(path)
             if not os.path.exists(dirs):
                 os.makedirs(dirs)

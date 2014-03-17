@@ -6,7 +6,7 @@ __all__ = ['User', 'Forget']
 import hashlib
 from models import db
 from datetime import datetime
-from utils.helper import get_avatar
+from utils.avatar import get_avatar
 from utils.token import create_token
 
 class User(db.Model):

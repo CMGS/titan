@@ -11,10 +11,11 @@ from utils.local import reqcache
 import config
 from libs.code import render_diff
 from utils.jagare import get_jagare
+from utils.avatar import get_avatar
+from utils.helper import MethodView, Obj
 from utils.formatter import format_time
 from utils.account import login_required
 from utils.organization import member_required
-from utils.helper import MethodView, Obj, get_avatar
 from utils.repos import repo_required, get_branches, \
         render_commits_page, get_url, parse_raw_diff_patches
 

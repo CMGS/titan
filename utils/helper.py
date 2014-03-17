@@ -1,7 +1,6 @@
 #!/usr/local/bin/python2.7
 #coding:utf-8
 
-import config
 import hashlib
 import threading
 from flask import render_template
@@ -51,11 +50,6 @@ def get_hash(content, t='md5'):
         content = content.encode('utf8')
     m.update(content)
     return m.hexdigest()
-
-def get_avatar(email, size):
-    md5email = get_hash(email)
-    query = "%s?s=%s%s" % (md5email, size, config.GRAVATAR_EXTRA)
-    return '%s%s' % (config.GRAVATAR_BASE_URL, query)
 
 def generate_list_page(count, has_prev, has_next, page, pages):
     list_page = Obj()
