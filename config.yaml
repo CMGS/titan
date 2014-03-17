@@ -1,0 +1,89 @@
+DEBUG: true
+SECRET_KEY: 0xd9943!@$titan!#$%^
+
+# mysql
+DATABASE_URI: mysql://root:@localhost/titan
+
+# redis
+REDIS_HOST: 127.0.0.1
+REDIS_PORT: 6379
+REDIS_DB: 0
+REDIS_PASSWORD: ''
+REDIS_POOL_SIZE: 100
+
+# cookies
+COOKIE_MAX_AGE: 2592000
+COOKIE_DOMAIN: 127.0.0.1
+
+# sessions
+SESSION_KEY: tid
+SESSION_EXPIRE: 2592000
+SESSION_KEY_TEMPLE: session:%s
+SESSION_ENVIRON_KEY: titan.session
+SESSION_COOKIE_DOMAIN: 127.0.0.1
+SESSION_SALT: 0xd9943!@$%titan!#$%^
+
+# cache
+CACHE_DEFAULT_TIMEOUT: 300
+
+# upload files
+MAX_CONTENT_LENGTH: 3145728
+ALLOWED_EXTENSIONS:
+    - png
+    - jpg
+    - jpeg
+    - gif
+
+# token
+TOKEN_LENGTH: 6
+
+# mail
+SMTP_SERVER: 'smtp.qq.com'
+SMTP_USER: 'root'
+SMTP_PASSWORD: '123456'
+
+# stub
+VERIFY_STUB_EXPIRE: 1800
+FORGET_STUB_EXPIRE: 1800
+
+# gravatar
+GRAVATAR_BASE_URL: http://www.gravatar.com/avatar/
+GRAVATAR_EXTRA: ''
+
+# repos define
+PACKAGE_COST:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+
+REPOS_LIMIT:
+    1: 5,
+    2: 100,
+    3: 150,
+    4: 999,
+    5: 999,
+    6: 999,
+    7: 999,
+
+MEMBERS_LIMIT:
+    1: 5,
+    2: 30,
+    3: 60,
+    4: 100,
+    5: 150,
+    6: 200,
+    7: 999
+
+# ellen
+# ELLEN_NODES:
+#    - http://127.0.0.1:9000
+JAGARE_NODES:
+    - http://127.0.0.1:9000
+
+#TODO 因为现在还在本地测试，所以直接用文件路径
+#MARIA_STORE_PATH: /Users/CMGS/Documents/Workplace/experiment/Jagare/permdir/
+

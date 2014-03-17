@@ -3,6 +3,7 @@
 
 import config
 import hashlib
+import threading
 from flask import render_template
 from flask.views import MethodView as _
 
@@ -65,4 +66,17 @@ def generate_list_page(count, has_prev, has_next, page, pages):
     list_page.pages = pages
     list_page.iter_pages = xrange(1, pages + 1)
     return list_page
+
+local = None
+def get_local():
+    global local
+    if local is None:
+        local = threading.local()
+    return local
+
+def set_environ(environ):
+    get_local().environ = environ
+
+def get_environ():
+    return getattr(get_local(), 'environ', {})
 

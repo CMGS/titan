@@ -6,7 +6,7 @@ import logging
 import sqlalchemy.exc
 from utils import code
 from datetime import datetime
-from sheep.api.cache import cache, backend
+from utils.cache import cache, backend
 from utils.validators import check_members_limit
 
 from models import db

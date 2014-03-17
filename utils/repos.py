@@ -5,7 +5,7 @@ import os
 import re
 import logging
 from functools import wraps
-from sheep.api.local import reqcache
+from utils.local import reqcache
 from flask import g, abort, url_for, redirect
 
 import config

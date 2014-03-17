@@ -9,7 +9,7 @@ from utils import code
 from datetime import datetime
 
 from flask import g
-from sheep.api.cache import backend, cache
+from utils.cache import cache, backend
 from utils.validators import check_username
 
 from models import db

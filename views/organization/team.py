@@ -4,7 +4,7 @@
 import time
 import logging
 
-from sheep.api.files import get_uploader, purge
+from libs.files import get_uploader, purge
 from flask import g, request, redirect, url_for, abort
 
 from utils import code

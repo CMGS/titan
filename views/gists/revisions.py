@@ -5,7 +5,7 @@ import logging
 
 from flask import request, abort
 
-from sheep.api.local import reqcache
+from utils.local import reqcache
 
 import config
 from libs.code import render_diff

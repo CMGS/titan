@@ -1,7 +1,7 @@
 #!/usr/local/bin/python2.7
 #coding:utf-8
 
-from sheep.api.local import reqcache
+from utils.local import reqcache
 
 from query.repos import get_repo
 from query.gists import get_gist

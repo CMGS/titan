@@ -4,13 +4,12 @@
 import logging
 from functools import wraps
 from flask import abort, g, url_for
-from sheep.api.local import reqcache
+from utils.local import reqcache
 
 import config
 from utils.jagare import get_jagare
 from utils.repos import get_tree_with_content
 from utils.helper import Obj, generate_list_page
-from utils.formatter import format_time, format_content
 
 from query.gists import get_gist, get_gist_by_private
 

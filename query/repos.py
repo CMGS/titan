@@ -4,7 +4,7 @@
 import logging
 import datetime
 import sqlalchemy.exc
-from sheep.api.cache import cache, backend
+from utils.cache import cache, backend
 
 from models import db
 from models.organization import Organization, Team
