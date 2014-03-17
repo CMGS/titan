@@ -3,5 +3,5 @@ venv
 *.swp
 dev.yaml
 syncdb_dumps.bak
-local_config.py
+local_config.yaml
 test.py
