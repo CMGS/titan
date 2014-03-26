@@ -96,11 +96,9 @@ MEMBERS_LIMIT:
 COMMITS_PER_PAGE: 10
 REVISIONS_PER_PAGE: 5
 
-# ellen
-# ELLEN_NODES:
-#    - http://127.0.0.1:9000
+# JAGARE NODES:
 JAGARE_NODES:
-    - http://127.0.0.1:9000
+    - http://127.0.0.1:8000
 
 #TODO 因为现在还在本地测试，所以直接用文件路径
 #MARIA_STORE_PATH: /Users/CMGS/Documents/Workplace/experiment/Jagare/permdir/
