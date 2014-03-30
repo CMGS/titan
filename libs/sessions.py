@@ -10,7 +10,7 @@ try:
 except ImportError:
     from sha import new as sha1
 
-from libs.redis import Redis
+from redis import Redis
 from werkzeug.contrib import sessions
 from werkzeug.contrib.sessions import SessionStore
 from werkzeug.wsgi import ClosingIterator
