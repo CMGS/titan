@@ -39,6 +39,7 @@ def send_verify_mail(email, url):
 
 def account_login(user):
     g.session['user_id'] = user.id
+    g.session['user_name'] = user.name
     g.session['user_token'] = user.token
 
 def account_logout():
